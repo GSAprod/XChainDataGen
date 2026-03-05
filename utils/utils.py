@@ -5,6 +5,7 @@ import os
 import sys
 from datetime import datetime
 from enum import Enum
+from dotenv import load_dotenv
 
 import base58
 import requests
@@ -40,19 +41,39 @@ def load_solana_api_key() -> str:
         raise ValueError("SOLANA_API_KEY environment variable not set.")
     return key
 
-
-def get_block_by_timestamp(timestamp: int, blockchain: str) -> int:
-    chain_id = get_blockchain_evm_id(blockchain)
-
-    url = f"https://api.findblock.xyz/v1/chain/{chain_id}/block/before/{timestamp}"
-    response = requests.get(url)
+def get_block_by_timestamp_explorer(url_template: str, result_key: str) -> int:
+    response = requests.get(url_template)
 
     if response.status_code == 200:
         data = response.json()
-        return data["number"]
+        return int(data[result_key])
     else:
-        raise Exception(f"Error fetching {blockchain} block with timestamp {timestamp}.")
+        raise Exception(f"Error fetching block with timestamp from {url_template}.")
 
+def get_block_by_timestamp(timestamp: int, blockchain: str, fallback_f: callable) -> int:
+    chain_id = get_blockchain_evm_id(blockchain)
+
+    #! WARNING: An etherscan API key is required for this function to work. 
+    #! Make sure to set the ETHERSCAN_API_KEY environment variable in the .env file.
+    load_dotenv()
+    etherscan_api_key = os.getenv("ETHERSCAN_API_KEY")
+
+    services = [
+        { "url": f"https://api.findblock.xyz/v1/chain/{chain_id}/block/before/{timestamp}", "result_key": "number" },
+        { "url": f"https://api.etherscan.io/v2/api?chainid={chain_id}&module=block&action=getblocknobytime&timestamp={timestamp}&closest=before&apikey={etherscan_api_key}", "result_key": "result" },
+        { "url": f"https://coins.llama.fi/block/{blockchain}/{timestamp}", "result_key": "height" }
+    ]
+
+    for service in services:
+        try:
+            return get_block_by_timestamp_explorer(service["url"], service["result_key"])
+        except Exception as _:
+            # Try the next service if the current one fails
+            pass
+
+    # If all services fail, call the fallback function (e.g., binary search using RPC)
+    return fallback_f(timestamp)
+    
 
 def get_blockchain_evm_id(blockchain: str) -> str:
     for chain_id in BLOCKCHAIN_IDS:
