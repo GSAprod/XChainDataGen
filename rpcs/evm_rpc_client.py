@@ -10,6 +10,15 @@ class EvmRPCClient(RPCClient):
     def __init__(self, bridge, config_file: str = RPCS_CONFIG_FILE):
         super().__init__(bridge, config_file)
 
+    def get_current_block_number(self, blockchain: str) -> int:
+        method = "eth_blockNumber"
+        params = []
+
+        rpc = self.get_next_rpc(blockchain)
+        response = self.make_request(rpc, blockchain, method, params)
+
+        return int(response["result"], 16) if response else None
+
     def get_logs_emitted_by_contract(
         self,
         blockchain: str,
@@ -121,3 +130,76 @@ class EvmRPCClient(RPCClient):
         response = self.make_request(rpc, blockchain, method, params)
 
         return response["result"] if response else {}
+    
+    def search_block_by_timestamp(self, blockchain: str, timestamp: int) -> int:
+        """
+        This function performs a binary search to find the block number corresponding to a given timestamp.
+        It starts by getting the latest block and the block from 2000 blocks ago to calculate
+        the average block time, and then iteratively narrows down the search 
+        until it finds a block with a timestamp close to the target timestamp.
+        """
+
+        # Define a tolerance level (in seconds) for how close the block timestamp should be to the target timestamp
+        # Smaller tolerances means less requests in the final iterative phase, but are more likely to
+        # cause infinite loops during binary search
+        tolerance = 60  # 1 minute tolerance
+        
+        # Step 1: Get the latest block number (x) and its timestamp
+        current_block_number = self.get_current_block_number(blockchain)
+        current_block = self.get_block(blockchain, hex(current_block_number))
+        current_block_timestamp = int(current_block["timestamp"], 16)
+        if current_block_timestamp < timestamp:
+            raise Exception(f"Error: Target timestamp {timestamp} is in the future compared to the latest block timestamp {current_block_timestamp}.")
+
+        # Step 2: Get the timestamp of the block (x - 2000) and calculate the average block time
+        block_2000 = self.get_block(blockchain, hex(current_block_number - 2000))
+        block_2000_timestamp = int(block_2000["timestamp"], 16)
+        average_block_throughput = 2000 / (current_block_timestamp - block_2000_timestamp)
+
+        last_used_number = current_block_number
+        last_used_timestamp = current_block_timestamp
+        last_estimated_number = current_block_number - 2000
+        last_estimated_timestamp = block_2000_timestamp
+
+        # Step 3: Perform a binary search to find the block number with a timestamp close to the target timestamp
+        while abs(last_estimated_timestamp - timestamp) > tolerance:
+            # Recalculate average block throughput if needed
+            if abs(last_used_timestamp - last_estimated_timestamp) > tolerance:
+                average_block_throughput = abs(last_used_number - last_estimated_number) / abs(last_used_timestamp - last_estimated_timestamp)
+                
+            last_used_number = last_estimated_number
+            last_used_timestamp = last_estimated_timestamp
+
+            # Get new estimated block number
+            last_estimated_number = last_used_number + int((timestamp - last_used_timestamp) * average_block_throughput)
+            if last_estimated_number < 1:
+                last_estimated_number = 1
+            elif last_estimated_number > current_block_number:
+                last_estimated_number = current_block_number
+            last_estimated_block = self.get_block(blockchain, hex(last_estimated_number))
+            last_estimated_timestamp = int(last_estimated_block["timestamp"], 16)
+            print(f"Binary search: Estimated block: {last_estimated_number}, timestamp: {last_estimated_timestamp}, target timestamp: {timestamp}")
+
+        # Step 4: Adjust the estimated block number based on the timestamp comparison
+        if last_estimated_timestamp < timestamp:
+            while last_estimated_timestamp < timestamp:
+                last_estimated_number += 1
+                last_estimated_block = self.get_block(blockchain, hex(last_estimated_number))
+                last_estimated_timestamp = int(last_estimated_block["timestamp"], 16)
+                print(f"Iterative search: Estimated block: {last_estimated_number}, timestamp: {last_estimated_timestamp}, target timestamp: {timestamp}")
+
+            # Result is the block before the target timestamp
+            last_estimated_number -= 1
+
+        elif last_estimated_timestamp > timestamp:
+            while last_estimated_timestamp > timestamp and last_estimated_number > 1:
+                last_estimated_number -= 1
+                last_estimated_block = self.get_block(blockchain, hex(last_estimated_number))
+                last_estimated_timestamp = int(last_estimated_block["timestamp"], 16)
+                print(f"Iterative search: Estimated block: {last_estimated_number}, timestamp: {last_estimated_timestamp}, target timestamp: {timestamp}")
+
+
+        # Result is the block before the target timestamp
+
+        print(f"Result: Estimated block: {last_estimated_number}, timestamp: {last_estimated_timestamp}, target timestamp: {timestamp}")
+        return last_estimated_number
