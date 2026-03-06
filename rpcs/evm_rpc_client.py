@@ -129,12 +129,6 @@ class EvmRPCClient(RPCClient):
         the average block time, and then iteratively narrows down the search 
         until it finds a block with a timestamp close to the target timestamp.
         """
-
-        # Define a tolerance level (in seconds) for how close the block timestamp should be to the target timestamp
-        # Smaller tolerances means less requests in the final iterative phase, but are more likely to
-        # cause infinite loops during binary search
-        tolerance = 60  # 1 minute tolerance
-        
         # Step 1: Get the latest block number (x) and its timestamp
         current_block = self.get_block(blockchain, full_transactions=False)
         current_block_number = int(current_block["number"], 16)
@@ -145,7 +139,12 @@ class EvmRPCClient(RPCClient):
         # Step 2: Get the timestamp of the block (x - 2000) and calculate the average block time
         block_2000 = self.get_block(blockchain, hex(current_block_number - 2000), full_transactions=False)
         block_2000_timestamp = int(block_2000["timestamp"], 16)
-        average_block_throughput = 2000 / (current_block_timestamp - block_2000_timestamp)
+        average_block_time = (current_block_timestamp - block_2000_timestamp) / 2000
+
+        # Define a tolerance level for how close the block timestamp should be to the target timestamp
+        # Smaller tolerances means less requests in the final iterative phase, but are more likely to
+        # cause infinite loops during binary search
+        tolerance = average_block_time * 2 # Double the rate value to avoid infinite loops during binary search
 
         last_used_number = current_block_number
         last_used_timestamp = current_block_timestamp
@@ -154,22 +153,23 @@ class EvmRPCClient(RPCClient):
 
         # Step 3: Perform a binary search to find the block number with a timestamp close to the target timestamp
         while abs(last_estimated_timestamp - timestamp) > tolerance:
-            # Recalculate average block throughput if needed
+            # Recalculate average block time if needed
             if abs(last_used_timestamp - last_estimated_timestamp) > tolerance:
-                average_block_throughput = abs(last_used_number - last_estimated_number) / abs(last_used_timestamp - last_estimated_timestamp)
+                average_block_time = abs(last_used_timestamp - last_estimated_timestamp) / abs(last_used_number - last_estimated_number)
+                tolerance = average_block_time * 2 # Double the rate value to avoid infinite loops during binary search
                 
             last_used_number = last_estimated_number
             last_used_timestamp = last_estimated_timestamp
 
             # Get new estimated block number
-            last_estimated_number = last_used_number + int((timestamp - last_used_timestamp) * average_block_throughput)
+            last_estimated_number = last_used_number + int((timestamp - last_used_timestamp) / average_block_time)
             if last_estimated_number < 1:
                 last_estimated_number = 1
             elif last_estimated_number > current_block_number:
                 last_estimated_number = current_block_number
             last_estimated_block = self.get_block(blockchain, hex(last_estimated_number), full_transactions=False)
             last_estimated_timestamp = int(last_estimated_block["timestamp"], 16)
-            print(f"Binary search: Estimated block: {last_estimated_number}, timestamp: {last_estimated_timestamp}, target timestamp: {timestamp}")
+            print(f"Binary search: Estimated block: {last_estimated_number}, timestamp: {last_estimated_timestamp}, target timestamp: {timestamp} (distance: {abs(last_estimated_timestamp - timestamp)}")
 
         # Step 4: Adjust the estimated block number based on the timestamp comparison
         if last_estimated_timestamp < timestamp:
@@ -193,4 +193,5 @@ class EvmRPCClient(RPCClient):
         # Result is the block before the target timestamp
 
         print(f"Result: Estimated block: {last_estimated_number}, timestamp: {last_estimated_timestamp}, target timestamp: {timestamp}")
+        exit(0)
         return last_estimated_number
