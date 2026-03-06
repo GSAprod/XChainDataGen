@@ -200,9 +200,3 @@ class EvmExtractor(Extractor):
                     ),
                     CliColor.SUCCESS,
                 )
-
-    def load_start_block(self, start_ts: int) -> int:
-        return self.rpc_client.search_block_by_timestamp(self.blockchain, int(start_ts))
-
-    def load_end_block(self, end_ts: int) -> int:
-        return self.rpc_client.search_block_by_timestamp(self.blockchain, int(end_ts))

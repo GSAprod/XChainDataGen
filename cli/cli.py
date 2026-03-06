@@ -78,8 +78,8 @@ class Cli:
                 )
             )
             extractor = EvmExtractor(bridge, blockchain, blockchains)
-            start_block = get_block_by_timestamp(int(start_ts), blockchain, extractor.load_start_block)
-            end_block = get_block_by_timestamp(int(end_ts), blockchain, extractor.load_end_block)
+            start_block = get_block_by_timestamp(int(start_ts), blockchain, extractor.rpc_client.get_block)
+            end_block = get_block_by_timestamp(int(end_ts), blockchain, extractor.rpc_client.get_block)
 
         except Exception as e:
             log_to_cli(
