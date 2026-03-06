@@ -64,12 +64,12 @@ def get_block_by_timestamp(timestamp: int, blockchain: str, rpc_get_block: calla
         { "url": f"https://coins.llama.fi/block/{blockchain}/{timestamp}", "result_key": "height" }
     ]
 
-    # for service in services:
-    #     try:
-    #         return get_block_by_timestamp_explorer(service["url"], service["result_key"])
-    #     except Exception as _:
-    #         # Try the next service if the current one fails
-    #         pass
+    for service in services:
+        try:
+            return get_block_by_timestamp_explorer(service["url"], service["result_key"])
+        except Exception as _:
+            # Try the next service if the current one fails
+            pass
 
     # If all services fail, call the fallback function (e.g., binary search using RPC)
     return search_block_by_timestamp(timestamp, blockchain, rpc_get_block)
