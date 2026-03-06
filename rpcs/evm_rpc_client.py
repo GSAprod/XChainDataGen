@@ -10,15 +10,6 @@ class EvmRPCClient(RPCClient):
     def __init__(self, bridge, config_file: str = RPCS_CONFIG_FILE):
         super().__init__(bridge, config_file)
 
-    def get_current_block_number(self, blockchain: str) -> int:
-        method = "eth_blockNumber"
-        params = []
-
-        rpc = self.get_next_rpc(blockchain)
-        response = self.make_request(rpc, blockchain, method, params)
-
-        return int(response["result"], 16) if response else None
-
     def get_logs_emitted_by_contract(
         self,
         blockchain: str,
@@ -122,9 +113,9 @@ class EvmRPCClient(RPCClient):
 
         return response["result"] if response else {}
 
-    def get_block(self, blockchain: str, block_number: str) -> dict:
+    def get_block(self, blockchain: str, block_number: str = "latest", full_transactions: bool = True) -> dict:
         method = "eth_getBlockByNumber"
-        params = [block_number, True]
+        params = [block_number, full_transactions]
 
         rpc = self.get_next_rpc(blockchain)
         response = self.make_request(rpc, blockchain, method, params)
@@ -145,14 +136,14 @@ class EvmRPCClient(RPCClient):
         tolerance = 60  # 1 minute tolerance
         
         # Step 1: Get the latest block number (x) and its timestamp
-        current_block_number = self.get_current_block_number(blockchain)
-        current_block = self.get_block(blockchain, hex(current_block_number))
+        current_block = self.get_block(blockchain, full_transactions=False)
+        current_block_number = int(current_block["number"], 16)
         current_block_timestamp = int(current_block["timestamp"], 16)
         if current_block_timestamp < timestamp:
             raise Exception(f"Error: Target timestamp {timestamp} is in the future compared to the latest block timestamp {current_block_timestamp}.")
 
         # Step 2: Get the timestamp of the block (x - 2000) and calculate the average block time
-        block_2000 = self.get_block(blockchain, hex(current_block_number - 2000))
+        block_2000 = self.get_block(blockchain, hex(current_block_number - 2000), full_transactions=False)
         block_2000_timestamp = int(block_2000["timestamp"], 16)
         average_block_throughput = 2000 / (current_block_timestamp - block_2000_timestamp)
 
@@ -176,7 +167,7 @@ class EvmRPCClient(RPCClient):
                 last_estimated_number = 1
             elif last_estimated_number > current_block_number:
                 last_estimated_number = current_block_number
-            last_estimated_block = self.get_block(blockchain, hex(last_estimated_number))
+            last_estimated_block = self.get_block(blockchain, hex(last_estimated_number), full_transactions=False)
             last_estimated_timestamp = int(last_estimated_block["timestamp"], 16)
             print(f"Binary search: Estimated block: {last_estimated_number}, timestamp: {last_estimated_timestamp}, target timestamp: {timestamp}")
 
@@ -184,7 +175,7 @@ class EvmRPCClient(RPCClient):
         if last_estimated_timestamp < timestamp:
             while last_estimated_timestamp < timestamp:
                 last_estimated_number += 1
-                last_estimated_block = self.get_block(blockchain, hex(last_estimated_number))
+                last_estimated_block = self.get_block(blockchain, hex(last_estimated_number), full_transactions=False)
                 last_estimated_timestamp = int(last_estimated_block["timestamp"], 16)
                 print(f"Iterative search: Estimated block: {last_estimated_number}, timestamp: {last_estimated_timestamp}, target timestamp: {timestamp}")
 
@@ -194,7 +185,7 @@ class EvmRPCClient(RPCClient):
         elif last_estimated_timestamp > timestamp:
             while last_estimated_timestamp > timestamp and last_estimated_number > 1:
                 last_estimated_number -= 1
-                last_estimated_block = self.get_block(blockchain, hex(last_estimated_number))
+                last_estimated_block = self.get_block(blockchain, hex(last_estimated_number), full_transactions=False)
                 last_estimated_timestamp = int(last_estimated_block["timestamp"], 16)
                 print(f"Iterative search: Estimated block: {last_estimated_number}, timestamp: {last_estimated_timestamp}, target timestamp: {timestamp}")
 
