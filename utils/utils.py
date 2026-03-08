@@ -11,6 +11,8 @@ import base58
 import requests
 from hexbytes import HexBytes
 
+import signal
+
 from config.constants import BLOCKCHAIN_IDS, TOKEN_PRICING_SUPPORTED_BLOCKCHAINS, Bridge
 
 
@@ -321,3 +323,18 @@ def load_abi(root_dir: str, bridge: Bridge, blockchain, contract_addr: str):
 class CustomException(Exception):
     def __init__(self, classname: str, func_name: str, message: str):
         super().__init__(f"(Class: {classname}) {func_name}: {message}")
+
+class GracefulStop:
+    """
+    A class to signal threads to stop gracefully.
+    """
+    def __init__(self):
+        self.stop = False
+
+    def _handle_signal(self, signum, frame) -> None:
+        print("\nStopping realtime execution gracefully...")
+        self.stop = True
+
+    def install(self) -> None:
+        signal.signal(signal.SIGINT, self._handle_signal)   # Ctrl-C
+        signal.signal(signal.SIGTERM, self._handle_signal)  # kill / docker stop

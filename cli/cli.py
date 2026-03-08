@@ -21,6 +21,13 @@ class Cli:
     CLASS_NAME = "Cli"
 
     def extract_data(args):
+
+        # prevent realtime execution for now
+        if args.realtime:
+            print("\n########################################################################################\n\
+                  realtime execution is not supported yet. Please provide start_ts and end_ts for extraction\
+                  \n########################################################################################")
+            exit(0)
         blockchains = args.blockchains
 
         bridge = get_enum_instance(Bridge, args.bridge)
@@ -53,10 +60,11 @@ class Cli:
                     blockchain,
                     args.start_ts,
                     args.end_ts,
+                    args.realtime,
                     blockchains,
                 )
 
-    def extract_evm_data(idx, bridge, blockchain, start_ts, end_ts, blockchains):
+    def extract_evm_data(idx, bridge, blockchain, start_ts, end_ts, realtime, blockchains):
         log_to_cli(
             build_log_message_2(
                 start_ts,
@@ -78,8 +86,12 @@ class Cli:
                 )
             )
             extractor = EvmExtractor(bridge, blockchain, blockchains)
-            start_block = get_block_by_timestamp(int(start_ts), blockchain, extractor.rpc_client.get_block)
-            end_block = get_block_by_timestamp(int(end_ts), blockchain, extractor.rpc_client.get_block)
+
+            if realtime:
+                pass
+            else:
+                start_block = get_block_by_timestamp(int(start_ts), blockchain, extractor.rpc_client.get_block)
+                end_block = get_block_by_timestamp(int(end_ts), blockchain, extractor.rpc_client.get_block)
 
         except Exception as e:
             log_to_cli(
@@ -130,10 +142,14 @@ class Cli:
             required=True,
             help="Name of the bridge to analyze",
         )
-        extract_parser.add_argument(
-            "--start_ts", required=True, help="Start timestamp for extraction"
-        )
-        extract_parser.add_argument("--end_ts", required=True, help="End timestamp for extraction")
+        
+        # mutually exclusive group (either --realtime or --start_ts/--end_ts)
+        window_group = extract_parser.add_mutually_exclusive_group(required=False)
+        window_group.add_argument("--realtime", action="store_true", help="Run extraction in realtime mode starting with the latest safe block")
+
+        extract_parser.add_argument("--start_ts", help="Start timestamp for extraction")
+        extract_parser.add_argument("--end_ts", help="End timestamp for extraction")
+        
         extract_parser.add_argument(
             "--blockchains",
             choices=[
@@ -179,7 +195,19 @@ class Cli:
                             "Must be program:start_signature:end_signature"
                         )
 
-        extract_parser.set_defaults(validate_solana_args=validate_solana_args)
+        def validate_extract_args(args):
+            if args.realtime:
+                if args.start_ts or args.end_ts:
+                    extract_parser.error("--realtime cannot be used with --start_ts/--end_ts.")
+            else:
+                if not args.start_ts or not args.end_ts:
+                    extract_parser.error("--start_ts and --end_ts are required unless --realtime is used.")
+
+        def validate_all_args(args):
+            validate_extract_args(args)
+            validate_solana_args(args)
+
+        extract_parser.set_defaults(validate_all_args=validate_all_args)
 
         extract_parser.set_defaults(func=Cli.extract_data)
 
@@ -197,6 +225,8 @@ class Cli:
 
         args = parser.parse_args()
         if args.action:
+            if hasattr(args, "validate_all_args"):
+                args.validate_all_args(args)
             args.func(args)
         else:
             parser.print_help()

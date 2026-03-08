@@ -48,7 +48,7 @@ class Extractor(ABC):
         worker(self):
             Worker function for threads to process block ranges from the task queue.
 
-        extract_data(self, start_block: int, end_block: int, blockchains: list):
+        extract_data(self, realtime: bool = False, start_block: int = None, end_block: int = None):
             Main extraction logic that validates contracts, divides block ranges, launches worker
             threads, and coordinates the extraction process.
     """
@@ -98,7 +98,7 @@ class Extractor(ABC):
         pass
 
     @abstractmethod
-    def extract_data(self, start_block: int, end_block: int):
+    def extract_data(self, realtime: bool = False, start_block: int = None, end_block: int = None):
         """Main extraction logic."""
         pass
 

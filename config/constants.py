@@ -124,3 +124,17 @@ BRIDGE_NEEDS_TRANSACTION_BY_HASH_RPC_METHOD = {
 RPCS_CONFIG_FILE = "config/rpcs_config.yaml"
 
 MAX_NUM_THREADS_EXTRACTOR = 10
+
+BRIDGE_BLOCK_CONFIRMATIONS = { # 12 for all for now (PORQUE SIM)
+    "ethereum": 12,
+    "polygon": 12, # 128,
+    "arbitrum": 12, # 20,
+    "optimism": 12, # 20,
+    "base": 12, # 20,
+    "avalanche": 12, # 10,
+    "bsc": 12, # 15,
+    "scroll": 12, # 20,
+    "linea": 12, # 20,
+    "gnosis": 12, # 5,
+    "ronin": 12, # 15,
+}

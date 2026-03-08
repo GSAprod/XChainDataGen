@@ -131,13 +131,16 @@ class EvmExtractor(Extractor):
                         )
                         log_error(self.bridge, request_desc)
 
-    def extract_data(self, start_block: int, end_block: int):
+    def extract_data(self, realtime: bool = False, start_block: int = None, end_block: int = None):
         """Main extraction logic."""
 
         # load the bridge contract addresses and topics from the configuration file
         bridge_blockchain_pairs = self.handler.get_bridge_contracts_and_topics(
             self.bridge, self.blockchain
         )
+
+        #try:
+        #    while True:
 
         for pair in bridge_blockchain_pairs:
             for contract in pair["contracts"]:
@@ -200,3 +203,6 @@ class EvmExtractor(Extractor):
                     ),
                     CliColor.SUCCESS,
                 )
+        #except KeyboardInterrupt:
+        #    log_to_cli("Extraction interrupted by user. Shutting down...", CliColor.WARNING)
+
