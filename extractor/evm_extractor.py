@@ -1,7 +1,7 @@
 import threading
 import time
 
-from config.constants import Bridge
+from config.constants import Bridge, BRIDGE_BLOCK_CONFIRMATIONS
 from extractor.decoder import BridgeDecoder
 from extractor.extractor import Extractor
 from rpcs.evm_rpc_client import EvmRPCClient
@@ -139,70 +139,102 @@ class EvmExtractor(Extractor):
             self.bridge, self.blockchain
         )
 
-        #try:
-        #    while True:
+        try:
+            # assuming either realtime=True and end_block is None, or realtime=False and start_block and end_block are not None
+            if realtime and start_block is None:
+                start_block = self.get_latest_safe_block()
 
-        for pair in bridge_blockchain_pairs:
-            for contract in pair["contracts"]:
-                threads = []
+            while True:
+                if realtime:
+                    end_block = self.get_latest_safe_block()
+                    if start_block > end_block: # no new safe blocks
+                        time.sleep(1)
+                        continue
 
-                start_time = time.time()
-                topics = pair["topics"]
+                for pair in bridge_blockchain_pairs:
+                    for contract in pair["contracts"]:
+                        threads = []
 
-                num_threads = self.rpc_client.max_threads_per_blockchain(self.blockchain) * 2
+                        start_time = time.time()
+                        topics = pair["topics"]
 
-                chunk_size = max(
-                    1, min((end_block - start_block + num_threads - 1) // num_threads, 1000)
-                )
+                        total_blocks = end_block - start_block + 1
+                        if total_blocks == 1:
+                            block_ranges = [(start_block, start_block + 1)]
+                            num_threads = 1
+                        else:
+                            num_threads = min(
+                                self.rpc_client.max_threads_per_blockchain(self.blockchain) * 2,
+                                total_blocks,
+                            )
 
-                block_ranges = self.divide_range(start_block, end_block - 1, chunk_size)
+                            chunk_size = max(
+                                1, min((total_blocks + num_threads - 1) // num_threads, 1000)
+                            )
 
-                # Populate the task queue
-                for start, end in block_ranges:
-                    self.task_queue.put((contract, topics, start, end))
+                            block_ranges = self.divide_range(
+                                start_block,
+                                end_block - 1,
+                                chunk_size,
+                            )
 
-                # Create and start threads
-                log_to_cli(
-                    build_log_message(
-                        start_block,
-                        end_block,
-                        contract,
-                        self.bridge,
-                        self.blockchain,
-                        (
-                            f"Launching {num_threads} threads to process {len(block_ranges)} block "
-                            f"ranges...",
-                        ),
-                    )
-                )
-                for i in range(num_threads):
-                    thread = threading.Thread(target=self.worker, name=f"thread_id_{i}")
-                    thread.start()
-                    threads.append(thread)
+                        # Populate the task queue
+                        for start, end in block_ranges:
+                            self.task_queue.put((contract, topics, start, end))
 
-                # Wait for all threads to complete
-                self.task_queue.join()
-                for thread in threads:
-                    thread.join()
+                        # Create and start threads
+                        worker_count = min(num_threads, len(block_ranges))
+                        log_to_cli(
+                            build_log_message(
+                                start_block,
+                                end_block,
+                                contract,
+                                self.bridge,
+                                self.blockchain,
+                                (
+                                    f"Launching {worker_count} threads to process {len(block_ranges)} block "
+                                    f"ranges...",
+                                ),
+                            )
+                        )
+                        for i in range(worker_count):
+                            thread = threading.Thread(target=self.worker, name=f"thread_id_{i}")
+                            thread.start()
+                            threads.append(thread)
 
-                threads.clear()
+                        # Wait for all threads to complete
+                        self.task_queue.join()
+                        for thread in threads:
+                            thread.join()
 
-                end_time = time.time()
+                        threads.clear()
 
-                log_to_cli(
-                    build_log_message(
-                        start_block,
-                        end_block,
-                        contract,
-                        self.bridge,
-                        self.blockchain,
-                        (
-                            f"Finished processing logs and transactions. Time taken: "
-                            f"{end_time - start_time} seconds.",
-                        ),
-                    ),
-                    CliColor.SUCCESS,
-                )
-        #except KeyboardInterrupt:
-        #    log_to_cli("Extraction interrupted by user. Shutting down...", CliColor.WARNING)
+                        end_time = time.time()
 
+                        log_to_cli(
+                            build_log_message(
+                                start_block,
+                                end_block,
+                                contract,
+                                self.bridge,
+                                self.blockchain,
+                                (
+                                    f"Finished processing logs and transactions. Time taken: "
+                                    f"{end_time - start_time} seconds.",
+                                ),
+                            ),
+                            CliColor.SUCCESS,
+                        )
+                    
+                if not realtime:
+                    break
+
+                start_block = end_block + 1
+
+        except KeyboardInterrupt:
+            log_to_cli("Extraction interrupted by user. Shutting down...", CliColor.SUCCESS)
+
+    def get_latest_safe_block(self) -> int:
+        latest_block_number = self.rpc_client.get_latest_block_number(self.blockchain)
+        confirmations = BRIDGE_BLOCK_CONFIRMATIONS.get(self.blockchain, 0)
+        return max(0, latest_block_number - confirmations)

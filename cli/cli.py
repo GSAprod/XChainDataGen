@@ -1,4 +1,5 @@
 import argparse
+import threading
 
 from config.constants import Bridge
 from extractor.evm_extractor import EvmExtractor
@@ -28,41 +29,62 @@ class Cli:
                   realtime execution is not supported yet. Please provide start_ts and end_ts for extraction\
                   \n########################################################################################")
             exit(0)
+
+
         blockchains = args.blockchains
 
         bridge = get_enum_instance(Bridge, args.bridge)
 
         Cli.load_db_models(bridge)
 
-        for idx, blockchain in enumerate(blockchains):
-            generate_rpc_configs(blockchain)
+        if args.realtime:
+            threads = []
 
-            if blockchain == "solana":
-                solana_ranges = {}
-                for item in args.solana_range:
-                    program, start_sig, end_sig = item.split(":")
-                    solana_ranges[program] = {
-                        "start_signature": start_sig,
-                        "end_signature": end_sig,
-                    }
+            for idx, blockchain in enumerate(blockchains):
+                thread = threading.Thread(
+                    target=Cli.run_extraction,
+                    args=(idx, blockchain, bridge, args, blockchains),
+                    name=f"extractor_{blockchain}"
+                )
+                threads.append(thread)
+                thread.start()
+            
+            for thread in threads:
+                thread.join()
+        else:
+            for idx, blockchain in enumerate(blockchains):
+                Cli.run_extraction(idx, blockchain, bridge, args, blockchains)
+            
 
-                Cli.extract_solana_data(
-                    idx,
-                    bridge,
-                    blockchain,
-                    solana_ranges,
-                    blockchains,
-                )
-            else:
-                Cli.extract_evm_data(
-                    idx,
-                    bridge,
-                    blockchain,
-                    args.start_ts,
-                    args.end_ts,
-                    args.realtime,
-                    blockchains,
-                )
+    def run_extraction(idx, blockchain, bridge, args, blockchains):
+        generate_rpc_configs(blockchain)
+
+        if blockchain == "solana":
+            solana_ranges = {}
+            for item in args.solana_range:
+                program, start_sig, end_sig = item.split(":")
+                solana_ranges[program] = {
+                    "start_signature": start_sig,
+                    "end_signature": end_sig,
+                }
+
+            Cli.extract_solana_data(
+                idx,
+                bridge,
+                blockchain,
+                solana_ranges,
+                blockchains,
+            )
+        else:
+            Cli.extract_evm_data(
+                idx,
+                bridge,
+                blockchain,
+                args.start_ts,
+                args.end_ts,
+                args.realtime,
+                blockchains,
+            )
 
     def extract_evm_data(idx, bridge, blockchain, start_ts, end_ts, realtime, blockchains):
         log_to_cli(
@@ -111,7 +133,7 @@ class Cli:
             end_block,
         )
 
-        if idx == len(blockchains) - 1:
+        if not realtime and idx == len(blockchains) - 1:
             extractor.post_processing()
 
     def extract_solana_data(idx, bridge, blockchain, signature_ranges, blockchains):
@@ -197,8 +219,8 @@ class Cli:
 
         def validate_extract_args(args):
             if args.realtime:
-                if args.start_ts or args.end_ts:
-                    extract_parser.error("--realtime cannot be used with --start_ts/--end_ts.")
+                if args.end_ts:
+                    extract_parser.error("--realtime cannot be used with --end_ts.")
             else:
                 if not args.start_ts or not args.end_ts:
                     extract_parser.error("--start_ts and --end_ts are required unless --realtime is used.")
