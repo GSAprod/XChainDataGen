@@ -17,18 +17,25 @@ from utils.utils import (
 class EvmExtractor(Extractor):
     CLASS_NAME = "EvmExtractor"
 
-    def __init__(self, bridge: Bridge, blockchain: str, blockchains: list):
+    def __init__(self, bridge: Bridge, blockchain: str, blockchains: list, graceful_stop = None):
         self.rpc_client = EvmRPCClient(bridge)
         # fetch a random rpc to initialize the decoder for the bridge
         self.decoder = BridgeDecoder(bridge, self.rpc_client.get_random_rpc(blockchain))
+        self.graceful_stop = graceful_stop
 
         super().__init__(bridge, blockchain, blockchains)
 
     def worker(self):
         """Worker function for threads to process block ranges."""
         while not self.task_queue.empty():
+            task = None
             try:
-                contract, topics, start_block, end_block = self.task_queue.get()
+                task = self.task_queue.get()
+                contract, topics, start_block, end_block = task
+
+                if self.graceful_stop is not None and self.graceful_stop.is_set():
+                    self.task_queue.task_done()
+                    break
 
                 self.work(
                     contract,
@@ -43,7 +50,7 @@ class EvmExtractor(Extractor):
                 )
                 log_error(self.bridge, request_desc)
             finally:
-                self.task_queue.task_done()
+                self.task_queue.task_done() if task is not None else None
 
     def work(
         self,
@@ -139,100 +146,105 @@ class EvmExtractor(Extractor):
             self.bridge, self.blockchain
         )
 
-        try:
-            # assuming either realtime=True and end_block is None, or realtime=False and start_block and end_block are not None
-            if realtime and start_block is None:
-                start_block = self.get_latest_safe_block()
+        # assuming either realtime=True and end_block is None, or realtime=False and start_block and end_block are not None
+        if realtime and start_block is None:
+            start_block = self.get_latest_safe_block()
 
-            while True:
-                if realtime:
-                    end_block = self.get_latest_safe_block()
-                    if start_block > end_block: # no new safe blocks
-                        time.sleep(1)
-                        continue
+        while True:
+            if self.graceful_stop is not None and self.graceful_stop.is_set():
+                log_to_cli("Stop signal received. Stopping extraction...", CliColor.SUCCESS)
+                break
 
-                for pair in bridge_blockchain_pairs:
-                    for contract in pair["contracts"]:
-                        threads = []
+            if realtime:
+                end_block = self.get_latest_safe_block()
+                if start_block > end_block: # no new safe blocks
+                    time.sleep(1)
+                    continue
 
-                        start_time = time.time()
-                        topics = pair["topics"]
+            for pair in bridge_blockchain_pairs:
+                for contract in pair["contracts"]:
+                    threads = []
 
-                        total_blocks = end_block - start_block + 1
-                        if total_blocks == 1:
-                            block_ranges = [(start_block, start_block + 1)]
-                            num_threads = 1
-                        else:
-                            num_threads = min(
-                                self.rpc_client.max_threads_per_blockchain(self.blockchain) * 2,
-                                total_blocks,
-                            )
+                    start_time = time.time()
+                    topics = pair["topics"]
 
-                            chunk_size = max(
-                                1, min((total_blocks + num_threads - 1) // num_threads, 1000)
-                            )
-
-                            block_ranges = self.divide_range(
-                                start_block,
-                                end_block - 1,
-                                chunk_size,
-                            )
-
-                        # Populate the task queue
-                        for start, end in block_ranges:
-                            self.task_queue.put((contract, topics, start, end))
-
-                        # Create and start threads
-                        worker_count = min(num_threads, len(block_ranges))
-                        log_to_cli(
-                            build_log_message(
-                                start_block,
-                                end_block,
-                                contract,
-                                self.bridge,
-                                self.blockchain,
-                                (
-                                    f"Launching {worker_count} threads to process {len(block_ranges)} block "
-                                    f"ranges...",
-                                ),
-                            )
+                    total_blocks = end_block - start_block + 1
+                    if total_blocks == 1:
+                        block_ranges = [(start_block, start_block + 1)]
+                        num_threads = 1
+                    else:
+                        num_threads = min(
+                            self.rpc_client.max_threads_per_blockchain(self.blockchain) * 2,
+                            total_blocks,
                         )
-                        for i in range(worker_count):
-                            thread = threading.Thread(target=self.worker, name=f"thread_id_{i}")
-                            thread.start()
-                            threads.append(thread)
 
-                        # Wait for all threads to complete
-                        self.task_queue.join()
-                        for thread in threads:
-                            thread.join()
+                        chunk_size = max(
+                            1, min((total_blocks + num_threads - 1) // num_threads, 1000)
+                        )
 
-                        threads.clear()
+                        block_ranges = self.divide_range(
+                            start_block,
+                            end_block - 1,
+                            chunk_size,
+                        )
 
-                        end_time = time.time()
+                    # Populate the task queue
+                    for start, end in block_ranges:
+                        self.task_queue.put((contract, topics, start, end))
 
-                        log_to_cli(
-                            build_log_message(
-                                start_block,
-                                end_block,
-                                contract,
-                                self.bridge,
-                                self.blockchain,
-                                (
-                                    f"Finished processing logs and transactions. Time taken: "
-                                    f"{end_time - start_time} seconds.",
-                                ),
+                    # Create and start threads
+                    worker_count = min(num_threads, len(block_ranges))
+                    log_to_cli(
+                        build_log_message(
+                            start_block,
+                            end_block,
+                            contract,
+                            self.bridge,
+                            self.blockchain,
+                            (
+                                f"Launching {worker_count} threads to process {len(block_ranges)} block "
+                                f"ranges...",
                             ),
-                            CliColor.SUCCESS,
                         )
-                    
-                if not realtime:
-                    break
+                    )
 
-                start_block = end_block + 1
+                    if self.graceful_stop is not None and self.graceful_stop.is_set():
+                        log_to_cli("Stop signal received. Stopping extraction...", CliColor.SUCCESS)
+                        break
 
-        except KeyboardInterrupt:
-            log_to_cli("Extraction interrupted by user. Shutting down...", CliColor.SUCCESS)
+                    for i in range(worker_count):
+                        thread = threading.Thread(target=self.worker, name=f"thread_id_{i}")
+                        thread.start()
+                        threads.append(thread)
+
+                    # Wait for all threads to complete
+                    self.task_queue.join()
+                    for thread in threads:
+                        thread.join()
+
+                    threads.clear()
+
+                    end_time = time.time()
+
+                    log_to_cli(
+                        build_log_message(
+                            start_block,
+                            end_block,
+                            contract,
+                            self.bridge,
+                            self.blockchain,
+                            (
+                                f"Finished processing logs and transactions. Time taken: "
+                                f"{end_time - start_time} seconds.",
+                            ),
+                        ),
+                        CliColor.SUCCESS,
+                    )
+                
+            if not realtime:
+                return
+
+            start_block = end_block + 1
 
     def get_latest_safe_block(self) -> int:
         latest_block_number = self.rpc_client.get_latest_block_number(self.blockchain)

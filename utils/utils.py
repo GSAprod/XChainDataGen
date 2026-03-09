@@ -5,6 +5,7 @@ import os
 import sys
 from datetime import datetime
 from enum import Enum
+import threading
 from dotenv import load_dotenv
 
 import base58
@@ -330,11 +331,20 @@ class GracefulStop:
     """
     def __init__(self):
         self.stop = False
+        self._stop_event = threading.Event()
 
     def _handle_signal(self, signum, frame) -> None:
         print("\nStopping realtime execution gracefully...")
         self.stop = True
+        self._stop_event.set()
 
     def install(self) -> None:
         signal.signal(signal.SIGINT, self._handle_signal)   # Ctrl-C
         signal.signal(signal.SIGTERM, self._handle_signal)  # kill / docker stop
+        # TODO: add more if needed
+    
+    def stop(self) -> None:
+        self._stop_event.set()
+    
+    def is_set(self) -> bool:
+        return self._stop_event.is_set()
