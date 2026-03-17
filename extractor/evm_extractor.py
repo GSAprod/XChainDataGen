@@ -103,6 +103,25 @@ class EvmExtractor(Extractor):
 
                 if tx is None or block is None:
                     raise Exception(tx_hash)
+                
+                if "input" in tx and tx["input"] is not None and tx["input"] != "0x":
+                    # Attempt to decode the input data of the transaction.
+                    try:
+                        input_fun, input_params = self.decoder.decode_transaction_input_data(contract, self.blockchain, tx["input"])
+                        tx["decodedInput"] = str({"function": input_fun, "params": input_params})
+                    except Exception as e:
+                        # Function is not in the ABI
+                        log_to_cli(
+                            build_log_message(
+                                log["block_number"],
+                                log["block_number"],
+                                contract,
+                                self.bridge,
+                                self.blockchain,
+                                f"Failed to decode transaction input for hash {log['transaction_hash']}: {e}"
+                            ),
+                            CliColor.INFO
+                        )
 
                 txs[tx_hash] = self.handler.create_transaction_object(
                     self.blockchain, tx, block["timestamp"]

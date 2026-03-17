@@ -104,6 +104,23 @@ class BridgeDecoder:
             decoded_log = self.convert_bytes_to_hex(decoded_log)
             return decoded_log
 
+    def decode_transaction_input_data(self, contract_addr: str, blockchain: str, input_data: str):
+        if (contract_addr, blockchain) not in self.contracts.keys():
+            raise CustomException(
+                self.CLASS_NAME,
+                f"Contract {contract_addr} not found in contracts list.",
+            )
+        
+        contract = self.contracts[(contract_addr, blockchain)]
+        try:
+            func_obj, func_params = contract.decode_function_input(input_data)
+            return func_obj.fn_name, func_params
+        except Exception as e:
+            raise CustomException(
+                self.CLASS_NAME,
+                f"Error decoding transaction input data for contract {contract_addr} on blockchain {blockchain}: {e}",
+            ) from e
+
     def convert_bytes_to_hex(self, data: Any) -> Any:
         if isinstance(data, dict):
             return {key: self.convert_bytes_to_hex(value) for key, value in data.items()}

@@ -339,6 +339,15 @@ def load_abi(root_dir: str, bridge: Bridge, blockchain, contract_addr: str):
     with open(abi_path, "r") as abi_file:
         abi = json.load(abi_file)
         return abi
+    
+def convert_abi_functions_to_signature_list(abi: list) -> list:
+    function_signatures = []
+    for item in abi:
+        if item["type"] == "function":
+            input_types = ",".join([input["type"] for input in item["inputs"]])
+            signature = f"{item['name']}({input_types})"
+            function_signatures.append(signature)
+    return function_signatures
 
 
 class CustomException(Exception):
