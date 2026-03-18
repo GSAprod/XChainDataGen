@@ -5,6 +5,7 @@ from sqlalchemy import Index, func
 from repository.base import BaseRepository
 
 from .models import (
+    BridgeRoutingContractMetadata,
     NativeToken,
     TokenMetadata,
     TokenPrice,
@@ -105,10 +106,26 @@ class NativeTokenRepository(BaseRepository):
         with self.get_session() as session:
             return session.query(NativeToken).filter(NativeToken.blockchain == blockchain).first()
 
+class BridgeRoutingContractMetadataRepository(BaseRepository):
+    def __init__(self, session_factory):
+        super().__init__(BridgeRoutingContractMetadata, session_factory)
+
+    def get_bridge_routing_metadata_by_address_and_blockchain(self, address: str, blockchain: str):
+        with self.get_session() as session:
+            return (
+                session.query(BridgeRoutingContractMetadata)
+                .filter(
+                    BridgeRoutingContractMetadata.address == address,
+                    BridgeRoutingContractMetadata.blockchain == blockchain,
+                )
+                .first()
+            )
+
 
 Index("ix_token_price_symbol", TokenPrice.symbol)
 Index("ix_token_price_symbol_date", TokenPrice.symbol, TokenPrice.date)
 Index("ix_token_metadata_symbol", TokenMetadata.symbol)
 Index("ix_token_metadata_blockchain_address", TokenMetadata.address, TokenMetadata.blockchain)
+Index("ix_token_metadata_symbol_blockchain", TokenMetadata.symbol, TokenMetadata.blockchain)
 
 Index("ix_native_token_blockchain", NativeToken.symbol, NativeToken.blockchain)

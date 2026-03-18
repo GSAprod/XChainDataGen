@@ -1,3 +1,3 @@
-from .repository import NativeTokenRepository, TokenMetadataRepository, TokenPriceRepository
+from .repository import NativeTokenRepository, TokenMetadataRepository, TokenPriceRepository, BridgeRoutingContractMetadataRepository
 
-__all__ = ["TokenPriceRepository", "TokenMetadataRepository", "NativeTokenRepository"]
+__all__ = ["TokenPriceRepository", "TokenMetadataRepository", "NativeTokenRepository", "BridgeRoutingContractMetadataRepository"]

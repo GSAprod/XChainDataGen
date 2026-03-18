@@ -1,3 +1,4 @@
+import os
 import threading
 import time
 
@@ -9,6 +10,8 @@ from utils.utils import (
     CliColor,
     CustomException,
     build_log_message,
+    convert_abi_functions_to_signature_list,
+    load_abi,
     log_error,
     log_to_cli,
 )
@@ -62,6 +65,16 @@ class EvmExtractor(Extractor):
                 "Processing logs and transactions...",
             )
         )
+
+        abi = load_abi(os.path.dirname(__file__), self.bridge, self.blockchain, contract)
+        function_signatures = ",".join(convert_abi_functions_to_signature_list(abi))
+        # Add function signatures to BridgeRoutingContractMetadataRepository if not already present
+        self.handler.handle_bridge_routing_contract_metadata(
+            self.bridge,
+            self.blockchain,
+            contract,
+            function_signatures
+        )        
 
         logs = self.rpc_client.get_logs_emitted_by_contract(
             self.blockchain, contract, topics, start_block, end_block

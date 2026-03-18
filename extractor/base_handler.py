@@ -3,7 +3,9 @@ from typing import Any, Dict, List
 
 from annotated_types import T
 
-from config.constants import BLOCKCHAIN_IDS
+from config.constants import BLOCKCHAIN_IDS, Bridge
+from repository.common.repository import BridgeRoutingContractMetadataRepository
+from repository.database import DBSession
 from rpcs.evm_rpc_client import EvmRPCClient
 from utils.utils import CustomException, convert_bin_to_hex
 
@@ -15,8 +17,30 @@ class BaseHandler(ABC):
         self.rpc_client = rpc_client
         self.bind_db_to_repos()
 
+        self.bridge_routing_contract_metadata_repo = BridgeRoutingContractMetadataRepository(DBSession)
+
         # Map of blockchains that are involved in the analysis, used to filter events.
         self.counterPartyBlockchainsMap = {b: True for b in blockchains}
+
+    def handle_bridge_routing_contract_metadata(self, bridge: Bridge, blockchain: str, contract: str, function_signatures: str) -> None:
+        try:
+            existing_metadata = self.bridge_routing_contract_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(contract, blockchain)
+            if existing_metadata is None:
+                self.bridge_routing_contract_metadata_repo.create({
+                    "bridge": bridge.value,
+                    "blockchain": blockchain,
+                    "address": contract,
+                    "function_list": function_signatures
+                })
+            elif existing_metadata.function_list != function_signatures:
+                existing_metadata.function_list = function_signatures
+                self.bridge_routing_contract_metadata_repo.update(existing_metadata)
+        except Exception as e:
+            raise CustomException(
+                self.CLASS_NAME,
+                "handle_bridge_routing_contract_metadata",
+                f"Error handling bridge routing contract metadata for contract {contract} on blockchain {blockchain}: {e}",
+            ) from e
 
     def get_solana_bridge_program_ids(self) -> str:
         """
