@@ -4,12 +4,14 @@ from config.constants import Bridge
 from extractor.evm_extractor import EvmExtractor
 from extractor.solana_extractor import SolanaExtractor
 from generator.generator import Generator
+from graph_generator.generator import GraphGenerator
 from repository.database import create_tables
 from rpcs import generate_rpc_configs
 from utils.utils import (
     CliColor,
     CustomException,
     build_log_message_2,
+    build_log_message_generator,
     get_block_by_timestamp,
     get_enum_instance,
     load_module,
@@ -124,6 +126,18 @@ class Cli:
 
         generator.generate_data()
 
+    def generate_graph_data(args):
+        bridge = get_enum_instance(Bridge, args.bridge)
+
+        Cli.load_db_models(bridge, load_graphs=True)
+
+        graph_generator = GraphGenerator(bridge)
+
+        log_to_cli(
+            build_log_message_generator(bridge, "Matching cross-chain token transfers...")
+        )
+        graph_generator.generate_graph_data()
+
     def cli():
         parser = argparse.ArgumentParser(description="Cross-chain Data Extraction Tool")
         subparsers = parser.add_subparsers(
@@ -203,13 +217,25 @@ class Cli:
         )
         generate_parser.set_defaults(func=Cli.generate_data)
 
+        # Generate heterogenous graph data
+        graphs_parser = subparsers.add_parser(
+            "generate_graph_data", help="Create data for heterogeneous graph"
+        )
+        graphs_parser.add_argument(
+            "--bridge",
+            choices=[bridge.value for bridge in Bridge],
+            required=True,
+            help="Name of the bridge",
+        )
+        graphs_parser.set_defaults(func=Cli.generate_graph_data)
+
         args = parser.parse_args()
         if args.action:
             args.func(args)
         else:
             parser.print_help()
 
-    def load_db_models(bridge: Bridge):
+    def load_db_models(bridge: Bridge, load_graphs: bool = False):
         """Dynamically loads the database models for the specified bridge."""
         func_name = "load_db_models"
         bridge_name = bridge.value
@@ -217,6 +243,9 @@ class Cli:
         try:
             load_module("repository.common")
             load_module(f"repository.{bridge_name}")
+            if load_graphs:
+                load_module("repository.graphs")
+
             create_tables()
         except Exception as e:
             raise CustomException(

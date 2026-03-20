@@ -1,0 +1,62 @@
+from enum import Enum
+
+from sqlalchemy import JSON, BigInteger, Column, Integer, Numeric, String
+
+from repository.database import Base
+
+
+class GraphMapping(Base):
+    __tablename__ = "graph_mappings"
+
+    graph_id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
+    cctx_id = Column(Integer, nullable=True)
+    bridge = Column(String(20), nullable=False)
+    source_chain = Column(String(20), nullable=False)
+    target_chain = Column(String(20), nullable=False)
+    source_tx_hash = Column(String(66), nullable=False)
+    destination_tx_hash = Column(String(66), nullable=False)
+    label = Column(String(20), nullable=False)
+
+class GraphNodeType(Enum):
+    USER = "user"
+    ROUTER = "router"
+    TOKEN = "token"
+    OTHER_CONTRACT = "other_contract"
+    LOG_EVENT = "log_event"
+    VALIDATOR = "validator"
+
+class GraphNode(Base):
+    __tablename__ = "graph_nodes"
+
+    node_id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
+    node_type = Column(String(50), nullable=False)
+    graph_id = Column(Integer, nullable=False)
+    bridge = Column(String(255), nullable=False)
+    blockchain = Column(String(255), nullable=True) # Can be none for validator nodes
+    address = Column(String(255), nullable=True)  # Can be none for relays and logs
+    attributes = Column(JSON, nullable=True) # JSON object of attributes
+    timestamp = Column(BigInteger, nullable=True)
+
+class GraphEdgeType(Enum):
+    TRANSACTION = "transaction"
+    TOKEN_TRANSFER = "token_transfer"
+    TOKEN_AUTH = "token_auth"
+    FUNCTION_CALL = "function_call"
+    LOG_RELATION = "log_relation"
+    CROSS_CHAIN_RELATION = "cross_chain_relation"
+
+class GraphEdge(Base):
+    __tablename__ = "graph_edges"
+
+    edge_id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
+    edge_type = Column(String(50), nullable=False)
+    graph_id = Column(Integer, nullable=False)
+    bridge = Column(String(255), nullable=False)
+    source_id = Column(Integer, nullable=False)
+    target_id = Column(Integer, nullable=False)
+    attributes = Column(JSON, nullable=True) # JSON object of attributes
+    tx_hash = Column(String(255), nullable=True)
+    amount = Column(Numeric(30), nullable=True)
+    deposit_id = Column(String(255), nullable=True)
+    withdrawal_id = Column(String(255), nullable=True)
+    timestamp = Column(BigInteger, nullable=True)

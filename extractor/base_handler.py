@@ -32,9 +32,6 @@ class BaseHandler(ABC):
                     "address": contract,
                     "function_list": function_signatures
                 })
-            elif existing_metadata.function_list != function_signatures:
-                existing_metadata.function_list = function_signatures
-                self.bridge_routing_contract_metadata_repo.update(existing_metadata)
         except Exception as e:
             raise CustomException(
                 self.CLASS_NAME,
@@ -123,6 +120,7 @@ class BaseHandler(ABC):
                     "to_address": None,
                     "status": 1 if tx["meta"]["err"] is not None else 0,
                     "input_data": None,
+                    "decoded_input": None,
                     "value": None,
                     "fee": tx["meta"]["fee"],
                 }
@@ -147,6 +145,7 @@ class BaseHandler(ABC):
                     "status": int(tx["status"], 16),
                     "value": int(tx["value"], 16) if "value" in tx else None,
                     "input_data": input_data,
+                    "decoded_input": str(tx["decodedInput"]) if "decodedInput" in tx else None,
                     "fee": str(int(tx["gasUsed"], 0) * int(tx["effectiveGasPrice"], 0)),
                 }
         except Exception as e:
