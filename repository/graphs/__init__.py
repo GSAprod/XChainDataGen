@@ -1,11 +1,13 @@
 from .repository import (
+    BlockchainGraphMappingRepository,
+    CrossChainGraphMappingRepository,
     GraphEdgeRepository,
-    GraphMappingRepository,
     GraphNodeRepository,
 )
 
 __all__ = [
+    "BlockchainGraphMappingRepository",
+    "CrossChainGraphMappingRepository",
     "GraphEdgeRepository",
-    "GraphMappingRepository",
     "GraphNodeRepository",
 ]

@@ -23,6 +23,14 @@ class RoninDepositRequestedRepository(BaseRepository):
                 .filter(RoninDepositRequested.deposit_id == deposit_id)
                 .first()
             )
+        
+    def fetch_by_transaction_hash(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(RoninDepositRequested)
+                .filter(RoninDepositRequested.transaction_hash == transaction_hash)
+                .first()
+            )
 
 
 class RoninTokenDepositedRepository(BaseRepository):
@@ -36,6 +44,15 @@ class RoninTokenDepositedRepository(BaseRepository):
                 .filter(RoninTokenDeposited.deposit_id == deposit_id)
                 .first()
             )
+        
+    def fetch_by_transaction_hash(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(RoninTokenDeposited)
+                .filter(RoninTokenDeposited.transaction_hash == transaction_hash)
+                .first()
+            )
+            
 
 
 class RoninWithdrawalRequestedRepository(BaseRepository):
@@ -50,6 +67,13 @@ class RoninWithdrawalRequestedRepository(BaseRepository):
                 .first()
             )
 
+    def fetch_by_transaction_hash(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(RoninTokenDeposited)
+                .filter(RoninTokenDeposited.transaction_hash == transaction_hash)
+                .first()
+            )
 
 class RoninTokenWithdrewRepository(BaseRepository):
     def __init__(self, session_factory):
