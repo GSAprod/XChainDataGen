@@ -24,12 +24,12 @@ class BaseHandler(ABC):
 
     def handle_bridge_routing_contract_metadata(self, bridge: Bridge, blockchain: str, contract: str, function_signatures: str) -> None:
         try:
-            existing_metadata = self.bridge_routing_contract_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(contract, blockchain)
+            existing_metadata = self.bridge_routing_contract_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(contract.lower(), blockchain)
             if existing_metadata is None:
                 self.bridge_routing_contract_metadata_repo.create({
                     "bridge": bridge.value,
                     "blockchain": blockchain,
-                    "address": contract,
+                    "address": contract.lower(),
                     "function_list": function_signatures
                 })
         except Exception as e:

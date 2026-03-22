@@ -4,7 +4,7 @@ import os
 from sqlalchemy import or_
 from web3 import Web3
 
-from config.constants import Bridge
+from config.constants import BLOCKCHAIN_IDS, Bridge
 from graph_generator.base_graph_generator import BaseGraphGenerator
 from graph_generator.graph_class import GraphObject
 from graph_generator.graph_label import GraphCompletion, GraphLabel
@@ -77,9 +77,10 @@ class RoninGraphGenerator(BaseGraphGenerator):
         tx_receipt = self.rpc_client.get_transaction_receipt(blockchain, tx_hash)
 
         for event in tx_receipt["logs"]:
+            print(event)
             emitted_by = event["address"]
 
-            if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(emitted_by, blockchain):
+            if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(emitted_by.lower(), blockchain):
                 # If the event is emitted by a known bridge router, we can 
                 # create a router node and include additional relations based on the function calls and events
                 routing_node = graph_obj.fetch_or_create_node(
@@ -92,9 +93,11 @@ class RoninGraphGenerator(BaseGraphGenerator):
                 continue
 
             # Check if the address is a known token contract
+            print(emitted_by)
             token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(
                 emitted_by, blockchain
             )
+            print(token_metadata)
             if token_metadata is not None:
                 # If the event is emitted by a known token contract, we can create a token node 
                 # and parse the event to include additional relations to the graph
@@ -117,6 +120,8 @@ class RoninGraphGenerator(BaseGraphGenerator):
                 event
             )
             graph_obj.create_edge(address_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
+
+        exit(0) #! REMOVE THIS AFTER DEBUG
 
     def load_erc20_contract(address):
         token_abi_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "ABI", "erc20_abi.json"))
@@ -206,8 +211,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
             event["topics"][0] == "0x21e88e956aa3e086f6388e899965cef814688f99ad8bb29b08d396571016372d"
         ): # Withdrew
             self.parse_token_withdrew_event(event, routing_node, graph_obj)
-        
-        if event:
+        elif event:
             #? What to do if the event is not one of the above? For now we will ignore it
             # We can still create a log event node and link it to the routing node
             event_signature = None
@@ -277,7 +281,31 @@ class RoninGraphGenerator(BaseGraphGenerator):
             token_node.node_id,
             GraphEdgeType.FUNCTION_CALL.value
         )
-    
+
+        # Handle native tokens (Wrapped Ethereum)
+        if graph_obj.graph_mapping.blockchain == "ethereum" and BLOCKCHAIN_IDS["1"]["native_token_contract"].lower() == event_record.input_token.lower():
+            # Create the Transfer representation of the native token deposit as well
+            burn_node = graph_obj.fetch_or_create_node(
+                "0x0", # Use address 0 to signal the burning of the native token
+                node_type_if_missing=GraphNodeType.TOKEN.value
+            )
+            graph_obj.create_edge(depositor_node.node_id, burn_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, attributes={
+                "amount": int(event_record.amount), 
+                #"timestamp": tx.timestamp
+            })
+
+            # Create corresponding log event node for the burning of the native token
+            burn_log_event_node = graph_obj.create_log_node(
+                "0x0",
+                "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
+                {
+                    "from": event_record.depositor,
+                    "to": "0x0",
+                    "value": int(event_record.amount)
+                }
+            )
+            graph_obj.create_edge(token_node.node_id, burn_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
+
     def parse_token_deposited_event(self, event, routing_node, graph_obj: GraphObject):
         event_signature = "event TokenDeposited(bytes32 receiptHash, tuple receipt)"
         # Fetch the respective metadata from the repository
