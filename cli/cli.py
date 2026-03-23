@@ -129,7 +129,12 @@ class Cli:
     def generate_graph_data(args):
         bridge = get_enum_instance(Bridge, args.bridge)
 
+        blockchains = args.blockchains
+
         Cli.load_db_models(bridge, load_graphs=True)
+
+        for blockchain in blockchains:
+            generate_rpc_configs(blockchain)
 
         graph_generator = GraphGenerator(bridge)
 
@@ -226,6 +231,26 @@ class Cli:
             choices=[bridge.value for bridge in Bridge],
             required=True,
             help="Name of the bridge",
+        )
+        graphs_parser.add_argument(
+            "--blockchains",
+            choices=[
+                "ethereum",
+                "arbitrum",
+                "polygon",
+                "avalanche",
+                "base",
+                "optimism",
+                "bnb",
+                "scroll",
+                "linea",
+                "gnosis",
+                "ronin",
+                "solana",
+                "unichain",
+            ],
+            nargs="+",
+            help="List of blockchains to extract data from",
         )
         graphs_parser.set_defaults(func=Cli.generate_graph_data)
 

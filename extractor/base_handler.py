@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
+import psycopg2
 from annotated_types import T
 
 from config.constants import BLOCKCHAIN_IDS, Bridge
@@ -32,6 +33,9 @@ class BaseHandler(ABC):
                     "address": contract.lower(),
                     "function_list": function_signatures
                 })
+        except psycopg2.errors.UniqueViolation:
+            # This can happen if multiple threads are trying to insert the same contract metadata at the same
+            pass
         except Exception as e:
             raise CustomException(
                 self.CLASS_NAME,

@@ -1,6 +1,7 @@
 import json
 import os
 
+from eth_abi import decode as abi_decode
 from sqlalchemy import or_
 from web3 import Web3
 
@@ -65,9 +66,14 @@ class RoninGraphGenerator(BaseGraphGenerator):
 
     def process_partial_transaction(self, tx: RoninBlockchainTransaction) -> None:
         #! TESTING ONLY
-        if tx.transaction_hash != "0x952f1c8c8f222b83b6e95fdbdb8c381d5f665729cae9221b1cab24f8faf11f88":
+        # if tx.transaction_hash != "0x952f1c8c8f222b83b6e95fdbdb8c381d5f665729cae9221b1cab24f8faf11f88":
+        #     return
+        if self.blockchain_graph_mapping_repo.graph_exists(self.bridge.value, tx.blockchain, tx.transaction_hash) is not None:
             return
         
+        log_to_cli(
+            f"Blockchain {tx.blockchain} - Processing transaction {tx.transaction_hash} for graph generation..."
+        )
         graph_obj = GraphObject(self.blockchain_graph_mapping_repo, self.graph_node_repo, self.graph_edge_repo)
         graph_mapping = graph_obj.create_graph_mapping(
             self.bridge, 
@@ -82,7 +88,6 @@ class RoninGraphGenerator(BaseGraphGenerator):
         tx_receipt = self.rpc_client.get_transaction_receipt(blockchain, tx_hash)
 
         for event in tx_receipt["logs"]:
-            print(event)
             emitted_by = event["address"]
 
             if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(emitted_by.lower(), blockchain):
@@ -99,15 +104,16 @@ class RoninGraphGenerator(BaseGraphGenerator):
                 continue
 
             # Check if the address is a known token contract
-            print(emitted_by)
             token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(
                 emitted_by, blockchain
             )
-            print(token_metadata)
 
             # If no token info exists, check if the address is an ERC20 contract
             # and try to fetch its metadata, if it's the case
             if token_metadata is None:
+                log_to_cli(
+                    f"Blockchain {blockchain} - Address {emitted_by} not found in token metadata repository. Checking if it's an ERC20 contract..."
+                )
                 if self.check_if_contract_erc20(emitted_by, blockchain):
                     token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(emitted_by, blockchain)
 
@@ -134,7 +140,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
             )
             graph_obj.create_edge(address_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
 
-        exit(0) #! REMOVE THIS AFTER DEBUG
+        # exit(0) #! REMOVE THIS AFTER DEBUG
 
     def load_erc20_contract(self, address):
         checksum_address = Web3.to_checksum_address(address)
@@ -161,7 +167,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
                     return False
                 
                 if func["resultType"] == "string":
-                    func["result"] = Web3().eth.abi.decodeParameters(["string"], res)
+                    func["result"] = abi_decode(["string"], bytes.fromhex(res[2:]))
                 elif func["resultType"] == "uint8" or func["resultType"] == "uint256":
                     func["result"] = int(res, 16)
                 else:
@@ -343,7 +349,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
         # Fetch the respective metadata from the repository
         event_record = self.token_deposited_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
         if event_record is None:
-            # Log error to error.log #TODO TODO
+            # Log error to error.log
             pass
 
         event_args = {
@@ -412,7 +418,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
     def parse_withdraw_requested_event(self, event, routing_node, graph_obj: GraphObject):
         event_signature = "event WithdrawRequested(bytes32 receiptHash, tuple receipt)"
         # Fetch the respective metadata from the repository
-        event_record = self.withdraw_requested_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
+        event_record = self.withdrawal_requested_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
         if event_record is None:
             # Log error to error.log #TODO TODO
             pass
