@@ -30,6 +30,7 @@ from repository.ronin.repository import (
     RoninWithdrawalRequestedRepository,
 )
 from rpcs.evm_rpc_client import EvmRPCClient
+from utils.utils import log_to_cli
 
 
 class RoninGraphGenerator(BaseGraphGenerator):
@@ -63,6 +64,10 @@ class RoninGraphGenerator(BaseGraphGenerator):
             self.process_partial_transaction(tx)
 
     def process_partial_transaction(self, tx: RoninBlockchainTransaction) -> None:
+        #! TESTING ONLY
+        if tx.transaction_hash != "0x952f1c8c8f222b83b6e95fdbdb8c381d5f665729cae9221b1cab24f8faf11f88":
+            return
+        
         graph_obj = GraphObject(self.blockchain_graph_mapping_repo, self.graph_node_repo, self.graph_edge_repo)
         graph_mapping = graph_obj.create_graph_mapping(
             self.bridge, 
@@ -89,6 +94,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
                     # we can also include the function signatures as attributes.
                     # we won't include them for now for space reasons
                 )
+                graph_obj.update_node_type(routing_node.node_id, GraphNodeType.ROUTER.value)
                 self.parse_bridge_router_event(event, routing_node, graph_obj)
                 continue
 
@@ -98,9 +104,16 @@ class RoninGraphGenerator(BaseGraphGenerator):
                 emitted_by, blockchain
             )
             print(token_metadata)
+
+            # If no token info exists, check if the address is an ERC20 contract
+            # and try to fetch its metadata, if it's the case
+            if token_metadata is None:
+                if self.check_if_contract_erc20(emitted_by, blockchain):
+                    token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(emitted_by, blockchain)
+
+            # If the event is emitted by a known token contract, we can create a token node 
+            # and parse the event to include additional relations to the graph
             if token_metadata is not None:
-                # If the event is emitted by a known token contract, we can create a token node 
-                # and parse the event to include additional relations to the graph
                 token_node = graph_obj.fetch_or_create_node(
                     emitted_by,
                     attributes={
@@ -123,33 +136,56 @@ class RoninGraphGenerator(BaseGraphGenerator):
 
         exit(0) #! REMOVE THIS AFTER DEBUG
 
-    def load_erc20_contract(address):
+    def load_erc20_contract(self, address):
+        checksum_address = Web3.to_checksum_address(address)
         token_abi_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "ABI", "erc20_abi.json"))
         with open(token_abi_path, "r") as abi_file:
             abi = json.load(abi_file)
-        return Web3().eth.contract(address=address, abi=abi)
+        return Web3().eth.contract(address=checksum_address, abi=abi)
 
     def check_if_contract_erc20(self, contract_address: str, blockchain: str) -> bool:
         # Load contract for decoding data 
         contract = self.load_erc20_contract(contract_address)
         
         function_signatures = [
-            "0x06fdde03", # name()
-            "0x95d89b41", # symbol()
-            "0x313ce567", # decimals()
-            "0x18160ddd", # totalSupply()
+            { "signature": "0x06fdde03", "name": "name", "result": None, "resultType": "string" }, # name()
+            { "signature": "0x95d89b41", "name": "symbol", "result": None, "resultType": "string" }, # symbol()
+            { "signature": "0x313ce567", "name": "decimals", "result": None, "resultType": "uint8" }, # decimals()
+            { "signature": "0x18160ddd", "name": "totalSupply", "result": None, "resultType": "uint256" }, # totalSupply()
         ]
-        method = "eth_call"
-        params = [
-            {
-                "to": contract_address,
-                "data": function_signatures[0]
-            }
-        ]
+        
+        for func in function_signatures:
+            try:
+                res = self.rpc_client.function_call(blockchain, contract_address, func["signature"])
+                if res is None or res == "0x0":
+                    return False
+                
+                if func["resultType"] == "string":
+                    func["result"] = Web3().eth.abi.decodeParameters(["string"], res)
+                elif func["resultType"] == "uint8" or func["resultType"] == "uint256":
+                    func["result"] = int(res, 16)
+                else:
+                    func["result"] = res
+            except Exception as e:
+                # If any of the function calls fail, we can assume it's not an ERC20 contract
+                print(f"Error calling function {func['name']} on contract {contract_address}: {e}")
+                return False
 
-        # TODO IDEA: Make RPC calls to check if the contract implements ERC20 functions. 
-        # We can also save the results in the database to avoid making repeated calls
-        self.rpc_client.make_request()
+        # Save the token metadata to the repository if it doesn't exist
+        log_to_cli(
+            f"Added newly discovered ERC20 token contract to the repository: {contract_address} with name {function_signatures[0]['result']} and symbol {function_signatures[1]['result']}"
+        )
+        if self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(contract_address, blockchain) is None:
+            self.token_metadata_repo.create(
+                {
+                    "symbol": function_signatures[1]["result"],
+                    "name": function_signatures[0]["result"],
+                    "decimals": function_signatures[2]["result"],
+                    "blockchain": blockchain,
+                    "address": contract_address
+                }
+            )
+        return True
 
     def parse_token_event(self, event, token_node, graph_obj: GraphObject):
         contract = self.load_erc20_contract(token_node.address)
@@ -285,22 +321,18 @@ class RoninGraphGenerator(BaseGraphGenerator):
         # Handle native tokens (Wrapped Ethereum)
         if graph_obj.graph_mapping.blockchain == "ethereum" and BLOCKCHAIN_IDS["1"]["native_token_contract"].lower() == event_record.input_token.lower():
             # Create the Transfer representation of the native token deposit as well
-            burn_node = graph_obj.fetch_or_create_node(
-                "0x0", # Use address 0 to signal the burning of the native token
-                node_type_if_missing=GraphNodeType.TOKEN.value
-            )
-            graph_obj.create_edge(depositor_node.node_id, burn_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, attributes={
+            graph_obj.create_edge(depositor_node.node_id, routing_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, attributes={
                 "amount": int(event_record.amount), 
                 #"timestamp": tx.timestamp
             })
 
             # Create corresponding log event node for the burning of the native token
             burn_log_event_node = graph_obj.create_log_node(
-                "0x0",
+                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
                 "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
                 {
                     "from": event_record.depositor,
-                    "to": "0x0",
+                    "to": routing_node.address,
                     "value": int(event_record.amount)
                 }
             )
@@ -321,7 +353,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
                 "amount": int(event_record.amount),
                 "depositor": event_record.depositor,
                 "input_token": event_record.input_token,
-                "destination_chain": event_record.dst_blockchain,
+                "source_chain": event_record.src_blockchain,
                 "recipient": event_record.recipient,
                 "output_token": event_record.output_token,
             }
@@ -356,14 +388,26 @@ class RoninGraphGenerator(BaseGraphGenerator):
             node_type_if_missing=GraphNodeType.USER.value
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
-        graph_obj.create_edge(
-            token_node.node_id, 
-            recipient_node.node_id, 
-            GraphEdgeType.TOKEN_TRANSFER.value, 
-            attributes={
-                "amount": int(event_record.amount)
-            }
-        )
+        
+        # Handle native tokens
+        if graph_obj.graph_mapping.blockchain == "ronin" and event_record.input_token is None:
+            # Create the Transfer representation of the native token deposit as well
+            graph_obj.create_edge(routing_node.node_id, recipient_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, attributes={
+                "amount": int(event_record.amount), 
+                #"timestamp": tx.timestamp
+            })
+
+            # Create corresponding log event node for the burning of the native token
+            burn_log_event_node = graph_obj.create_log_node(
+                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
+                {
+                    "from": routing_node.address,
+                    "to": recipient_node.address,
+                    "value": int(event_record.amount)
+                }
+            )
+            graph_obj.create_edge(token_node.node_id, burn_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
 
     def parse_withdraw_requested_event(self, event, routing_node, graph_obj: GraphObject):
         event_signature = "event WithdrawRequested(bytes32 receiptHash, tuple receipt)"
@@ -424,6 +468,26 @@ class RoninGraphGenerator(BaseGraphGenerator):
             GraphEdgeType.FUNCTION_CALL.value
         )
 
+        # Handle native tokens (Wrapped Ethereum)
+        if graph_obj.graph_mapping.blockchain == "ronin" and event_record.input_token.lower() is None:
+            # Create the Transfer representation of the native token deposit as well
+            graph_obj.create_edge(withdrawer_node.node_id, routing_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, attributes={
+                "amount": int(event_record.amount), 
+                #"timestamp": tx.timestamp
+            })
+
+            # Create corresponding log event node for the burning of the native token
+            burn_log_event_node = graph_obj.create_log_node(
+                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
+                {
+                    "from": event_record.withdrawer,
+                    "to": routing_node.address,
+                    "value": int(event_record.amount)
+                }
+            )
+            graph_obj.create_edge(token_node.node_id, burn_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
+
     def parse_token_withdrew_event(self, event, routing_node, graph_obj: GraphObject):
         event_signature = "event TokenWithdrew(bytes32 receiptHash, tuple receipt)"
         # Fetch the respective metadata from the repository
@@ -439,7 +503,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
                 "amount": int(event_record.amount),
                 "withdrawer": event_record.withdrawer,
                 "input_token": event_record.input_token,
-                "destination_chain": event_record.dst_blockchain,
+                "source_chain": event_record.src_blockchain,
                 "recipient": event_record.recipient,
                 "output_token": event_record.output_token,
             }
@@ -459,7 +523,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
 
         # Link the routing node and the token node with a function call edge
         token_node = graph_obj.fetch_or_create_node(
-            event_record.input_token,
+            event_record.output_token,
             node_type_if_missing=GraphNodeType.TOKEN.value
         )
         graph_obj.create_edge(
@@ -474,11 +538,23 @@ class RoninGraphGenerator(BaseGraphGenerator):
             node_type_if_missing=GraphNodeType.USER.value
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
-        graph_obj.create_edge(
-            token_node.node_id, 
-            recipient_node.node_id, 
-            GraphEdgeType.TOKEN_TRANSFER.value, 
-            attributes={
-                "amount": int(event_record.amount)
-            }
-        )
+
+        # Handle native tokens (Wrapped Ethereum)
+        if graph_obj.graph_mapping.blockchain == "ethereum" and BLOCKCHAIN_IDS["1"]["native_token_contract"].lower() == event_record.output_token.lower():
+            # Create the Transfer representation of the native token deposit as well
+            graph_obj.create_edge(routing_node.node_id, recipient_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, attributes={
+                "amount": int(event_record.amount), 
+                #"timestamp": tx.timestamp
+            })
+
+            # Create corresponding log event node for the minting of the native token
+            mint_log_event_node = graph_obj.create_log_node(
+                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
+                {
+                    "from": routing_node.address,
+                    "to": event_record.recipient,
+                    "value": int(event_record.amount)
+                }
+            )
+            graph_obj.create_edge(token_node.node_id, mint_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)

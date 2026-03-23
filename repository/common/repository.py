@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import Index, func
+from sqlalchemy.orm import ColumnProperty
 
 from repository.base import BaseRepository
 
@@ -66,7 +67,6 @@ class TokenPriceRepository(BaseRepository):
                 .scalar()
             )
 
-
 class TokenMetadataRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(TokenMetadata, session_factory)
@@ -76,7 +76,7 @@ class TokenMetadataRepository(BaseRepository):
             return (
                 session.query(TokenMetadata)
                 .filter(
-                    TokenMetadata.address == contract_address,
+                    func.lower(TokenMetadata.address) == contract_address.lower(),
                     TokenMetadata.blockchain == blockchain,
                 )
                 .first()

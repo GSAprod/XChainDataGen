@@ -32,7 +32,7 @@ class GraphObject:
 
     def fetch_or_create_node(self, address, attributes=None, timestamp=None, node_type_if_missing=GraphNodeType.OTHER_ACCOUNT.value):
         for node in self.nodes:
-            if node.address == address:
+            if node.address.lower() == address.lower():
                 return node
         # If not found, create a new node with the provided type
         new_node_data = {
@@ -96,7 +96,7 @@ class GraphObject:
 
     def fetch_node_by_address(self, address, create_if_not_exists=False):
         for node in self.nodes:
-            if node.address == address:
+            if node.address.lower() == address.lower():
                 return node
         return None
     
