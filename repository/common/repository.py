@@ -115,7 +115,7 @@ class BridgeRoutingContractMetadataRepository(BaseRepository):
             return (
                 session.query(BridgeRoutingContractMetadata)
                 .filter(
-                    BridgeRoutingContractMetadata.address == address,
+                    func.lower(BridgeRoutingContractMetadata.address) == address.lower(),
                     BridgeRoutingContractMetadata.blockchain == blockchain,
                 )
                 .first()
