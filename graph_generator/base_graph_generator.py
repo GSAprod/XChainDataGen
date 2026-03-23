@@ -10,5 +10,5 @@ class BaseGraphGenerator(ABC):
         pass
 
     @abstractmethod
-    def generate_graph_data(self) -> None:
+    def generate_graph_data(self, blockchain: str) -> None:
         pass

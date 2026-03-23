@@ -25,7 +25,7 @@ class GraphGenerator:
                 self.CLASS_NAME, func_name, f"Bridge {bridge_name} not supported"
             ) from e
 
-    def generate_graph_data(self):
+    def generate_graph_data(self, blockchain: str):
         """Main generation logic."""
 
-        self.generator.generate_graph_data()
+        self.generator.generate_graph_data(blockchain)

@@ -99,6 +99,14 @@ class RoninBlockchainTransactionRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(RoninBlockchainTransaction, session_factory)
 
+    def get_transactions_from_blockchain(self, blockchain: str):
+        with self.get_session() as session:
+            return (
+                session.query(RoninBlockchainTransaction)
+                .filter(RoninBlockchainTransaction.blockchain == blockchain)
+                .all()
+            )
+
     def get_transaction_by_hash(self, transaction_hash: str):
         with self.get_session() as session:
             return session.get(RoninBlockchainTransaction, transaction_hash)

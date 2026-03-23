@@ -31,7 +31,7 @@ from repository.ronin.repository import (
     RoninWithdrawalRequestedRepository,
 )
 from rpcs.evm_rpc_client import EvmRPCClient
-from utils.utils import log_to_cli
+from utils.utils import CliColor, log_to_cli
 
 
 class RoninGraphGenerator(BaseGraphGenerator):
@@ -56,11 +56,11 @@ class RoninGraphGenerator(BaseGraphGenerator):
         self.graph_node_repo = GraphNodeRepository(DBSession)
         self.graph_edge_repo = GraphEdgeRepository(DBSession)
 
-    def generate_graph_data(self) -> None:
+    def generate_graph_data(self, blockchain: str) -> None:
         func_name = "generate_graph_data"
         
         # Create a graph per single-ledger transaction
-        txs = self.blockchain_transactions_repo.get_all()
+        txs = self.blockchain_transactions_repo.get_transactions_from_blockchain(blockchain)
         for tx in txs:
             self.process_partial_transaction(tx)
 
@@ -162,7 +162,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
         
         for func in function_signatures:
             try:
-                res = self.rpc_client.function_call(blockchain, contract_address, func["signature"])
+                res = self.rpc_client.function_call(blockchain, contract_address, func["signature"], no_backoff=True)
                 if res is None or res == "0x0":
                     return False
                 
@@ -174,7 +174,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
                     func["result"] = res
             except Exception as e:
                 # If any of the function calls fail, we can assume it's not an ERC20 contract
-                print(f"Error calling function {func['name']} on contract {contract_address}: {e}")
+                log_to_cli(f"Blockchain {blockchain} - [WARNING] Error calling function {func['name']} on contract {contract_address}: {e}", CliColor.ERROR)
                 return False
 
         # Save the token metadata to the repository if it doesn't exist

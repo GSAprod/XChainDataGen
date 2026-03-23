@@ -113,7 +113,7 @@ class EvmRPCClient(RPCClient):
 
         return response["result"] if response else {}
 
-    def function_call(self, blockchain: str, to_address: str, data: str) -> dict:
+    def function_call(self, blockchain: str, to_address: str, data: str, no_backoff: bool = False) -> dict:
         method = "eth_call"
         # Create transaction object for eth_call
         tx = {
@@ -124,7 +124,7 @@ class EvmRPCClient(RPCClient):
         params = [tx, "latest"]
 
         rpc = self.get_next_rpc(blockchain)
-        response = self.make_request(rpc, blockchain, method, params)
+        response = self.make_request(rpc, blockchain, method, params, no_backoff=no_backoff)
 
         return response["result"] if response else {}
 

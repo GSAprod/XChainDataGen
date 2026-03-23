@@ -69,7 +69,7 @@ class RPCClient(ABC):
         """Get a random RPC URL for Ethereum."""
         return self.get_next_rpc(blockchain)
 
-    def make_request(self, rpc_url: str, blockchain_name: str, method: str, params: list) -> dict:
+    def make_request(self, rpc_url: str, blockchain_name: str, method: str, params: list, no_backoff: bool = False) -> dict:
         """Make an RPC request using the next available endpoint in the round-robin."""
         func_name = "make_request"
         num_rpcs = self.rpc_sizes[blockchain_name]
@@ -114,6 +114,8 @@ class RPCClient(ABC):
                 # if we have tried all RPC endpoints and none of them worked, back off
                 # exponentially and try again all endpoints. Only return once we have
                 # a correct response
+                if no_backoff:
+                    break
                 time.sleep(backoff)
                 log_error(
                     self.bridge,
