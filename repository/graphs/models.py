@@ -5,20 +5,21 @@ from sqlalchemy import JSON, BigInteger, Column, Integer, Numeric, String
 from repository.database import Base
 
 
-class BlockchainGraphMapping(Base):
-    __tablename__ = "blockchain_graph_mapping"
+class GraphMappingBlockchain(Base):
+    __tablename__ = "graph_mapping_blockchain"
 
     graph_id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
+    cctx_graph_id = Column(Integer, nullable=True) # Can be null for transactions that are not linked to a cross-chain transaction
     bridge = Column(String(20), nullable=False)
     blockchain = Column(String(20), nullable=False)
     tx_hash = Column(String(66), nullable=False)
     block_number = Column(Integer, nullable=False)
     label = Column(String(20), nullable=False)
 
-class CrossChainGraphMapping(Base):
-    __tablename__ = "graph_mappings"
+class GraphMappingCrossChain(Base):
+    __tablename__ = "graph_mapping_cross_chain"
 
-    graph_id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
+    cctx_graph_id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
     cctx_id = Column(Integer, nullable=True)
     bridge = Column(String(20), nullable=False)
     source_chain = Column(String(20), nullable=False)
@@ -26,7 +27,6 @@ class CrossChainGraphMapping(Base):
     source_tx_hash = Column(String(66), nullable=False)
     destination_tx_hash = Column(String(66), nullable=False)
     label = Column(String(20), nullable=False)
-    completion = Column(String(20), nullable=False)
 
 class GraphNodeType(Enum):
     USER = "user"

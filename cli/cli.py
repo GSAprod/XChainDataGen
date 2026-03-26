@@ -143,6 +143,13 @@ class Cli:
             )
             graph_generator.generate_graph_data(blockchain)
 
+        # Now, link transactions across chains
+        graph_generator = GraphGenerator(bridge)
+        log_to_cli(
+            build_log_message_generator(bridge, "Linking transactions across chains...")
+        )
+        graph_generator.link_transactions_into_cctxs()
+
     def cli():
         parser = argparse.ArgumentParser(description="Cross-chain Data Extraction Tool")
         subparsers = parser.add_subparsers(

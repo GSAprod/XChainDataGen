@@ -2,7 +2,7 @@
 
 from config.constants import Bridge
 from graph_generator.graph_label import GraphLabel
-from repository.graphs.models import BlockchainGraphMapping, GraphNodeType
+from repository.graphs.models import GraphMappingBlockchain, GraphNodeType
 
 
 class GraphObject:
@@ -15,7 +15,7 @@ class GraphObject:
         self.nodes = []
         self.edges = []
 
-    def create_graph_mapping(self, bridge: Bridge, blockchain: str, tx_hash: str, block_number: int, label: GraphLabel) -> BlockchainGraphMapping:
+    def create_graph_mapping(self, bridge: Bridge, blockchain: str, tx_hash: str, block_number: int, label: GraphLabel) -> GraphMappingBlockchain:
         self.graph_mapping = self.graph_mapping_repo.create({
             "bridge": bridge.value,
             "blockchain": blockchain,
@@ -24,6 +24,12 @@ class GraphObject:
             "label": label.value
         })
         return self.graph_mapping
+    
+    def attach_graph_mapping(self, graph_mapping: GraphMappingBlockchain):
+        self.graph_mapping = graph_mapping
+
+    def attach_nodes(self, nodes):
+        self.nodes = nodes
     
     def create_node(self, node_data):
         node = self.node_repo.create(node_data)
@@ -86,6 +92,12 @@ class GraphObject:
         edge = self.edge_repo.create(edge_data)
         self.edges.append(edge)
         return edge
+    
+    def find_or_create_edge(self, source_id, target_id, edge_type, attributes=None):
+        for edge in self.edges:
+            if edge.source_id == source_id and edge.target_id == target_id and edge.edge_type == edge_type:
+                return edge
+        return self.create_edge(source_id, target_id, edge_type, attributes)
 
     def fetch_node(self, node_id):
         for node in self.nodes:

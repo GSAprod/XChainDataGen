@@ -29,3 +29,8 @@ class GraphGenerator:
         """Main generation logic."""
 
         self.generator.generate_graph_data(blockchain)
+
+    def link_transactions_into_cctxs(self):
+        """Main generation logic."""
+
+        self.generator.link_transactions_into_cctxs()

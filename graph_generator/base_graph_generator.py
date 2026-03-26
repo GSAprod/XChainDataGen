@@ -16,9 +16,9 @@ from repository.common.repository import (
 from repository.database import DBSession
 from repository.graphs.models import GraphEdgeType, GraphNodeType
 from repository.graphs.repository import (
-    BlockchainGraphMappingRepository,
-    CrossChainGraphMappingRepository,
     GraphEdgeRepository,
+    GraphMappingBlockchainRepository,
+    GraphMappingCrossChainRepository,
     GraphNodeRepository,
 )
 from rpcs.evm_rpc_client import EvmRPCClient
@@ -36,8 +36,8 @@ class BaseGraphGenerator(ABC):
         self.bridge_router_metadata_repo = BridgeRoutingContractMetadataRepository(DBSession)
         self.token_metadata_repo = TokenMetadataRepository(DBSession)
 
-        self.blockchain_graph_mapping_repo = BlockchainGraphMappingRepository(DBSession)
-        self.cctx_graph_mapping_repo = CrossChainGraphMappingRepository(DBSession)
+        self.blockchain_graph_mapping_repo = GraphMappingBlockchainRepository(DBSession)
+        self.cctx_graph_mapping_repo = GraphMappingCrossChainRepository(DBSession)
         self.graph_node_repo = GraphNodeRepository(DBSession)
         self.graph_edge_repo = GraphEdgeRepository(DBSession)
 
@@ -222,4 +222,103 @@ class BaseGraphGenerator(ABC):
 
     @abstractmethod
     def parse_bridge_router_event(self, event, routing_node, graph_obj: GraphObject):
+        pass
+
+    def link_transactions_into_cctxs(self):
+        # First, fetch all the generated graphs for the bridge and blockchains
+        cctx_data = self.fetch_cross_chain_transactions()
+        
+        for cctx in cctx_data:
+            # Skip if the CCTX is already linked to a graph
+            if self.cctx_graph_mapping_repo.get_by_chain_tx_hash(self.bridge.value, cctx.src_blockchain, cctx.src_transaction_hash):
+                continue
+            elif self.cctx_graph_mapping_repo.get_by_chain_tx_hash(self.bridge.value, cctx.dst_blockchain, cctx.dst_transaction_hash):
+                continue
+
+            # Get the respective graph mappings for the source and destination transactions
+            source_graph_mapping = self.blockchain_graph_mapping_repo.graph_exists(self.bridge.value, cctx.src_blockchain, cctx.src_transaction_hash)
+            destination_graph_mapping = self.blockchain_graph_mapping_repo.graph_exists(self.bridge.value, cctx.dst_blockchain, cctx.dst_transaction_hash)
+
+            if source_graph_mapping is None or destination_graph_mapping is None:
+                log_to_cli(f"Could not find graph mappings for CCTX with source tx {cctx.src_transaction_hash} on {cctx.src_blockchain} and destination tx {cctx.dst_transaction_hash} on {cctx.dst_blockchain}. Skipping...", CliColor.ERROR)
+                continue
+                
+            log_to_cli(f"Linking CCTX with source {cctx.src_blockchain}:{cctx.src_transaction_hash} and destination {cctx.dst_blockchain}:{cctx.dst_transaction_hash}")
+            # If both graph mappings exist, we can create a cross-chain graph mapping and link the respective graphs in the graph nodes and edges
+            cctx_id = self.fetch_cctx_id(cctx)
+            cctx_graph_mapping = self.cctx_graph_mapping_repo.create(
+                {
+                    "cctx_id": cctx_id,
+                    "bridge": self.bridge.value,
+                    "source_chain": cctx.src_blockchain,
+                    "target_chain": cctx.dst_blockchain,
+                    "source_tx_hash": cctx.src_transaction_hash,
+                    "destination_tx_hash": cctx.dst_transaction_hash,
+                    "label": GraphLabel.NORMAL.value, # Placeholder, should be changed on attack transactions 
+                }
+            )
+            # Update the blockchain graphs and its nodes and edges to link to the cross-chain graph
+            self.blockchain_graph_mapping_repo.assign_cctx_id(source_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
+            self.blockchain_graph_mapping_repo.assign_cctx_id(destination_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
+
+            self.graph_node_repo.assign_cctx_id(source_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
+            self.graph_node_repo.assign_cctx_id(destination_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
+
+            self.graph_edge_repo.assign_cctx_id(source_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
+            self.graph_edge_repo.assign_cctx_id(destination_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
+
+            # Create validation nodes in order to structurally link the graphs together
+            src_router_node = self.graph_node_repo.get_router_node_by_graph_id(source_graph_mapping.graph_id)
+            dst_router_node = self.graph_node_repo.get_router_node_by_graph_id(destination_graph_mapping.graph_id)
+            if src_router_node is not None and dst_router_node is not None:
+                if self.graph_node_repo.get_by_address(destination_graph_mapping.graph_id, f"validator_{cctx_id}") is None:
+                    validator_node = self.graph_node_repo.create(
+                        {
+                            "node_type": GraphNodeType.VALIDATOR.value,
+                            "chain_graph_id": destination_graph_mapping.graph_id, # can be either source or destination
+                            "cctx_graph_id": cctx_graph_mapping.cctx_graph_id,
+                            "bridge": self.bridge.value,
+                            "blockchain": None,
+                            "address": f"validator_{cctx_id}",
+                            "attributes": {
+                                "cctx_id": cctx_id,
+                                "source_tx": f"{cctx.src_blockchain}:{cctx.src_transaction_hash}",
+                                "destination_tx": f"{cctx.dst_blockchain}:{cctx.dst_transaction_hash}"
+                            }
+                        }
+                    )
+
+                    # Add edges to link the validator node to the respective router nodes 
+                    # on both source and destination graphs
+                    self.graph_edge_repo.create(
+                        {
+                            "edge_type": GraphEdgeType.CROSS_CHAIN_RELATION.value,
+                            "chain_graph_id": source_graph_mapping.graph_id,
+                            "cctx_graph_id": cctx_graph_mapping.cctx_graph_id,
+                            "bridge": self.bridge.value,
+                            "source_id": src_router_node.node_id,
+                            "target_id": validator_node.node_id,
+                            "deposit_id": cctx_id
+                        }
+                    )
+                    self.graph_edge_repo.create(
+                        {
+                            "edge_type": GraphEdgeType.CROSS_CHAIN_RELATION.value,
+                            "chain_graph_id": destination_graph_mapping.graph_id,
+                            "cctx_graph_id": cctx_graph_mapping.cctx_graph_id,
+                            "bridge": self.bridge.value,
+                            "source_id": validator_node.node_id,
+                            "target_id": dst_router_node.node_id,
+                            "deposit_id": cctx_id
+                        }
+                    )
+            else:
+                log_to_cli(f"Could not find router nodes for source graph {source_graph_mapping.graph_id} and destination graph {destination_graph_mapping.graph_id}. Skipping creation of validation node for CCTX {cctx_graph_mapping.cctx_graph_id}...", CliColor.ERROR)
+
+    @abstractmethod
+    def fetch_cross_chain_transactions(self):
+        pass
+
+    @abstractmethod
+    def fetch_cctx_id(self, cctx):
         pass

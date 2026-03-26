@@ -1,27 +1,11 @@
-import json
-import os
 
-from eth_abi import decode as abi_decode
-from sqlalchemy import or_
-from web3 import Web3
 
 from config.constants import BLOCKCHAIN_IDS, Bridge
 from graph_generator.base_graph_generator import BaseGraphGenerator
 from graph_generator.graph_class import GraphObject
-from graph_generator.graph_label import GraphCompletion, GraphLabel
-from repository.common.repository import (
-    BridgeRoutingContractMetadataRepository,
-    TokenMetadataRepository,
-)
 from repository.database import DBSession
 from repository.graphs.models import GraphEdgeType, GraphNodeType
-from repository.graphs.repository import (
-    BlockchainGraphMappingRepository,
-    CrossChainGraphMappingRepository,
-    GraphEdgeRepository,
-    GraphNodeRepository,
-)
-from repository.ronin.models import RoninBlockchainTransaction, RoninCrossChainTransaction
+from repository.ronin.models import RoninCrossChainTransaction
 from repository.ronin.repository import (
     RoninBlockchainTransactionRepository,
     RoninCrossChainTransactionRepository,
@@ -30,8 +14,6 @@ from repository.ronin.repository import (
     RoninTokenWithdrewRepository,
     RoninWithdrawalRequestedRepository,
 )
-from rpcs.evm_rpc_client import EvmRPCClient
-from utils.utils import CliColor, log_to_cli
 
 
 class RoninGraphGenerator(BaseGraphGenerator):
@@ -50,6 +32,13 @@ class RoninGraphGenerator(BaseGraphGenerator):
 
     def fetch_transactions_for_blockchain(self, blockchain: str):
         return self.blockchain_transactions_repo.get_transactions_from_blockchain(blockchain)
+
+    def fetch_cross_chain_transactions(self):
+        return self.cross_chain_transactions_repo.get_all()
+
+    def fetch_cctx_id(self, cctx: RoninCrossChainTransaction):
+        # For Ronin, we can directly use the cctx_id from the database as the unique identifier for the cross-chain transaction
+        return cctx.deposit_id
 
     def parse_bridge_router_event(self, event, routing_node, graph_obj: GraphObject):
         if (
@@ -194,7 +183,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
 
         # Link the routing node and the token node with a function call edge
         token_node = graph_obj.fetch_or_create_node(
-            event_record.input_token,
+            event_record.output_token,
             node_type_if_missing=GraphNodeType.TOKEN.value
         )
         graph_obj.create_edge(
