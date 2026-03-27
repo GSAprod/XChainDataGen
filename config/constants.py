@@ -96,6 +96,23 @@ TOKEN_PRICING_SUPPORTED_BLOCKCHAINS = {
     "gnosis": "gnosis",
 }
 
+# the list of blockchains with support for fetching transaction traces,
+# which is necessary to capture internal transactions and value transfers 
+# that are not visible in event logs
+TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS = [
+    "ethereum",
+    "optimism",
+    "polygon",
+    "base",
+    "bnb",
+    "avalanche",
+    "arbitrum",
+    "scroll",
+    "linea",
+    "gnosis",
+    "unichain",
+]
+
 
 # Mapping of bridges to their respective RPC methods
 # The majority of bridges work fine using the 'eth_getTransactionReceipt' RPC method to

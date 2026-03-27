@@ -133,7 +133,6 @@ class Cli:
 
         Cli.load_db_models(bridge, load_graphs=True)
 
-
         for blockchain in blockchains:
             generate_rpc_configs(blockchain)
 

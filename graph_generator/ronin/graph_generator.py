@@ -128,26 +128,6 @@ class RoninGraphGenerator(BaseGraphGenerator):
             GraphEdgeType.FUNCTION_CALL.value
         )
 
-        # Handle native tokens (Wrapped Ethereum)
-        if graph_obj.graph_mapping.blockchain == "ethereum" and BLOCKCHAIN_IDS["1"]["native_token_contract"].lower() == event_record.input_token.lower():
-            # Create the Transfer representation of the native token deposit as well
-            graph_obj.create_edge(depositor_node.node_id, routing_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, attributes={
-                "amount": int(event_record.amount), 
-                #"timestamp": tx.timestamp
-            })
-
-            # Create corresponding log event node for the burning of the native token
-            burn_log_event_node = graph_obj.create_log_node(
-                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-                "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
-                {
-                    "from": event_record.depositor,
-                    "to": routing_node.address,
-                    "value": int(event_record.amount)
-                }
-            )
-            graph_obj.create_edge(token_node.node_id, burn_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
-
     def parse_token_deposited_event(self, event, routing_node, graph_obj: GraphObject):
         event_signature = "event TokenDeposited(bytes32 receiptHash, tuple receipt)"
         # Fetch the respective metadata from the repository
@@ -348,23 +328,3 @@ class RoninGraphGenerator(BaseGraphGenerator):
             node_type_if_missing=GraphNodeType.USER.value
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
-
-        # Handle native tokens (Wrapped Ethereum)
-        if graph_obj.graph_mapping.blockchain == "ethereum" and BLOCKCHAIN_IDS["1"]["native_token_contract"].lower() == event_record.output_token.lower():
-            # Create the Transfer representation of the native token deposit as well
-            graph_obj.create_edge(routing_node.node_id, recipient_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, attributes={
-                "amount": int(event_record.amount), 
-                #"timestamp": tx.timestamp
-            })
-
-            # Create corresponding log event node for the minting of the native token
-            mint_log_event_node = graph_obj.create_log_node(
-                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-                "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
-                {
-                    "from": routing_node.address,
-                    "to": event_record.recipient,
-                    "value": int(event_record.amount)
-                }
-            )
-            graph_obj.create_edge(token_node.node_id, mint_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)

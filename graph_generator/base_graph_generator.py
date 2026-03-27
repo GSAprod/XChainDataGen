@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from eth_abi import decode as abi_decode
 from web3 import Web3
 
-from config.constants import Bridge
+from config.constants import TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS, Bridge
 from graph_generator.graph_class import GraphObject
 from graph_generator.graph_label import GraphLabel
 from repository.common.models import BlockchainTransaction
@@ -58,7 +58,7 @@ class BaseGraphGenerator(ABC):
             f"Blockchain {tx.blockchain} - Processing transaction {tx.transaction_hash} for graph generation..."
         )
         graph_obj = GraphObject(self.blockchain_graph_mapping_repo, self.graph_node_repo, self.graph_edge_repo)
-        graph_mapping = graph_obj.create_graph_mapping(
+        graph_obj.create_graph_mapping(
             self.bridge, 
             tx.blockchain, 
             tx.transaction_hash, 
@@ -71,7 +71,7 @@ class BaseGraphGenerator(ABC):
         tx_receipt = self.rpc_client.get_transaction_receipt(blockchain, tx_hash)
 
         for event in tx_receipt["logs"]:
-            emitted_by = event["address"] 
+            emitted_by = event["address"]
 
             if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(emitted_by.lower(), blockchain):
                 # If the event is emitted by a known bridge router, we can 
@@ -124,6 +124,51 @@ class BaseGraphGenerator(ABC):
                 event
             )
             graph_obj.create_edge(address_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
+
+        # Check for internal transactions that move value between addresses
+        # and include them in the graph as well (if blockchain supports it)
+        if blockchain in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS:
+            internal_txs = self.rpc_client.get_transaction_trace(blockchain, tx_hash)
+            internal_inputs = set()     # to avoid processing the same delegatecall
+            for internal_tx in internal_txs:
+                if (
+                    internal_tx["type"] == "delegatecall"
+                    and internal_tx["action"]["input"] in internal_inputs
+                ):
+                    # If the delegatecall input is the same as a previous one, we can assume it's part of the same execution flow and skip it to avoid redundancy in the graph
+                    continue
+                elif (
+                    internal_tx["type"] == "call" 
+                    and internal_tx["action"]["callType"] in ["call", "callcode", "delegatecall"] 
+                    and internal_tx["action"]["value"] != '0x0'
+                ):
+                    # Add an edge for the value transfer between the from and to addresses
+                    from_address = internal_tx["action"]["from"]
+                    to_address = internal_tx["action"]["to"]
+                    value = int(internal_tx["action"]["value"], 16)
+
+                    from_node = graph_obj.fetch_or_create_node(from_address)
+                    to_node = graph_obj.fetch_or_create_node(to_address)
+                    graph_obj.create_edge(from_node.node_id, to_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, attributes={
+                        "currency": "native",
+                        "amount": value
+                    })
+
+                    # We can also create a log event node for the internal transaction and link it 
+                    # to the native token node
+                    native_token_node = graph_obj.fetch_or_create_node(
+                        "token_native",
+                        node_type_if_missing=GraphNodeType.TOKEN.value
+                    )
+                    log_event_node = graph_obj.create_log_node(
+                        f"{internal_tx['action']['from']}_{internal_tx['action']['to']}",
+                        f"Transfer(address from, address to, uint256 value)",
+                        internal_tx
+                    )
+                    graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
+
+                    # Add the delegatecall input to the set to avoid re-processing
+                    internal_inputs.add(internal_tx["action"]["input"])
 
     def load_erc20_contract(self, address):
         checksum_address = Web3.to_checksum_address(address)
