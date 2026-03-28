@@ -57,7 +57,7 @@ class BaseGraphGenerator(ABC):
         log_to_cli(
             f"Blockchain {tx.blockchain} - Processing transaction {tx.transaction_hash} for graph generation..."
         )
-        graph_obj = GraphObject(self.blockchain_graph_mapping_repo, self.graph_node_repo, self.graph_edge_repo)
+        graph_obj = GraphObject(self.blockchain_graph_mapping_repo, self.graph_node_repo, self.graph_edge_repo, self.token_metadata_repo)
         graph_obj.create_graph_mapping(
             self.bridge, 
             tx.blockchain, 
@@ -79,6 +79,7 @@ class BaseGraphGenerator(ABC):
                 routing_node = graph_obj.fetch_or_create_node(
                     emitted_by,
                     node_type_if_missing=GraphNodeType.ROUTER.value,
+                    attributes_text=f"type = router; blockchain = {blockchain}; bridge = {self.bridge.value}"
                     # we can also include the function signatures as attributes.
                     # we won't include them for now for space reasons
                 )
@@ -105,13 +106,8 @@ class BaseGraphGenerator(ABC):
             # If the event is emitted by a known token contract, we can create a token node 
             # and parse the event to include additional relations to the graph
             if token_metadata is not None:
-                token_node = graph_obj.fetch_or_create_node(
-                    emitted_by,
-                    attributes={
-                        "symbol": token_metadata.symbol,
-                        "name": token_metadata.name
-                    },
-                    node_type_if_missing=GraphNodeType.TOKEN.value
+                token_node = graph_obj.fetch_or_create_token_node(
+                    emitted_by
                 )
                 self.parse_token_event(event, token_node, graph_obj)
                 continue
@@ -121,7 +117,9 @@ class BaseGraphGenerator(ABC):
             log_event_node = graph_obj.create_log_node(
                 event["topics"][0],
                 None,
-                event
+                event,
+                attributes_text=f"""event UnknownEvent(topic: {event['topics'][0][:6]}...{event['topics'][0][-4:]})
+type = log_event; blockchain = {blockchain}"""
             )
             graph_obj.create_edge(address_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
 
@@ -158,12 +156,26 @@ class BaseGraphGenerator(ABC):
                     # to the native token node
                     native_token_node = graph_obj.fetch_or_create_node(
                         "token_native",
-                        node_type_if_missing=GraphNodeType.TOKEN.value
+                        node_type_if_missing=GraphNodeType.TOKEN.value,
+                        attributes={
+                            "symbol": "ETH Native Token",
+                            "blockchain": blockchain,
+                        },
+                        attributes_text=f"type = token; blockchain = {blockchain}; symbol = ETH Native Token"
                     )
+
+                    description = f"""event Transfer(address from, address to, uint256 value)
+from = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]})
+to = {to_node.node_type} ({to_node.address[:6]}...{to_node.address[-4:]})
+value = {float(value) / 10**18} ETH
+blockchain = {blockchain}
+"""  # Needs to change symbol based on the blockchain
+                        
                     log_event_node = graph_obj.create_log_node(
                         f"{internal_tx['action']['from']}_{internal_tx['action']['to']}",
                         f"Transfer(address from, address to, uint256 value)",
-                        internal_tx
+                        internal_tx,
+                        attributes_text=description
                     )
                     graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
 
@@ -177,6 +189,17 @@ class BaseGraphGenerator(ABC):
             abi = json.load(abi_file)
         return Web3().eth.contract(address=checksum_address, abi=abi)
     
+    def load_token_metadata(self, contract_address: str, blockchain: str):
+        metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(contract_address, blockchain)
+        if metadata is None:
+            res = self.check_if_contract_erc20(contract_address, blockchain)
+            if res:
+                metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(contract_address, blockchain)
+            else:
+                return None
+        return metadata
+
+
     def check_if_contract_erc20(self, contract_address: str, blockchain: str) -> bool:
         function_signatures = [
             { "signature": "0x06fdde03", "name": "name", "result": None, "resultType": "string" }, # name()
@@ -224,14 +247,14 @@ class BaseGraphGenerator(ABC):
         # Parsing logic for ERC20 Token events
         from_address, to_address, value, type = None, None, None, None
         if event["topics"][0] == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": # Transfer
-            event_signature = "event Transfer(address indexed _from, address indexed _to, uint256 _value)"
+            event_signature = "event Transfer(address _from, address _to, uint256 _value)"
             event_args = contract.events.Transfer().process_log(event)["args"]
             from_address = event_args["from"]
             to_address = event_args["to"]
             value = event_args["value"]
             type = GraphEdgeType.TOKEN_TRANSFER.value
         elif event["topics"][0] == "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925": # Approval
-            event_signature = "event Approval(address indexed _owner, address indexed _spender, uint256 _value)"
+            event_signature = "event Approval(address _owner, address _spender, uint256 _value)"
             event_args = contract.events.Approval().process_log(event)["args"]
             from_address = event_args["owner"]
             to_address = event_args["spender"]
@@ -244,20 +267,41 @@ class BaseGraphGenerator(ABC):
             log_event_node = graph_obj.create_log_node(
                 event["topics"][0],
                 None,
-                event
+                event,
+                f"""event UnknownTokenEvent(topic: {event['topics'][0][:6]}...{event['topics'][0][-4:]})
+type = log_event
+blockchain = {token_node.blockchain}
+token = {token_node.address[:6]}...{token_node.address[-4:]}
+"""
             )
             graph_obj.create_edge(token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
             return
         
         from_node = graph_obj.fetch_or_create_node(from_address)
         to_node = graph_obj.fetch_or_create_node(to_address)
-        graph_obj.create_edge(from_node.node_id, to_node.node_id, type, attributes={"amount": value})
+
+        #normalize for llm:
+        # For better readability of the graph data when normalized for LLMs, 
+        # we include the event signature and arguments in a more human-readable format
+        token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(token_node.address, token_node.blockchain)
+        from_text = "from" if type == GraphEdgeType.TOKEN_TRANSFER.value else "owner"
+        to_text = "to" if type == GraphEdgeType.TOKEN_TRANSFER.value else "spender"
+        
+        description = f"""{event_signature}
+{from_text} = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]})
+{to_text} = {to_node.node_type} ({to_node.address[:6]}...{to_node.address[-4:]})
+value = {float(value) / (10 ** token_metadata.decimals)} {token_metadata.symbol}
+blockchain = {token_node.blockchain}
+"""
+
+        graph_obj.create_edge(from_node.node_id, to_node.node_id, type)
 
         # Create and link log event node to the token node
         log_event_node = graph_obj.create_log_node(
             event["topics"][0],
             event_signature,
-            event_args
+            event_args,
+            attributes_text=description
         )
         graph_obj.create_edge(token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
 
@@ -327,9 +371,12 @@ class BaseGraphGenerator(ABC):
                             "address": f"validator_{cctx_id}",
                             "attributes": {
                                 "cctx_id": cctx_id,
-                                "source_tx": f"{cctx.src_blockchain}:{cctx.src_transaction_hash}",
-                                "destination_tx": f"{cctx.dst_blockchain}:{cctx.dst_transaction_hash}"
-                            }
+                                "source_chain": cctx.src_blockchain,
+                                "source_tx": cctx.src_transaction_hash,
+                                "target_chain": cctx.dst_blockchain,
+                                "destination_tx": cctx.dst_transaction_hash
+                            },
+                            "attributes_text": f"type = validator; cctx_id = {cctx_id}; src_blockchain = {cctx.src_blockchain}; dst_blockchain = {cctx.dst_blockchain}"
                         }
                     )
 

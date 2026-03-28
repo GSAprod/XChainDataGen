@@ -47,6 +47,7 @@ class GraphNode(Base):
     blockchain = Column(String(255), nullable=True) # Can be none for validator nodes
     address = Column(String(255), nullable=True)  # Can be none for relays and logs
     attributes = Column(JSON, nullable=True) # JSON object of attributes
+    attributes_text = Column(String, nullable=True) # Text description of attributes for LLM input
     timestamp = Column(BigInteger, nullable=True)
 
 class GraphEdgeType(Enum):
@@ -69,6 +70,7 @@ class GraphEdge(Base):
     source_id = Column(Integer, nullable=False)
     target_id = Column(Integer, nullable=False)
     attributes = Column(JSON, nullable=True) # JSON object of attributes
+    attributes_text = Column(String, nullable=True) # Text description of attributes for LLM input
     tx_hash = Column(String(255), nullable=True)
     amount = Column(Numeric(30), nullable=True)
     deposit_id = Column(String(255), nullable=True)

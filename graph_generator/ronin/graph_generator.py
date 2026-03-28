@@ -77,31 +77,6 @@ class RoninGraphGenerator(BaseGraphGenerator):
             # Log error to error.log #TODO TODO
             pass
 
-        event_args = {
-            "receipt": {
-                "deposit_id": event_record.deposit_id,
-                "kind": event_record.kind,
-                "amount": int(event_record.amount),
-                "depositor": event_record.depositor,
-                "input_token": event_record.input_token,
-                "destination_chain": event_record.dst_blockchain,
-                "recipient": event_record.recipient,
-                "output_token": event_record.output_token,
-            }
-        }
-
-        # Create and link log event node to the routing node
-        log_event_node = graph_obj.create_log_node(
-            event["topics"][0],
-            event_signature,
-            event_args
-        )
-        graph_obj.create_edge(
-            routing_node.node_id, 
-            log_event_node.node_id, 
-            GraphEdgeType.LOG_RELATION.value
-        )
-
         # Ensure the depositor is a user node
         depositor_node = graph_obj.fetch_or_create_node(
             event_record.depositor,
@@ -118,14 +93,50 @@ class RoninGraphGenerator(BaseGraphGenerator):
         )
 
         # Link the routing node and the token node with a function call edge
-        token_node = graph_obj.fetch_or_create_node(
-            event_record.input_token,
-            node_type_if_missing=GraphNodeType.TOKEN.value
+        token_node = graph_obj.fetch_or_create_token_node(
+            event_record.input_token
         )
         graph_obj.create_edge(
             routing_node.node_id,
             token_node.node_id,
             GraphEdgeType.FUNCTION_CALL.value
+        )
+
+        event_args = {
+            "receipt": {
+                "deposit_id": event_record.deposit_id,
+                "kind": event_record.kind,
+                "amount": int(event_record.amount),
+                "depositor": event_record.depositor,
+                "input_token": event_record.input_token,
+                "destination_chain": event_record.dst_blockchain,
+                "recipient": event_record.recipient,
+                "output_token": event_record.output_token,
+            }
+        }
+        input_token_metadata = self.load_token_metadata(event_record.input_token, graph_obj.graph_mapping.blockchain)
+        event_text = f"""{event_signature}
+bridge = Ronin
+blockchain = {graph_obj.graph_mapping.blockchain}
+cctx_id = {event_record.deposit_id}
+depositor = {depositor_node.node_type} ({depositor_node.address[:6]}...{depositor_node.address[-4:]})
+input_token ={f" {input_token_metadata.name} ({input_token_metadata.symbol}) at" if input_token_metadata else ""} {event_record.input_token[:6]}...{event_record.input_token[-4:]}
+{f"in_amount = {float(event_record.amount) / (10 ** input_token_metadata.decimals)} {input_token_metadata.symbol}" if input_token_metadata else f"amount = {int(event_record.amount)}"}
+recipient = {GraphNodeType.USER.value} ({event_record.recipient[:6]}...{event_record.recipient[-4:]})
+destination_chain = {event_record.dst_blockchain}
+"""
+
+        # Create and link log event node to the routing node
+        log_event_node = graph_obj.create_log_node(
+            event["topics"][0],
+            event_signature,
+            event_args,
+            attributes_text=event_text
+        )
+        graph_obj.create_edge(
+            routing_node.node_id, 
+            log_event_node.node_id, 
+            GraphEdgeType.LOG_RELATION.value
         )
 
     def parse_token_deposited_event(self, event, routing_node, graph_obj: GraphObject):
@@ -136,35 +147,10 @@ class RoninGraphGenerator(BaseGraphGenerator):
             # Log error to error.log
             pass
 
-        event_args = {
-            "receipt": {
-                "deposit_id": event_record.deposit_id,
-                "kind": event_record.kind,
-                "amount": int(event_record.amount),
-                "depositor": event_record.depositor,
-                "input_token": event_record.input_token,
-                "source_chain": event_record.src_blockchain,
-                "recipient": event_record.recipient,
-                "output_token": event_record.output_token,
-            }
-        }
-
-        # Create and link log event node to the routing node
-        log_event_node = graph_obj.create_log_node(
-            event["topics"][0],
-            event_signature,
-            event_args
-        )
-        graph_obj.create_edge(
-            routing_node.node_id, 
-            log_event_node.node_id, 
-            GraphEdgeType.LOG_RELATION.value
-        )
-
         # Link the routing node and the token node with a function call edge
-        token_node = graph_obj.fetch_or_create_node(
-            event_record.output_token,
-            node_type_if_missing=GraphNodeType.TOKEN.value
+        token_metadata = self.load_token_metadata(event_record.output_token, graph_obj.graph_mapping.blockchain)
+        token_node = graph_obj.fetch_or_create_token_node(
+            event_record.output_token
         )
         graph_obj.create_edge(
             routing_node.node_id,
@@ -199,6 +185,43 @@ class RoninGraphGenerator(BaseGraphGenerator):
             )
             graph_obj.create_edge(token_node.node_id, burn_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
 
+        event_args = {
+            "receipt": {
+                "deposit_id": event_record.deposit_id,
+                "kind": event_record.kind,
+                "amount": int(event_record.amount),
+                "depositor": event_record.depositor,
+                "input_token": event_record.input_token,
+                "source_chain": event_record.src_blockchain,
+                "recipient": event_record.recipient,
+                "output_token": event_record.output_token,
+            }
+        }
+        output_token_metadata = self.load_token_metadata(event_record.output_token, graph_obj.graph_mapping.blockchain)
+        event_text = f"""{event_signature}
+bridge = Ronin
+blockchain = {graph_obj.graph_mapping.blockchain}
+cctx_id = {event_record.deposit_id}
+depositor = {GraphNodeType.USER.value} ({event_record.depositor[:6]}...{event_record.depositor[-4:]})
+recipient = {recipient_node.node_type} ({recipient_node.address[:6]}...{recipient_node.address[-4:]})
+output_token ={f" {output_token_metadata.name} ({output_token_metadata.symbol}) at" if output_token_metadata else ""} {event_record.output_token[:6]}...{event_record.output_token[-4:]}
+{f"out_amount = {float(event_record.amount) / (10 ** output_token_metadata.decimals)} {output_token_metadata.symbol}" if output_token_metadata else f"amount = {int(event_record.amount)}"}
+source_chain = {event_record.src_blockchain}
+"""
+
+        # Create and link log event node to the routing node
+        log_event_node = graph_obj.create_log_node(
+            event["topics"][0],
+            event_signature,
+            event_args,
+            event_text
+        )
+        graph_obj.create_edge(
+            routing_node.node_id, 
+            log_event_node.node_id, 
+            GraphEdgeType.LOG_RELATION.value
+        )
+
     def parse_withdraw_requested_event(self, event, routing_node, graph_obj: GraphObject):
         event_signature = "event WithdrawRequested(bytes32 receiptHash, tuple receipt)"
         # Fetch the respective metadata from the repository
@@ -206,31 +229,6 @@ class RoninGraphGenerator(BaseGraphGenerator):
         if event_record is None:
             # Log error to error.log #TODO TODO
             pass
-
-        event_args = {
-            "receipt": {
-                "withdrawal_id": event_record.withdrawal_id,
-                "kind": event_record.kind,
-                "amount": int(event_record.amount),
-                "withdrawer": event_record.withdrawer,
-                "input_token": event_record.input_token,
-                "destination_chain": event_record.dst_blockchain,
-                "recipient": event_record.recipient,
-                "output_token": event_record.output_token,
-            }
-        }
-
-        # Create and link log event node to the routing node
-        log_event_node = graph_obj.create_log_node(
-            event["topics"][0],
-            event_signature,
-            event_args
-        )
-        graph_obj.create_edge(
-            routing_node.node_id, 
-            log_event_node.node_id, 
-            GraphEdgeType.LOG_RELATION.value
-        )
 
         # Ensure the withdrawer is a user node
         withdrawer_node = graph_obj.fetch_or_create_node(
@@ -248,9 +246,8 @@ class RoninGraphGenerator(BaseGraphGenerator):
         )
 
         # Link the routing node and the token node with a function call edge
-        token_node = graph_obj.fetch_or_create_node(
-            event_record.input_token,
-            node_type_if_missing=GraphNodeType.TOKEN.value
+        token_node = graph_obj.fetch_or_create_token_node(
+            event_record.input_token
         )
         graph_obj.create_edge(
             routing_node.node_id,
@@ -278,6 +275,43 @@ class RoninGraphGenerator(BaseGraphGenerator):
             )
             graph_obj.create_edge(token_node.node_id, burn_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
 
+        event_args = {
+            "receipt": {
+                "withdrawal_id": event_record.withdrawal_id,
+                "kind": event_record.kind,
+                "amount": int(event_record.amount),
+                "withdrawer": event_record.withdrawer,
+                "input_token": event_record.input_token,
+                "destination_chain": event_record.dst_blockchain,
+                "recipient": event_record.recipient,
+                "output_token": event_record.output_token,
+            }
+        }
+        input_token_metadata = self.load_token_metadata(event_record.input_token, graph_obj.graph_mapping.blockchain)
+        event_text = f"""{event_signature}
+bridge = Ronin
+blockchain = {graph_obj.graph_mapping.blockchain}
+cctx_id = {event_record.withdrawal_id}
+withdrawer = {withdrawer_node.node_type} ({withdrawer_node.address[:6]}...{withdrawer_node.address[-4:]})
+input_token ={f" {input_token_metadata.name} ({input_token_metadata.symbol}) at" if input_token_metadata else ""} {event_record.input_token[:6]}...{event_record.input_token[-4:]}
+{f"in_amount = {float(event_record.amount) / (10 ** input_token_metadata.decimals)} {input_token_metadata.symbol}" if input_token_metadata else f"amount = {int(event_record.amount)}"}
+recipient = {GraphNodeType.USER.value} ({event_record.recipient[:6]}...{event_record.recipient[-4:]})
+destination_chain = {event_record.dst_blockchain}
+"""
+
+        # Create and link log event node to the routing node
+        log_event_node = graph_obj.create_log_node(
+            event["topics"][0],
+            event_signature,
+            event_args,
+            attributes_text=event_text
+        )
+        graph_obj.create_edge(
+            routing_node.node_id, 
+            log_event_node.node_id, 
+            GraphEdgeType.LOG_RELATION.value
+        )
+
     def parse_token_withdrew_event(self, event, routing_node, graph_obj: GraphObject):
         event_signature = "event TokenWithdrew(bytes32 receiptHash, tuple receipt)"
         # Fetch the respective metadata from the repository
@@ -286,35 +320,9 @@ class RoninGraphGenerator(BaseGraphGenerator):
             # Log error to error.log #TODO TODO
             pass
 
-        event_args = {
-            "receipt": {
-                "withdrawal_id": event_record.withdrawal_id,
-                "kind": event_record.kind,
-                "amount": int(event_record.amount),
-                "withdrawer": event_record.withdrawer,
-                "input_token": event_record.input_token,
-                "source_chain": event_record.src_blockchain,
-                "recipient": event_record.recipient,
-                "output_token": event_record.output_token,
-            }
-        }
-
-        # Create and link log event node to the routing node
-        log_event_node = graph_obj.create_log_node(
-            event["topics"][0],
-            event_signature,
-            event_args
-        )
-        graph_obj.create_edge(
-            routing_node.node_id, 
-            log_event_node.node_id, 
-            GraphEdgeType.LOG_RELATION.value
-        )
-
         # Link the routing node and the token node with a function call edge
-        token_node = graph_obj.fetch_or_create_node(
+        token_node = graph_obj.fetch_or_create_token_node(
             event_record.output_token,
-            node_type_if_missing=GraphNodeType.TOKEN.value
         )
         graph_obj.create_edge(
             routing_node.node_id,
@@ -328,3 +336,40 @@ class RoninGraphGenerator(BaseGraphGenerator):
             node_type_if_missing=GraphNodeType.USER.value
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
+
+        event_args = {
+            "receipt": {
+                "withdrawal_id": event_record.withdrawal_id,
+                "kind": event_record.kind,
+                "amount": int(event_record.amount),
+                "withdrawer": event_record.withdrawer,
+                "input_token": event_record.input_token,
+                "source_chain": event_record.src_blockchain,
+                "recipient": event_record.recipient,
+                "output_token": event_record.output_token,
+            }
+        }
+        output_token_metadata = self.load_token_metadata(event_record.output_token, graph_obj.graph_mapping.blockchain)
+        event_text = f"""{event_signature}
+bridge = Ronin
+blockchain = {graph_obj.graph_mapping.blockchain}
+cctx_id = {event_record.withdrawal_id}
+withdrawer = {GraphNodeType.USER.value} ({event_record.withdrawer[:6]}...{event_record.withdrawer[-4:]})
+recipient = {recipient_node.node_type} ({recipient_node.address[:6]}...{recipient_node.address[-4:]})
+output_token ={f" {output_token_metadata.name} ({output_token_metadata.symbol}) at" if output_token_metadata else ""} {event_record.output_token[:6]}...{event_record.output_token[-4:]}
+{f"out_amount = {float(event_record.amount) / (10 ** output_token_metadata.decimals)} {output_token_metadata.symbol}" if output_token_metadata else f"amount = {int(event_record.amount)}"}
+source_chain = {event_record.src_blockchain}
+"""
+
+        # Create and link log event node to the routing node
+        log_event_node = graph_obj.create_log_node(
+            event["topics"][0],
+            event_signature,
+            event_args,
+            attributes_text=event_text
+        )
+        graph_obj.create_edge(
+            routing_node.node_id, 
+            log_event_node.node_id, 
+            GraphEdgeType.LOG_RELATION.value
+        )
