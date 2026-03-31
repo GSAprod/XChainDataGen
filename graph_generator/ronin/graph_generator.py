@@ -61,11 +61,18 @@ class RoninGraphGenerator(BaseGraphGenerator):
             #? What to do if the event is not one of the above? For now we will ignore it
             # We can still create a log event node and link it to the routing node
             event_signature = None
-            event_args = None
+            event_text = f"""event UnknownRouterEvent
+bridge = ronin
+blockchain = {graph_obj.graph_mapping.blockchain}
+topic = {event["topics"][0][:6]}...{event["topics"][0][-4:]}
+number_of_args = {len(event["topics"]) - 1}
+data_chunks = {len(event["data"]) // 32}
+"""
             log_event_node = graph_obj.create_log_node(
                 event["topics"][0],
                 event_signature,
-                event
+                event,
+                attributes_text=event_text
             )
             graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
 
@@ -116,7 +123,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
         }
         input_token_metadata = self.load_token_metadata(event_record.input_token, graph_obj.graph_mapping.blockchain)
         event_text = f"""{event_signature}
-bridge = Ronin
+bridge = ronin
 blockchain = {graph_obj.graph_mapping.blockchain}
 cctx_id = {event_record.deposit_id}
 depositor = {depositor_node.node_type} ({depositor_node.address[:6]}...{depositor_node.address[-4:]})
@@ -199,7 +206,7 @@ destination_chain = {event_record.dst_blockchain}
         }
         output_token_metadata = self.load_token_metadata(event_record.output_token, graph_obj.graph_mapping.blockchain)
         event_text = f"""{event_signature}
-bridge = Ronin
+bridge = ronin
 blockchain = {graph_obj.graph_mapping.blockchain}
 cctx_id = {event_record.deposit_id}
 depositor = {GraphNodeType.USER.value} ({event_record.depositor[:6]}...{event_record.depositor[-4:]})
@@ -289,7 +296,7 @@ source_chain = {event_record.src_blockchain}
         }
         input_token_metadata = self.load_token_metadata(event_record.input_token, graph_obj.graph_mapping.blockchain)
         event_text = f"""{event_signature}
-bridge = Ronin
+bridge = ronin
 blockchain = {graph_obj.graph_mapping.blockchain}
 cctx_id = {event_record.withdrawal_id}
 withdrawer = {withdrawer_node.node_type} ({withdrawer_node.address[:6]}...{withdrawer_node.address[-4:]})
@@ -351,7 +358,7 @@ destination_chain = {event_record.dst_blockchain}
         }
         output_token_metadata = self.load_token_metadata(event_record.output_token, graph_obj.graph_mapping.blockchain)
         event_text = f"""{event_signature}
-bridge = Ronin
+bridge = ronin
 blockchain = {graph_obj.graph_mapping.blockchain}
 cctx_id = {event_record.withdrawal_id}
 withdrawer = {GraphNodeType.USER.value} ({event_record.withdrawer[:6]}...{event_record.withdrawer[-4:]})

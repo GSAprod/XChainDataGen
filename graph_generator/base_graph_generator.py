@@ -109,7 +109,7 @@ class BaseGraphGenerator(ABC):
                 token_node = graph_obj.fetch_or_create_token_node(
                     emitted_by
                 )
-                self.parse_token_event(event, token_node, graph_obj)
+                self.parse_token_event(event, token_node, graph_obj, token_metadata)
                 continue
 
             # For other events, we can create a log event node and link it to the respective address node
@@ -118,8 +118,13 @@ class BaseGraphGenerator(ABC):
                 event["topics"][0],
                 None,
                 event,
-                attributes_text=f"""event UnknownEvent(topic: {event['topics'][0][:6]}...{event['topics'][0][-4:]})
-type = log_event; blockchain = {blockchain}"""
+                attributes_text=f"""event UnknownEvent
+blockchain = {blockchain}
+address = {event["address"][:6]}...{event["address"][-4:]}
+topic = {event["topics"][0][:6]}...{event["topics"][0][-4:]}
+number_of_args = {len(event["topics"]) - 1}
+data_size = {len(event["data"]) // 32}
+"""
             )
             graph_obj.create_edge(address_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
 
@@ -158,13 +163,14 @@ type = log_event; blockchain = {blockchain}"""
                         "token_native",
                         node_type_if_missing=GraphNodeType.TOKEN.value,
                         attributes={
-                            "symbol": "ETH Native Token",
+                            "symbol": "ETH Native Currency",
                             "blockchain": blockchain,
                         },
-                        attributes_text=f"type = token; blockchain = {blockchain}; symbol = ETH Native Token"
+                        attributes_text=f"type = token; blockchain = {blockchain}; symbol = ETH Native Currency"
                     )
 
                     description = f"""event Transfer(address from, address to, uint256 value)
+token = ETH Native Currency at token_native
 from = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]})
 to = {to_node.node_type} ({to_node.address[:6]}...{to_node.address[-4:]})
 value = {float(value) / 10**18} ETH
@@ -241,7 +247,7 @@ blockchain = {blockchain}
             )
         return True
 
-    def parse_token_event(self, event, token_node, graph_obj: GraphObject):
+    def parse_token_event(self, event, token_node, graph_obj: GraphObject, token_metadata):
         contract = self.load_erc20_contract(token_node.address)
         
         # Parsing logic for ERC20 Token events
@@ -268,10 +274,12 @@ blockchain = {blockchain}
                 event["topics"][0],
                 None,
                 event,
-                f"""event UnknownTokenEvent(topic: {event['topics'][0][:6]}...{event['topics'][0][-4:]})
-type = log_event
+                f"""event UnknownTokenEvent
+token = {token_metadata.name} ({token_metadata.symbol}) at {token_node.address[:6]}...{token_node.address[-4:]}
 blockchain = {token_node.blockchain}
-token = {token_node.address[:6]}...{token_node.address[-4:]}
+topic: {event['topics'][0][:6]}...{event['topics'][0][-4:]})
+number_of_args = {len(event["topics"]) - 1}
+data_chunks = {len(event["data"]) // 32}
 """
             )
             graph_obj.create_edge(token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
@@ -283,11 +291,11 @@ token = {token_node.address[:6]}...{token_node.address[-4:]}
         #normalize for llm:
         # For better readability of the graph data when normalized for LLMs, 
         # we include the event signature and arguments in a more human-readable format
-        token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(token_node.address, token_node.blockchain)
         from_text = "from" if type == GraphEdgeType.TOKEN_TRANSFER.value else "owner"
         to_text = "to" if type == GraphEdgeType.TOKEN_TRANSFER.value else "spender"
         
         description = f"""{event_signature}
+token = {token_metadata.name} ({token_metadata.symbol}) at {token_node.address[:6]}...{token_node.address[-4:]}
 {from_text} = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]})
 {to_text} = {to_node.node_type} ({to_node.address[:6]}...{to_node.address[-4:]})
 value = {float(value) / (10 ** token_metadata.decimals)} {token_metadata.symbol}
