@@ -1,8 +1,8 @@
 
 
 from config.constants import Bridge
-from graph_generator.graph_label import GraphLabel
-from repository.graphs.models import GraphMappingBlockchain, GraphNodeType
+from graph_generator.graph_label import GraphLabel, GraphNodeType
+from repository.graphs.models import GraphMappingBlockchain
 
 
 class GraphObject:
@@ -78,7 +78,7 @@ class GraphObject:
             new_node_data["timestamp"] = timestamp
         return self.create_node(new_node_data)
 
-    def create_log_node(self, topic, event_signature, event_args, attributes_text=None):
+    def create_log_node(self, topic, event_signature, event_args, attributes_text=None, amount=None, amount_usd=None):
         log_node_data = {
             "chain_graph_id": self.graph_mapping.graph_id,
             "node_type": GraphNodeType.LOG_EVENT.value,
@@ -92,6 +92,10 @@ class GraphObject:
         }
         if attributes_text is not None:
             log_node_data["attributes_text"] = attributes_text
+        if amount is not None:
+            log_node_data["amount"] = amount
+        if amount_usd is not None:
+            log_node_data["amount_usd"] = amount_usd
         return self.create_node(log_node_data)
 
     def update_node_type(self, node_id: int, new_type: str):

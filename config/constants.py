@@ -132,7 +132,7 @@ BRIDGE_NEEDS_TRANSACTION_BY_HASH_RPC_METHOD = {
     Bridge.CCIP: False,
     Bridge.ACROSS: False,
     Bridge.POLYGON: False,
-    Bridge.RONIN: True,
+    Bridge.RONIN: False,
     Bridge.OMNIBRIDGE: False,
     Bridge.DEBRIDGE: True,
     Bridge.MAYAN: True,

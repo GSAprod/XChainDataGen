@@ -1,6 +1,5 @@
-from enum import Enum
 
-from sqlalchemy import JSON, BigInteger, Column, Integer, Numeric, String
+from sqlalchemy import JSON, BigInteger, Column, Float, Integer, Numeric, String
 
 from repository.database import Base
 
@@ -28,14 +27,6 @@ class GraphMappingCrossChain(Base):
     destination_tx_hash = Column(String(66), nullable=False)
     label = Column(String(20), nullable=False)
 
-class GraphNodeType(Enum):
-    USER = "user"
-    ROUTER = "router"
-    TOKEN = "token"
-    OTHER_ACCOUNT = "other_account"
-    LOG_EVENT = "log_event"
-    VALIDATOR = "validator"
-
 class GraphNode(Base):
     __tablename__ = "graph_nodes"
 
@@ -45,18 +36,13 @@ class GraphNode(Base):
     cctx_graph_id = Column(Integer, nullable=True) # Can be null for nodes that are not linked to a cross-chain transaction
     bridge = Column(String(255), nullable=False)
     blockchain = Column(String(255), nullable=True) # Can be none for validator nodes
+    blockchain_type = Column(String(255), nullable=True) # If a node is part of the source, target chain, or in an offchain process
     address = Column(String(255), nullable=True)  # Can be none for relays and logs
     attributes = Column(JSON, nullable=True) # JSON object of attributes
     attributes_text = Column(String, nullable=True) # Text description of attributes for LLM input
+    amount = Column(Numeric(80), nullable=True)
+    amount_usd = Column(Numeric(80), nullable=True)
     timestamp = Column(BigInteger, nullable=True)
-
-class GraphEdgeType(Enum):
-    TRANSACTION = "transaction"
-    TOKEN_TRANSFER = "token_transfer"
-    TOKEN_AUTH = "token_auth"
-    FUNCTION_CALL = "function_call"
-    LOG_RELATION = "log_relation"
-    CROSS_CHAIN_RELATION = "cross_chain_relation"
 
 class GraphEdge(Base):
     __tablename__ = "graph_edges"
@@ -72,7 +58,8 @@ class GraphEdge(Base):
     attributes = Column(JSON, nullable=True) # JSON object of attributes
     attributes_text = Column(String, nullable=True) # Text description of attributes for LLM input
     tx_hash = Column(String(255), nullable=True)
-    amount = Column(Numeric(30), nullable=True)
+    amount = Column(Numeric(80), nullable=True)
+    amount_usd = Column(Numeric(80), nullable=True)
     deposit_id = Column(String(255), nullable=True)
     withdrawal_id = Column(String(255), nullable=True)
     timestamp = Column(BigInteger, nullable=True)

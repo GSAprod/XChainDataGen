@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 from abc import ABC, abstractmethod
@@ -7,14 +8,15 @@ from web3 import Web3
 
 from config.constants import TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS, Bridge
 from graph_generator.graph_class import GraphObject
-from graph_generator.graph_label import GraphLabel
+from graph_generator.graph_label import BlockchainType, GraphLabel, GraphNodeType
 from repository.common.models import BlockchainTransaction
 from repository.common.repository import (
     BridgeRoutingContractMetadataRepository,
     TokenMetadataRepository,
+    TokenPriceRepository,
 )
 from repository.database import DBSession
-from repository.graphs.models import GraphEdgeType, GraphNodeType
+from graph_generator.graph_label import GraphEdgeType
 from repository.graphs.repository import (
     GraphEdgeRepository,
     GraphMappingBlockchainRepository,
@@ -23,6 +25,7 @@ from repository.graphs.repository import (
 )
 from rpcs.evm_rpc_client import EvmRPCClient
 from utils.utils import CliColor, log_to_cli
+from generator.base_generator import PriceGenerator
 
 
 class BaseGraphGenerator(ABC):
@@ -35,6 +38,7 @@ class BaseGraphGenerator(ABC):
     def bind_db_to_repos(self) -> None:
         self.bridge_router_metadata_repo = BridgeRoutingContractMetadataRepository(DBSession)
         self.token_metadata_repo = TokenMetadataRepository(DBSession)
+        self.token_price_repo = TokenPriceRepository(DBSession)
 
         self.blockchain_graph_mapping_repo = GraphMappingBlockchainRepository(DBSession)
         self.cctx_graph_mapping_repo = GraphMappingCrossChainRepository(DBSession)
@@ -84,7 +88,7 @@ class BaseGraphGenerator(ABC):
                     # we won't include them for now for space reasons
                 )
                 graph_obj.update_node_type(routing_node.node_id, GraphNodeType.ROUTER.value)
-                self.parse_bridge_router_event(event, routing_node, graph_obj)
+                self.parse_bridge_router_event(tx, event, routing_node, graph_obj)
                 continue
 
             # Check if the address is a known token contract
@@ -109,7 +113,7 @@ class BaseGraphGenerator(ABC):
                 token_node = graph_obj.fetch_or_create_token_node(
                     emitted_by
                 )
-                self.parse_token_event(event, token_node, graph_obj, token_metadata)
+                self.parse_token_event(tx, event, token_node, graph_obj, token_metadata)
                 continue
 
             # For other events, we can create a log event node and link it to the respective address node
@@ -169,11 +173,12 @@ data_size = {len(event["data"]) // 32}
                         attributes_text=f"type = token; blockchain = {blockchain}; symbol = ETH Native Currency"
                     )
 
+                    amount, amount_usd = self.convert_native_value_to_amount(tx.timestamp, value)
                     description = f"""event Transfer(address from, address to, uint256 value)
 token = ETH Native Currency at token_native
 from = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]})
 to = {to_node.node_type} ({to_node.address[:6]}...{to_node.address[-4:]})
-value = {float(value) / 10**18} ETH
+value = {amount} ETH
 blockchain = {blockchain}
 """  # Needs to change symbol based on the blockchain
                         
@@ -181,7 +186,9 @@ blockchain = {blockchain}
                         f"{internal_tx['action']['from']}_{internal_tx['action']['to']}",
                         f"Transfer(address from, address to, uint256 value)",
                         internal_tx,
-                        attributes_text=description
+                        attributes_text=description,
+                        amount=value,
+                        amount_usd=amount_usd
                     )
                     graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
 
@@ -205,6 +212,19 @@ blockchain = {blockchain}
                 return None
         return metadata
 
+    def convert_token_value_to_amount(self, timestamp: int, token_metadata, raw_value: int):
+        amount = float(raw_value) / (10 ** token_metadata.decimals)
+        date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
+        token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
+        amount_usd = int(int(raw_value) * token_price.price_usd * (10 ** (18 - token_metadata.decimals))) if token_price else None
+        return amount, amount_usd
+    
+    def convert_native_value_to_amount(self, timestamp: int, raw_value: int):
+        amount = float(raw_value) / 10**18  # Normalize the value to Ether units for better readability in the graph
+        date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
+        token_price = self.token_price_repo.get_token_price_by_symbol_and_date("WETH", date) # WETH is 1:1 with the native currency on EVM chains
+        amount_usd = int(int(raw_value) * token_price.price_usd) if token_price else None
+        return amount, amount_usd
 
     def check_if_contract_erc20(self, contract_address: str, blockchain: str) -> bool:
         function_signatures = [
@@ -245,9 +265,14 @@ blockchain = {blockchain}
                     "address": contract_address
                 }
             )
+
+        min_ts, max_ts = self.fetch_transactions_timestamp_interval()
+        PriceGenerator.fetch_and_store_token_prices(self.bridge.value, self.token_price_repo, min_ts, max_ts, 
+            function_signatures[0]["result"], function_signatures[1]["result"], blockchain, contract_address
+        )
         return True
 
-    def parse_token_event(self, event, token_node, graph_obj: GraphObject, token_metadata):
+    def parse_token_event(self, tx, event, token_node, graph_obj: GraphObject, token_metadata):
         contract = self.load_erc20_contract(token_node.address)
         
         # Parsing logic for ERC20 Token events
@@ -277,7 +302,7 @@ blockchain = {blockchain}
                 f"""event UnknownTokenEvent
 token = {token_metadata.name} ({token_metadata.symbol}) at {token_node.address[:6]}...{token_node.address[-4:]}
 blockchain = {token_node.blockchain}
-topic: {event['topics'][0][:6]}...{event['topics'][0][-4:]})
+topic: {event['topics'][0][:6]}...{event['topics'][0][-4:]}
 number_of_args = {len(event["topics"]) - 1}
 data_chunks = {len(event["data"]) // 32}
 """
@@ -294,11 +319,12 @@ data_chunks = {len(event["data"]) // 32}
         from_text = "from" if type == GraphEdgeType.TOKEN_TRANSFER.value else "owner"
         to_text = "to" if type == GraphEdgeType.TOKEN_TRANSFER.value else "spender"
         
+        amount, amount_usd = self.convert_token_value_to_amount(tx.timestamp, token_metadata, value)
         description = f"""{event_signature}
 token = {token_metadata.name} ({token_metadata.symbol}) at {token_node.address[:6]}...{token_node.address[-4:]}
 {from_text} = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]})
 {to_text} = {to_node.node_type} ({to_node.address[:6]}...{to_node.address[-4:]})
-value = {float(value) / (10 ** token_metadata.decimals)} {token_metadata.symbol}
+value = {amount} {token_metadata.symbol}
 blockchain = {token_node.blockchain}
 """
 
@@ -309,6 +335,8 @@ blockchain = {token_node.blockchain}
             event["topics"][0],
             event_signature,
             event_args,
+            amount=value,
+            amount_usd=amount_usd,
             attributes_text=description
         )
         graph_obj.create_edge(token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
@@ -318,7 +346,7 @@ blockchain = {token_node.blockchain}
         pass
 
     @abstractmethod
-    def parse_bridge_router_event(self, event, routing_node, graph_obj: GraphObject):
+    def parse_bridge_router_event(self, tx, event, routing_node, graph_obj: GraphObject):
         pass
 
     def link_transactions_into_cctxs(self):
@@ -358,11 +386,11 @@ blockchain = {token_node.blockchain}
             self.blockchain_graph_mapping_repo.assign_cctx_id(source_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
             self.blockchain_graph_mapping_repo.assign_cctx_id(destination_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
 
-            self.graph_node_repo.assign_cctx_id(source_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
-            self.graph_node_repo.assign_cctx_id(destination_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
+            self.graph_node_repo.assign_cctx_id(source_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id, blockchain_type=BlockchainType.SOURCE)
+            self.graph_node_repo.assign_cctx_id(destination_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id, blockchain_type=BlockchainType.DESTINATION)
 
-            self.graph_edge_repo.assign_cctx_id(source_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
-            self.graph_edge_repo.assign_cctx_id(destination_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
+            self.graph_edge_repo.assign_cctx_id(source_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id, blockchain_type=BlockchainType.SOURCE)
+            self.graph_edge_repo.assign_cctx_id(destination_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id, blockchain_type=BlockchainType.DESTINATION)
 
             # Create validation nodes in order to structurally link the graphs together
             src_router_node = self.graph_node_repo.get_router_node_by_graph_id(source_graph_mapping.graph_id)
@@ -376,6 +404,7 @@ blockchain = {token_node.blockchain}
                             "cctx_graph_id": cctx_graph_mapping.cctx_graph_id,
                             "bridge": self.bridge.value,
                             "blockchain": None,
+                            "blockchain_type": BlockchainType.OFFCHAIN.value,
                             "address": f"validator_{cctx_id}",
                             "attributes": {
                                 "cctx_id": cctx_id,
@@ -398,7 +427,8 @@ blockchain = {token_node.blockchain}
                             "bridge": self.bridge.value,
                             "source_id": src_router_node.node_id,
                             "target_id": validator_node.node_id,
-                            "deposit_id": cctx_id
+                            "deposit_id": cctx_id,
+                            "blockchain_type": BlockchainType.OFFCHAIN.value
                         }
                     )
                     self.graph_edge_repo.create(
@@ -409,7 +439,8 @@ blockchain = {token_node.blockchain}
                             "bridge": self.bridge.value,
                             "source_id": validator_node.node_id,
                             "target_id": dst_router_node.node_id,
-                            "deposit_id": cctx_id
+                            "deposit_id": cctx_id,
+                            "blockchain_type": BlockchainType.OFFCHAIN.value
                         }
                     )
             else:
@@ -421,4 +452,8 @@ blockchain = {token_node.blockchain}
 
     @abstractmethod
     def fetch_cctx_id(self, cctx):
+        pass
+
+    @abstractmethod
+    def fetch_transactions_timestamp_interval(self):
         pass

@@ -1,3 +1,4 @@
+from graph_generator.graph_label import BlockchainType, GraphNodeType
 from repository.base import BaseRepository
 
 from .models import (
@@ -5,7 +6,6 @@ from .models import (
     GraphMappingBlockchain,
     GraphMappingCrossChain,
     GraphNode,
-    GraphNodeType,
 )
 
 
@@ -75,11 +75,13 @@ class GraphNodeRepository(BaseRepository):
                 return node
             return None
         
-    def assign_cctx_id(self, graph_id: int, cctx_id: int):
+    def assign_cctx_id(self, graph_id: int, cctx_id: int, blockchain_type: BlockchainType = None):
         with self.get_session() as session:
             nodes = session.query(GraphNode).filter(GraphNode.chain_graph_id == graph_id).all()
             for node in nodes:
                 node.cctx_graph_id = cctx_id
+                if blockchain_type is not None:
+                    node.blockchain_type = blockchain_type.value
             session.commit()
             return nodes
         
@@ -95,10 +97,12 @@ class GraphEdgeRepository(BaseRepository):
         with self.get_session() as session:
             return session.query(GraphEdge).filter(GraphEdge.chain_graph_id == graph_id, GraphEdge.source_id == source_id, GraphEdge.target_id == target_id).first()
         
-    def assign_cctx_id(self, graph_id: int, cctx_id: int):
+    def assign_cctx_id(self, graph_id: int, cctx_id: int, blockchain_type: BlockchainType = None):
         with self.get_session() as session:
             edges = session.query(GraphEdge).filter(GraphEdge.chain_graph_id == graph_id).all()
             for edge in edges:
                 edge.cctx_graph_id = cctx_id
+                if blockchain_type is not None:
+                    edge.blockchain_type = blockchain_type.value
             session.commit()
             return edges
