@@ -42,7 +42,8 @@ class GraphNode(Base):
     attributes_text = Column(String, nullable=True) # Text description of attributes for LLM input
     amount = Column(Numeric(80), nullable=True)
     amount_usd = Column(Numeric(80), nullable=True)
-    timestamp = Column(BigInteger, nullable=True)
+    event_order = Column(Integer, nullable=True) # Order of events in the same transaction, starting from 0
+    timestamp = Column(BigInteger, nullable=True) # Timestamp of the transaction
 
 class GraphEdge(Base):
     __tablename__ = "graph_edges"
@@ -62,4 +63,5 @@ class GraphEdge(Base):
     amount_usd = Column(Numeric(80), nullable=True)
     deposit_id = Column(String(255), nullable=True)
     withdrawal_id = Column(String(255), nullable=True)
+    event_order = Column(Integer, nullable=True) # Order of events in the same transaction, starting from 0
     timestamp = Column(BigInteger, nullable=True)

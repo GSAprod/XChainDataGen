@@ -1,14 +1,15 @@
-from datetime import datetime
 import json
 import os
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 from eth_abi import decode as abi_decode
 from web3 import Web3
 
 from config.constants import TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS, Bridge
+from generator.base_generator import PriceGenerator
 from graph_generator.graph_class import GraphObject
-from graph_generator.graph_label import BlockchainType, GraphLabel, GraphNodeType
+from graph_generator.graph_label import BlockchainType, GraphEdgeType, GraphLabel, GraphNodeType
 from repository.common.models import BlockchainTransaction
 from repository.common.repository import (
     BridgeRoutingContractMetadataRepository,
@@ -16,7 +17,6 @@ from repository.common.repository import (
     TokenPriceRepository,
 )
 from repository.database import DBSession
-from graph_generator.graph_label import GraphEdgeType
 from repository.graphs.repository import (
     GraphEdgeRepository,
     GraphMappingBlockchainRepository,
@@ -25,7 +25,6 @@ from repository.graphs.repository import (
 )
 from rpcs.evm_rpc_client import EvmRPCClient
 from utils.utils import CliColor, log_to_cli
-from generator.base_generator import PriceGenerator
 
 
 class BaseGraphGenerator(ABC):
@@ -74,65 +73,9 @@ class BaseGraphGenerator(ABC):
         tx_hash = tx.transaction_hash
         tx_receipt = self.rpc_client.get_transaction_receipt(blockchain, tx_hash)
 
-        for event in tx_receipt["logs"]:
-            emitted_by = event["address"]
+        op_index = 0
 
-            if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(emitted_by.lower(), blockchain):
-                # If the event is emitted by a known bridge router, we can 
-                # create a router node and include additional relations based on the function calls and events
-                routing_node = graph_obj.fetch_or_create_node(
-                    emitted_by,
-                    node_type_if_missing=GraphNodeType.ROUTER.value,
-                    attributes_text=f"type = router; blockchain = {blockchain}; bridge = {self.bridge.value}"
-                    # we can also include the function signatures as attributes.
-                    # we won't include them for now for space reasons
-                )
-                graph_obj.update_node_type(routing_node.node_id, GraphNodeType.ROUTER.value)
-                self.parse_bridge_router_event(tx, event, routing_node, graph_obj)
-                continue
-
-            # Check if the address is a known token contract
-            token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(
-                emitted_by, blockchain
-            )
-
-            # If no token info exists, check if the address is an ERC20 contract
-            # and try to fetch its metadata, if it's the case
-            if token_metadata is None and emitted_by not in self.unknown_contracts:
-                log_to_cli(
-                    f"Blockchain {blockchain} - Address {emitted_by} not found in token metadata repository. Checking if it's an ERC20 contract..."
-                )
-                if self.check_if_contract_erc20(emitted_by, blockchain):
-                    token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(emitted_by, blockchain)
-                else:
-                    self.unknown_contracts.add(emitted_by)
-
-            # If the event is emitted by a known token contract, we can create a token node 
-            # and parse the event to include additional relations to the graph
-            if token_metadata is not None:
-                token_node = graph_obj.fetch_or_create_token_node(
-                    emitted_by
-                )
-                self.parse_token_event(tx, event, token_node, graph_obj, token_metadata)
-                continue
-
-            # For other events, we can create a log event node and link it to the respective address node
-            address_node = graph_obj.fetch_or_create_node(emitted_by)
-            log_event_node = graph_obj.create_log_node(
-                event["topics"][0],
-                None,
-                event,
-                attributes_text=f"""event UnknownEvent
-blockchain = {blockchain}
-address = {event["address"][:6]}...{event["address"][-4:]}
-topic = {event["topics"][0][:6]}...{event["topics"][0][-4:]}
-number_of_args = {len(event["topics"]) - 1}
-data_size = {len(event["data"]) // 32}
-"""
-            )
-            graph_obj.create_edge(address_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
-
-        # Check for internal transactions that move value between addresses
+        # Check for internal transactions first, that move value between addresses
         # and include them in the graph as well (if blockchain supports it)
         if blockchain in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS:
             internal_txs = self.rpc_client.get_transaction_trace(blockchain, tx_hash)
@@ -156,7 +99,7 @@ data_size = {len(event["data"]) // 32}
 
                     from_node = graph_obj.fetch_or_create_node(from_address)
                     to_node = graph_obj.fetch_or_create_node(to_address)
-                    graph_obj.create_edge(from_node.node_id, to_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, attributes={
+                    graph_obj.create_edge(from_node.node_id, to_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, op_index, attributes={
                         "currency": "native",
                         "amount": value
                     })
@@ -183,6 +126,7 @@ blockchain = {blockchain}
 """  # Needs to change symbol based on the blockchain
                         
                     log_event_node = graph_obj.create_log_node(
+                        op_index,
                         f"{internal_tx['action']['from']}_{internal_tx['action']['to']}",
                         f"Transfer(address from, address to, uint256 value)",
                         internal_tx,
@@ -190,10 +134,77 @@ blockchain = {blockchain}
                         amount=value,
                         amount_usd=amount_usd
                     )
-                    graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
+                    graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
 
                     # Add the delegatecall input to the set to avoid re-processing
+                    op_index += 1
                     internal_inputs.add(internal_tx["action"]["input"])
+        else:
+            # Use DUNE to check for native currency transfers(?)
+            # TODO CHECK IF DUNE CAN SEE INTERNAL CURRENCY TRANSFERS
+            pass
+
+        for event in tx_receipt["logs"]:
+            emitted_by = event["address"]
+
+            if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(emitted_by.lower(), blockchain):
+                # If the event is emitted by a known bridge router, we can 
+                # create a router node and include additional relations based on the function calls and events
+                routing_node = graph_obj.fetch_or_create_node(
+                    emitted_by,
+                    node_type_if_missing=GraphNodeType.ROUTER.value,
+                    attributes_text=f"type = router; blockchain = {blockchain}; bridge = {self.bridge.value}"
+                    # we can also include the function signatures as attributes.
+                    # we won't include them for now for space reasons
+                )
+                graph_obj.update_node_type(routing_node.node_id, GraphNodeType.ROUTER.value)
+                self.parse_bridge_router_event(tx, event, op_index, routing_node, graph_obj)
+                op_index += 1
+                continue
+
+            # Check if the address is a known token contract
+            token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(
+                emitted_by, blockchain
+            )
+
+            # If no token info exists, check if the address is an ERC20 contract
+            # and try to fetch its metadata, if it's the case
+            if token_metadata is None and emitted_by not in self.unknown_contracts:
+                log_to_cli(
+                    f"Blockchain {blockchain} - Address {emitted_by} not found in token metadata repository. Checking if it's an ERC20 contract..."
+                )
+                if self.check_if_contract_erc20(emitted_by, blockchain):
+                    token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(emitted_by, blockchain)
+                else:
+                    self.unknown_contracts.add(emitted_by)
+
+            # If the event is emitted by a known token contract, we can create a token node 
+            # and parse the event to include additional relations to the graph
+            if token_metadata is not None:
+                token_node = graph_obj.fetch_or_create_token_node(
+                    emitted_by
+                )
+                self.parse_token_event(tx, event, op_index, token_node, graph_obj, token_metadata, op_index)
+                op_index += 1
+                continue
+
+            # For other events, we can create a log event node and link it to the respective address node
+            address_node = graph_obj.fetch_or_create_node(emitted_by)
+            log_event_node = graph_obj.create_log_node(
+                op_index,
+                event["topics"][0],
+                None,
+                event,
+                attributes_text=f"""event UnknownEvent
+blockchain = {blockchain}
+address = {event["address"][:6]}...{event["address"][-4:]}
+topic = {event["topics"][0][:6]}...{event["topics"][0][-4:]}
+number_of_args = {len(event["topics"]) - 1}
+data_size = {len(event["data"]) // 32}
+"""
+            )
+            graph_obj.create_edge(address_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
+            op_index += 1
 
     def load_erc20_contract(self, address):
         checksum_address = Web3.to_checksum_address(address)
@@ -272,7 +283,7 @@ blockchain = {blockchain}
         )
         return True
 
-    def parse_token_event(self, tx, event, token_node, graph_obj: GraphObject, token_metadata):
+    def parse_token_event(self, tx, event, event_index, token_node, graph_obj: GraphObject, token_metadata, op_index):
         contract = self.load_erc20_contract(token_node.address)
         
         # Parsing logic for ERC20 Token events
@@ -296,6 +307,7 @@ blockchain = {blockchain}
             event_signature = None
             event_args = None
             log_event_node = graph_obj.create_log_node(
+                event_index,
                 event["topics"][0],
                 None,
                 event,
@@ -307,7 +319,7 @@ number_of_args = {len(event["topics"]) - 1}
 data_chunks = {len(event["data"]) // 32}
 """
             )
-            graph_obj.create_edge(token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
+            graph_obj.create_edge(token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
             return
         
         from_node = graph_obj.fetch_or_create_node(from_address)
@@ -328,10 +340,11 @@ value = {amount} {token_metadata.symbol}
 blockchain = {token_node.blockchain}
 """
 
-        graph_obj.create_edge(from_node.node_id, to_node.node_id, type)
+        graph_obj.create_edge(from_node.node_id, to_node.node_id, type, op_index)
 
         # Create and link log event node to the token node
         log_event_node = graph_obj.create_log_node(
+            event_index,
             event["topics"][0],
             event_signature,
             event_args,
@@ -339,14 +352,14 @@ blockchain = {token_node.blockchain}
             amount_usd=amount_usd,
             attributes_text=description
         )
-        graph_obj.create_edge(token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
+        graph_obj.create_edge(token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
 
     @abstractmethod
     def fetch_transactions_for_blockchain(self, blockchain: str):
         pass
 
     @abstractmethod
-    def parse_bridge_router_event(self, tx, event, routing_node, graph_obj: GraphObject):
+    def parse_bridge_router_event(self, tx, event, event_index: int, routing_node, graph_obj: GraphObject):
         pass
 
     def link_transactions_into_cctxs(self):

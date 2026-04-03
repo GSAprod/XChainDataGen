@@ -3,9 +3,8 @@
 from config.constants import BLOCKCHAIN_IDS, Bridge
 from graph_generator.base_graph_generator import BaseGraphGenerator
 from graph_generator.graph_class import GraphObject
-from graph_generator.graph_label import GraphNodeType
+from graph_generator.graph_label import GraphEdgeType, GraphNodeType
 from repository.database import DBSession
-from graph_generator.graph_label import GraphEdgeType
 from repository.ronin.models import RoninCrossChainTransaction
 from repository.ronin.repository import (
     RoninBlockchainTransactionRepository,
@@ -45,23 +44,23 @@ class RoninGraphGenerator(BaseGraphGenerator):
         # For Ronin, we can directly use the cctx_id from the database as the unique identifier for the cross-chain transaction
         return cctx.deposit_id
 
-    def parse_bridge_router_event(self, tx, event, routing_node, graph_obj: GraphObject):
+    def parse_bridge_router_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         if (
             event["topics"][0] == "0xd7b25068d9dc8d00765254cfb7f5070f98d263c8d68931d937c7362fa738048b"
         ): # DepositRequested
-            self.parse_deposit_requested_event(tx, event, routing_node, graph_obj)
+            self.parse_deposit_requested_event(tx, event, event_index, routing_node, graph_obj)
         elif (
             event["topics"][0] == "0x8d20d8121a34dded9035ff5b43e901c142824f7a22126392992c353c37890524"
         ): # Deposited
-            self.parse_token_deposited_event(tx, event, routing_node, graph_obj)
+            self.parse_token_deposited_event(tx, event, event_index, routing_node, graph_obj)
         elif (
             event["topics"][0] == "0xf313c253a5be72c29d0deb2c8768a9543744ac03d6b3cafd50cc976f1c2632fc"
         ): # WithdrawRequested
-            self.parse_withdraw_requested_event(tx, event, routing_node, graph_obj)
+            self.parse_withdraw_requested_event(tx, event, event_index, routing_node, graph_obj)
         elif (
             event["topics"][0] == "0x21e88e956aa3e086f6388e899965cef814688f99ad8bb29b08d396571016372d"
         ): # Withdrew
-            self.parse_token_withdrew_event(tx, event, routing_node, graph_obj)
+            self.parse_token_withdrew_event(tx, event, event_index, routing_node, graph_obj)
         elif event:
             #? What to do if the event is not one of the above? For now we will ignore it
             # We can still create a log event node and link it to the routing node
@@ -74,14 +73,15 @@ number_of_args = {len(event["topics"]) - 1}
 data_chunks = {len(event["data"]) // 32}
 """
             log_event_node = graph_obj.create_log_node(
+                event_index,
                 event["topics"][0],
                 event_signature,
                 event,
                 attributes_text=event_text
             )
-            graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
+            graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
-    def parse_deposit_requested_event(self, tx, event, routing_node, graph_obj: GraphObject):
+    def parse_deposit_requested_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event DepositRequested(bytes32 receiptHash, tuple receipt)"
         # Fetch the respective metadata from the repository
         event_record = self.deposit_requested_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
@@ -98,7 +98,8 @@ data_chunks = {len(event["data"]) // 32}
         graph_obj.create_edge(
             depositor_node.node_id, 
             routing_node.node_id, 
-            GraphEdgeType.TRANSACTION.value, 
+            GraphEdgeType.TRANSACTION.value,
+            event_index,
             attributes={
                 "amount": int(event_record.amount)
             }
@@ -111,7 +112,8 @@ data_chunks = {len(event["data"]) // 32}
         graph_obj.create_edge(
             routing_node.node_id,
             token_node.node_id,
-            GraphEdgeType.FUNCTION_CALL.value
+            GraphEdgeType.FUNCTION_CALL.value,
+            event_index,
         )
 
         event_args = {
@@ -145,6 +147,7 @@ destination_chain = {event_record.dst_blockchain}
 
         # Create and link log event node to the routing node
         log_event_node = graph_obj.create_log_node(
+            event_index,
             event["topics"][0],
             event_signature,
             event_args,
@@ -155,10 +158,11 @@ destination_chain = {event_record.dst_blockchain}
         graph_obj.create_edge(
             routing_node.node_id, 
             log_event_node.node_id, 
-            GraphEdgeType.LOG_RELATION.value
+            GraphEdgeType.LOG_RELATION.value,
+            event_index
         )
 
-    def parse_token_deposited_event(self, tx, event, routing_node, graph_obj: GraphObject):
+    def parse_token_deposited_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event TokenDeposited(bytes32 receiptHash, tuple receipt)"
         # Fetch the respective metadata from the repository
         event_record = self.token_deposited_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
@@ -173,7 +177,8 @@ destination_chain = {event_record.dst_blockchain}
         graph_obj.create_edge(
             routing_node.node_id,
             token_node.node_id,
-            GraphEdgeType.FUNCTION_CALL.value
+            GraphEdgeType.FUNCTION_CALL.value,
+            event_index
         )
 
         # Ensure the recipient is a user node
@@ -186,7 +191,7 @@ destination_chain = {event_record.dst_blockchain}
         # Handle native tokens
         if graph_obj.graph_mapping.blockchain == "ronin" and event_record.input_token is None:
             # Create the Transfer representation of the native token deposit as well
-            graph_obj.create_edge(routing_node.node_id, recipient_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, attributes={
+            graph_obj.create_edge(routing_node.node_id, recipient_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, event_index, attributes={
                 "amount": int(event_record.amount), 
                 #"timestamp": tx.timestamp
             })
@@ -202,6 +207,7 @@ blockchain = {graph_obj.graph_mapping.blockchain}
 
             # Create corresponding log event node for the burning of the native token
             burn_log_event_node = graph_obj.create_log_node(
+                event_index,
                 "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
                 "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
                 {
@@ -213,7 +219,7 @@ blockchain = {graph_obj.graph_mapping.blockchain}
                 amount=int(event_record.amount),
                 amount_usd=amount_usd
             )
-            graph_obj.create_edge(token_node.node_id, burn_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
+            graph_obj.create_edge(token_node.node_id, burn_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
         event_args = {
             "receipt": {
@@ -246,6 +252,7 @@ source_chain = {event_record.src_blockchain}
 
         # Create and link log event node to the routing node
         log_event_node = graph_obj.create_log_node(
+            event_index,
             event["topics"][0],
             event_signature,
             event_args,
@@ -256,10 +263,11 @@ source_chain = {event_record.src_blockchain}
         graph_obj.create_edge(
             routing_node.node_id, 
             log_event_node.node_id, 
-            GraphEdgeType.LOG_RELATION.value
+            GraphEdgeType.LOG_RELATION.value,
+            event_index
         )
 
-    def parse_withdraw_requested_event(self, tx, event, routing_node, graph_obj: GraphObject):
+    def parse_withdraw_requested_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event WithdrawRequested(bytes32 receiptHash, tuple receipt)"
         # Fetch the respective metadata from the repository
         event_record = self.withdrawal_requested_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
@@ -276,7 +284,8 @@ source_chain = {event_record.src_blockchain}
         graph_obj.create_edge(
             withdrawer_node.node_id, 
             routing_node.node_id, 
-            GraphEdgeType.TRANSACTION.value, 
+            GraphEdgeType.TRANSACTION.value,
+            event_index,
             attributes={
                 "amount": int(event_record.amount)
             }
@@ -289,13 +298,14 @@ source_chain = {event_record.src_blockchain}
         graph_obj.create_edge(
             routing_node.node_id,
             token_node.node_id,
-            GraphEdgeType.FUNCTION_CALL.value
+            GraphEdgeType.FUNCTION_CALL.value,
+            event_index
         )
 
         # Handle native tokens (Wrapped Ethereum)
         if graph_obj.graph_mapping.blockchain == "ronin" and event_record.input_token.lower() is None:
             # Create the Transfer representation of the native token deposit as well
-            graph_obj.create_edge(withdrawer_node.node_id, routing_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, attributes={
+            graph_obj.create_edge(withdrawer_node.node_id, routing_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, event_index, attributes={
                 "amount": int(event_record.amount), 
                 #"timestamp": tx.timestamp
             })
@@ -310,6 +320,7 @@ value = {amount} ETH
 blockchain = {graph_obj.graph_mapping.blockchain}
 """
             burn_log_event_node = graph_obj.create_log_node(
+                event_index,
                 "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
                 "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
                 {
@@ -321,7 +332,7 @@ blockchain = {graph_obj.graph_mapping.blockchain}
                 amount=int(event_record.amount),
                 amount_usd=amount_usd
             )
-            graph_obj.create_edge(token_node.node_id, burn_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value)
+            graph_obj.create_edge(token_node.node_id, burn_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
         event_args = {
             "receipt": {
@@ -354,6 +365,7 @@ destination_chain = {event_record.dst_blockchain}
 
         # Create and link log event node to the routing node
         log_event_node = graph_obj.create_log_node(
+            event_index,
             event["topics"][0],
             event_signature,
             event_args,
@@ -364,10 +376,11 @@ destination_chain = {event_record.dst_blockchain}
         graph_obj.create_edge(
             routing_node.node_id, 
             log_event_node.node_id, 
-            GraphEdgeType.LOG_RELATION.value
+            GraphEdgeType.LOG_RELATION.value,
+            event_index
         )
 
-    def parse_token_withdrew_event(self, tx, event, routing_node, graph_obj: GraphObject):
+    def parse_token_withdrew_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event TokenWithdrew(bytes32 receiptHash, tuple receipt)"
         # Fetch the respective metadata from the repository
         event_record = self.token_withdrew_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
@@ -382,7 +395,8 @@ destination_chain = {event_record.dst_blockchain}
         graph_obj.create_edge(
             routing_node.node_id,
             token_node.node_id,
-            GraphEdgeType.FUNCTION_CALL.value
+            GraphEdgeType.FUNCTION_CALL.value,
+            event_index
         )
 
         # Ensure the recipient is a user node
@@ -423,6 +437,7 @@ source_chain = {event_record.src_blockchain}
 
         # Create and link log event node to the routing node
         log_event_node = graph_obj.create_log_node(
+            event_index,
             event["topics"][0],
             event_signature,
             event_args,
@@ -433,5 +448,6 @@ source_chain = {event_record.src_blockchain}
         graph_obj.create_edge(
             routing_node.node_id, 
             log_event_node.node_id, 
-            GraphEdgeType.LOG_RELATION.value
+            GraphEdgeType.LOG_RELATION.value,
+            event_index
         )

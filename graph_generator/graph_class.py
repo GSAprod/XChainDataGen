@@ -78,7 +78,7 @@ class GraphObject:
             new_node_data["timestamp"] = timestamp
         return self.create_node(new_node_data)
 
-    def create_log_node(self, topic, event_signature, event_args, attributes_text=None, amount=None, amount_usd=None):
+    def create_log_node(self, event_index, topic, event_signature, event_args, attributes_text=None, amount=None, amount_usd=None):
         log_node_data = {
             "chain_graph_id": self.graph_mapping.graph_id,
             "node_type": GraphNodeType.LOG_EVENT.value,
@@ -88,7 +88,8 @@ class GraphObject:
             "attributes": {
                 "event_signature": event_signature,
                 "event_args": event_args,
-            }
+            },
+            "event_order": event_index
         }
         if attributes_text is not None:
             log_node_data["attributes_text"] = attributes_text
@@ -108,7 +109,7 @@ class GraphObject:
                     break
         return updated_node
 
-    def create_edge(self, source_id, target_id, edge_type, attributes=None, attributes_text=None):
+    def create_edge(self, source_id, target_id, edge_type, event_index, attributes=None, attributes_text=None):
         edge_data = {
             "chain_graph_id": self.graph_mapping.graph_id,
             "bridge": self.graph_mapping.bridge,
@@ -116,6 +117,7 @@ class GraphObject:
             "source_id": source_id,
             "target_id": target_id,
             "edge_type": edge_type,
+            "event_order": event_index
         }
         if attributes is not None:
             edge_data["attributes"] = attributes
@@ -125,11 +127,11 @@ class GraphObject:
         self.edges.append(edge)
         return edge
 
-    def find_or_create_edge(self, source_id, target_id, edge_type, attributes=None, attributes_text=None):
+    def find_or_create_edge(self, source_id, target_id, edge_type, event_index, attributes=None, attributes_text=None):
         for edge in self.edges:
             if edge.source_id == source_id and edge.target_id == target_id and edge.edge_type == edge_type:
                 return edge
-        return self.create_edge(source_id, target_id, edge_type, attributes, attributes_text)
+        return self.create_edge(source_id, target_id, edge_type, event_index, attributes, attributes_text)
 
     def fetch_node(self, node_id):
         for node in self.nodes:
