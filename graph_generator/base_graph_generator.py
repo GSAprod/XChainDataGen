@@ -7,6 +7,7 @@ from eth_abi import decode as abi_decode
 from web3 import Web3
 
 from config.constants import TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS, Bridge
+from dune.dune_client import DuneClient
 from generator.base_generator import PriceGenerator
 from graph_generator.graph_class import GraphObject
 from graph_generator.graph_label import BlockchainType, GraphEdgeType, GraphLabel, GraphNodeType
@@ -33,6 +34,15 @@ class BaseGraphGenerator(ABC):
         self.rpc_client = EvmRPCClient(bridge)
         self.bind_db_to_repos()
         self.unknown_contracts = set()
+        self.unknown_contract_prices = set()
+
+        try:
+            self.dune_client = DuneClient(bridge)
+            self.tx_to_query_dune = []
+            self.tx_graphs_dune_mapping = {} # mapping of tx hashes to the respective graph ids, to link the Dune native token transfer data to the respective graphs later on
+        except Exception as e:
+            log_to_cli(f"Failed to initialize Dune client: {e}. Dune-related functionalities will not work.", CliColor.ERROR)
+            self.dune_client = None
 
     def bind_db_to_repos(self) -> None:
         self.bridge_router_metadata_repo = BridgeRoutingContractMetadataRepository(DBSession)
@@ -53,6 +63,9 @@ class BaseGraphGenerator(ABC):
         for tx in txs:
             self.process_partial_transaction(tx)
 
+        if self.dune_client is not None and len(self.tx_to_query_dune) > 0:
+            self.include_native_dune_transfers(blockchain)
+
     def process_partial_transaction(self, tx: BlockchainTransaction):
         if self.blockchain_graph_mapping_repo.graph_exists(self.bridge.value, tx.blockchain, tx.transaction_hash) is not None:
             return
@@ -65,7 +78,8 @@ class BaseGraphGenerator(ABC):
             self.bridge, 
             tx.blockchain, 
             tx.transaction_hash, 
-            tx.block_number, 
+            tx.block_number,
+            tx.timestamp,
             GraphLabel.NORMAL
         )
 
@@ -97,52 +111,16 @@ class BaseGraphGenerator(ABC):
                     to_address = internal_tx["action"]["to"]
                     value = int(internal_tx["action"]["value"], 16)
 
-                    from_node = graph_obj.fetch_or_create_node(from_address)
-                    to_node = graph_obj.fetch_or_create_node(to_address)
-                    graph_obj.create_edge(from_node.node_id, to_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, op_index, attributes={
-                        "currency": "native",
-                        "amount": value
-                    })
-
-                    # We can also create a log event node for the internal transaction and link it 
-                    # to the native token node
-                    native_token_node = graph_obj.fetch_or_create_node(
-                        "token_native",
-                        node_type_if_missing=GraphNodeType.TOKEN.value,
-                        attributes={
-                            "symbol": "ETH Native Currency",
-                            "blockchain": blockchain,
-                        },
-                        attributes_text=f"type = token; blockchain = {blockchain}; symbol = ETH Native Currency"
-                    )
-
-                    amount, amount_usd = self.convert_native_value_to_amount(tx.timestamp, value)
-                    description = f"""event Transfer(address from, address to, uint256 value)
-token = ETH Native Currency at token_native
-from = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]})
-to = {to_node.node_type} ({to_node.address[:6]}...{to_node.address[-4:]})
-value = {amount} ETH
-blockchain = {blockchain}
-"""  # Needs to change symbol based on the blockchain
-                        
-                    log_event_node = graph_obj.create_log_node(
-                        op_index,
-                        f"{internal_tx['action']['from']}_{internal_tx['action']['to']}",
-                        f"Transfer(address from, address to, uint256 value)",
-                        internal_tx,
-                        attributes_text=description,
-                        amount=value,
-                        amount_usd=amount_usd
-                    )
-                    graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
-
+                    self.process_internal_token_transfer(graph_obj, blockchain, op_index, internal_tx, from_address, to_address, value, tx.timestamp)
                     # Add the delegatecall input to the set to avoid re-processing
                     op_index += 1
                     internal_inputs.add(internal_tx["action"]["input"])
-        else:
-            # Use DUNE to check for native currency transfers(?)
-            # TODO CHECK IF DUNE CAN SEE INTERNAL CURRENCY TRANSFERS
-            pass
+        elif self.dune_client is not None:
+            # If the blockchain doesn't support transaction tracing, 
+            # we can add the transaction to a list to query on Dune later 
+            # for native token transfers related to the transaction
+            self.tx_to_query_dune.append(tx_hash)
+            self.tx_graphs_dune_mapping[tx_hash] = graph_obj
 
         for event in tx_receipt["logs"]:
             emitted_by = event["address"]
@@ -206,6 +184,46 @@ data_size = {len(event["data"]) // 32}
             graph_obj.create_edge(address_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
             op_index += 1
 
+    def process_internal_token_transfer(self, graph_obj, blockchain, op_index, internal_tx, from_address, to_address, value, timestamp):
+        from_node = graph_obj.fetch_or_create_node(from_address)
+        to_node = graph_obj.fetch_or_create_node(to_address)
+        graph_obj.create_edge(from_node.node_id, to_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, op_index, attributes={
+            "currency": "native",
+            "amount": value
+        })
+
+        # We can also create a log event node for the internal transaction and link it 
+        # to the native token node
+        native_token_node = graph_obj.fetch_or_create_node(
+            "token_native",
+            node_type_if_missing=GraphNodeType.TOKEN.value,
+            attributes={
+                "symbol": "ETH Native Currency",
+                "blockchain": blockchain,
+            },
+            attributes_text=f"type = token; blockchain = {blockchain}; symbol = ETH Native Currency"
+        )
+
+        amount, amount_usd = self.convert_native_value_to_amount(timestamp, value)
+        description = f"""event Transfer(address from, address to, uint256 value)
+token = ETH Native Currency at token_native
+from = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]})
+to = {to_node.node_type} ({to_node.address[:6]}...{to_node.address[-4:]})
+value = {amount} ETH
+blockchain = {blockchain}
+"""  # Needs to change symbol based on the blockchain
+                        
+        log_event_node = graph_obj.create_log_node(
+            op_index,
+            f"{from_address}_{to_address}",
+            f"Transfer(address from, address to, uint256 value)",
+            internal_tx,
+            attributes_text=description,
+            amount=value,
+            amount_usd=amount_usd
+        )
+        graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
+
     def load_erc20_contract(self, address):
         checksum_address = Web3.to_checksum_address(address)
         token_abi_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "ABI", "erc20_abi.json"))
@@ -227,10 +245,24 @@ data_size = {len(event["data"]) // 32}
         amount = float(raw_value) / (10 ** token_metadata.decimals)
         date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
         token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
+        
+        if token_price is None and token_metadata.address not in self.unknown_contract_prices:
+            log_to_cli(
+                f"Price for token {token_metadata.symbol} on {date} not found. Fetching price from CoinGecko..."
+            )
+            try:
+                min_ts, max_ts = self.fetch_transactions_timestamp_interval()
+                PriceGenerator.fetch_and_store_token_prices(None, self.token_price_repo, min_ts, max_ts, token_metadata.name, symbol=token_metadata.symbol, blockchain=token_metadata.blockchain, token_address=token_metadata.address)
+                token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
+            except Exception as e:
+                log_to_cli(f"Failed to fetch price for token {token_metadata.symbol} from CoinGecko: {e}", CliColor.ERROR)
+                self.unknown_contract_prices.add(token_metadata.address)
+                return amount, None
         amount_usd = int(int(raw_value) * token_price.price_usd * (10 ** (18 - token_metadata.decimals))) if token_price else None
         return amount, amount_usd
     
     def convert_native_value_to_amount(self, timestamp: int, raw_value: int):
+        #! THIS DOES NOT WORK FOR NON-ETHEREUM CHAINS
         amount = float(raw_value) / 10**18  # Normalize the value to Ether units for better readability in the graph
         date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
         token_price = self.token_price_repo.get_token_price_by_symbol_and_date("WETH", date) # WETH is 1:1 with the native currency on EVM chains
@@ -458,6 +490,36 @@ blockchain = {token_node.blockchain}
                     )
             else:
                 log_to_cli(f"Could not find router nodes for source graph {source_graph_mapping.graph_id} and destination graph {destination_graph_mapping.graph_id}. Skipping creation of validation node for CCTX {cctx_graph_mapping.cctx_graph_id}...", CliColor.ERROR)
+
+    def include_native_dune_transfers(self, blockchain):
+        # For each transaction hash that we couldn't trace through RPC, we can query Dune for native token transfers related to the transaction
+        # and include them in the respective graphs. This way, we can still capture value movements related to the transactions even if the blockchain doesn't support transaction tracing or if the tracing data is incomplete.
+        tx_hashes = self.tx_to_query_dune
+        if len(tx_hashes) == 0:
+            return
+        
+        log_to_cli(f"Querying Dune for native token transfers related to {len(tx_hashes)} transaction hashes on {blockchain}...")
+        try:
+            dune_results = self.dune_client.fetch_native_transactions(blockchain, tx_hashes)
+            # Create a counter to generate unique operation indexes for the internal transactions, starting from the last used index in the respective graph
+            op_idx_counters = {}
+            
+            for transfer in reversed(dune_results["rows"]):
+                tx_hash = transfer["tx_hash"]
+                graph_obj = self.tx_graphs_dune_mapping[tx_hash]
+                from_address = transfer["tx_from"]
+                to_address = transfer["tx_to"]
+                value = int(transfer["amount_raw"])
+
+                # We'll be using negative operation indexes for the internal transactions fetched from Dune
+                # the main idea will be to then change the op index numbers to start from 0 
+                # in a post-processing step on the BridgeDefender repository.
+                op_idx_counters[tx_hash] = op_idx_counters.get(tx_hash, 0) - 1
+                self.process_internal_token_transfer(graph_obj, blockchain, op_idx_counters[tx_hash], transfer, from_address, to_address, value, graph_obj.tx_timestamp)
+            
+
+        except Exception as e:
+            log_to_cli(f"Error fetching native token transfers from Dune for blockchain {blockchain}: {e}", CliColor.ERROR)
 
     @abstractmethod
     def fetch_cross_chain_transactions(self):

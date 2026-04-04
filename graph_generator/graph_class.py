@@ -13,17 +13,19 @@ class GraphObject:
         self.token_metadata_repo = token_metadata_repo
 
         self.graph_mapping = None
+        self.tx_timestamp = None
         self.nodes = []
         self.edges = []
 
-    def create_graph_mapping(self, bridge: Bridge, blockchain: str, tx_hash: str, block_number: int, label: GraphLabel) -> GraphMappingBlockchain:
+    def create_graph_mapping(self, bridge: Bridge, blockchain: str, tx_hash: str, block_number: int, timestamp: int, label: GraphLabel) -> GraphMappingBlockchain:
         self.graph_mapping = self.graph_mapping_repo.create({
             "bridge": bridge.value,
             "blockchain": blockchain,
             "tx_hash": tx_hash,
             "block_number": block_number,
-            "label": label.value
+            "label": label.value,
         })
+        self.tx_timestamp = timestamp
         return self.graph_mapping
     
     def attach_graph_mapping(self, graph_mapping: GraphMappingBlockchain):

@@ -188,39 +188,6 @@ destination_chain = {event_record.dst_blockchain}
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
         
-        # Handle native tokens
-        if graph_obj.graph_mapping.blockchain == "ronin" and event_record.input_token is None:
-            # Create the Transfer representation of the native token deposit as well
-            graph_obj.create_edge(routing_node.node_id, recipient_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, event_index, attributes={
-                "amount": int(event_record.amount), 
-                #"timestamp": tx.timestamp
-            })
-
-            amount, amount_usd = self.convert_native_value_to_amount(tx.timestamp, event_record.amount)
-            attributes_text = f"""event Transfer(address from, address to, uint256 value)
-token = ETH Native Currency at token_native
-from = {routing_node.node_type} ({routing_node.address[:6]}...{routing_node.address[-4:]})
-to = {recipient_node.node_type} ({recipient_node.address[:6]}...{recipient_node.address[-4:]})
-value = {amount} ETH
-blockchain = {graph_obj.graph_mapping.blockchain}
-"""
-
-            # Create corresponding log event node for the burning of the native token
-            burn_log_event_node = graph_obj.create_log_node(
-                event_index,
-                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-                "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
-                {
-                    "from": routing_node.address,
-                    "to": recipient_node.address,
-                    "value": int(event_record.amount)
-                },
-                attributes_text=attributes_text,
-                amount=int(event_record.amount),
-                amount_usd=amount_usd
-            )
-            graph_obj.create_edge(token_node.node_id, burn_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
-
         event_args = {
             "receipt": {
                 "deposit_id": event_record.deposit_id,
@@ -301,38 +268,6 @@ source_chain = {event_record.src_blockchain}
             GraphEdgeType.FUNCTION_CALL.value,
             event_index
         )
-
-        # Handle native tokens (Wrapped Ethereum)
-        if graph_obj.graph_mapping.blockchain == "ronin" and event_record.input_token.lower() is None:
-            # Create the Transfer representation of the native token deposit as well
-            graph_obj.create_edge(withdrawer_node.node_id, routing_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, event_index, attributes={
-                "amount": int(event_record.amount), 
-                #"timestamp": tx.timestamp
-            })
-
-            # Create corresponding log event node for the burning of the native token
-            amount, amount_usd = self.convert_native_value_to_amount(tx.timestamp, event_record.amount)
-            attributes_text = f"""event Transfer(address from, address to, uint256 value)
-token = ETH Native Currency at token_native
-from = {withdrawer_node.node_type} ({withdrawer_node.address[:6]}...{withdrawer_node.address[-4:]})
-to = {routing_node.node_type} ({routing_node.address[:6]}...{routing_node.address[-4:]})
-value = {amount} ETH
-blockchain = {graph_obj.graph_mapping.blockchain}
-"""
-            burn_log_event_node = graph_obj.create_log_node(
-                event_index,
-                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-                "event Transfer(address indexed _from, address indexed _to, uint256 _value)",
-                {
-                    "from": event_record.withdrawer,
-                    "to": routing_node.address,
-                    "value": int(event_record.amount)
-                },
-                attributes_text=attributes_text,
-                amount=int(event_record.amount),
-                amount_usd=amount_usd
-            )
-            graph_obj.create_edge(token_node.node_id, burn_log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
         event_args = {
             "receipt": {

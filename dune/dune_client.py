@@ -1,8 +1,10 @@
+import os
 import time
 
 import requests
+from dotenv import load_dotenv
 
-from utils.utils import CustomException, log_error, log_to_cli, log_to_file
+from utils.utils import CustomException, log_error, log_to_cli
 
 
 class DuneClient:
@@ -10,8 +12,12 @@ class DuneClient:
 
     QUERY_STATES = ["QUERY_STATE_PENDING", "QUERY_STATE_COMPLETED"]
 
-    def __init__(self, api_key, bridge):
-        self.api_key = api_key
+    def __init__(self, bridge):
+        load_dotenv()
+        self.api_key = os.getenv("DUNE_API_KEY")
+
+        if not self.api_key:
+            raise CustomException("DUNE_API_KEY is not set in environment variables. Please set it to use DuneClient.")
         self.bridge = bridge
 
     def make_request(self, endpoint: str, payload: dict):
@@ -51,9 +57,10 @@ class DuneClient:
         endpoint = "v1/sql/execute"
         payload = {
             "sql": "SELECT * FROM from tokens.transfers " +
-                "where blockchain = 'ethereum' " +
-                "and token_standard = 'native' " +
-                f"and tx_hash in {",".join(tx_hashes)}",
+                "WHERE blockchain = 'ethereum' " +
+                "AND token_standard = 'native' " +
+                f"AND tx_hash in ({','.join(tx_hashes)})" + 
+                "ORDER BY tx_hash",
             "performance": "medium"
         }
         return self.make_request(endpoint, payload)["execution_id"]
