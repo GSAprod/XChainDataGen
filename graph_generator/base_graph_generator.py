@@ -63,8 +63,11 @@ class BaseGraphGenerator(ABC):
         for tx in txs:
             self.process_partial_transaction(tx)
 
-        if self.dune_client is not None and len(self.tx_to_query_dune) > 0:
-            self.include_native_dune_transfers(blockchain)
+        if blockchain not in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS and self.dune_client is not None:
+            log_to_cli(f"Blockchain {blockchain} does not support transaction tracing. Will query Dune for native token transfers related to the transactions to include in the graphs...")
+            self.tx_to_query_dune.extend([tx.transaction_hash for tx in txs])
+            if len(self.tx_to_query_dune) > 0:
+                self.include_native_dune_transfers(blockchain)
 
     def process_partial_transaction(self, tx: BlockchainTransaction):
         if self.blockchain_graph_mapping_repo.graph_exists(self.bridge.value, tx.blockchain, tx.transaction_hash) is not None:
@@ -115,12 +118,11 @@ class BaseGraphGenerator(ABC):
                     # Add the delegatecall input to the set to avoid re-processing
                     op_index += 1
                     internal_inputs.add(internal_tx["action"]["input"])
-        elif self.dune_client is not None:
+        else:
             # If the blockchain doesn't support transaction tracing, 
-            # we can add the transaction to a list to query on Dune later 
+            # The transaction will be queried with Dune later 
             # for native token transfers related to the transaction
-            self.tx_to_query_dune.append(tx_hash)
-            self.tx_graphs_dune_mapping[tx_hash] = graph_obj
+            pass
 
         for event in tx_receipt["logs"]:
             emitted_by = event["address"]
