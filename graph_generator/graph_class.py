@@ -17,6 +17,22 @@ class GraphObject:
         self.nodes = []
         self.edges = []
 
+    def load_from_db(self, bridge: Bridge, blockchain: str, tx_hash: str):
+        self.graph_mapping = self.graph_mapping_repo.graph_exists(bridge.value, blockchain, tx_hash)
+        if not self.graph_mapping:
+            raise Exception(f"No graph mapping found for bridge {bridge.value}, blockchain {blockchain}, tx_hash {tx_hash}")
+
+        self.nodes = self.node_repo.get_by_chain_graph_id(self.graph_mapping.graph_id)
+        self.edges = self.edge_repo.get_by_chain_graph_id(self.graph_mapping.graph_id)
+        
+        # If possible, set the graph's timestamp based on the nodes
+        for node in self.nodes:
+            if node.timestamp is not None:
+                self.tx_timestamp = node.timestamp
+                break
+
+        return self
+
     def create_graph_mapping(self, bridge: Bridge, blockchain: str, tx_hash: str, block_number: int, timestamp: int, label: GraphLabel) -> GraphMappingBlockchain:
         self.graph_mapping = self.graph_mapping_repo.create({
             "bridge": bridge.value,
@@ -39,7 +55,7 @@ class GraphObject:
         self.nodes.append(node)
         return node
     
-    def fetch_or_create_token_node(self, address: str):
+    def fetch_or_create_token_node(self, address: str, timestamp: int):
         for node in self.nodes:
             if node.address.lower() == address.lower():
                 return node
@@ -56,11 +72,12 @@ class GraphObject:
                 "name": token_metadata.name,
                 "decimals": token_metadata.decimals
             } if token_metadata else None,
-            "attributes_text": f"type = token; blockchain = {self.graph_mapping.blockchain}; symbol = {token_metadata.symbol}; name = {token_metadata.name}; decimals = {token_metadata.decimals}" if token_metadata else None
+            "attributes_text": f"type = token; blockchain = {self.graph_mapping.blockchain}; symbol = {token_metadata.symbol}; name = {token_metadata.name}; decimals = {token_metadata.decimals}" if token_metadata else None,
+            "timestamp": timestamp
         }
         return self.create_node(new_node_data)
 
-    def fetch_or_create_node(self, address, attributes=None, attributes_text=None, timestamp=None, node_type_if_missing=GraphNodeType.OTHER_ACCOUNT.value):
+    def fetch_or_create_node(self, address, timestamp, attributes=None, attributes_text=None, node_type_if_missing=GraphNodeType.OTHER_ACCOUNT.value):
         for node in self.nodes:
             if node.address.lower() == address.lower():
                 return node
@@ -80,7 +97,7 @@ class GraphObject:
             new_node_data["timestamp"] = timestamp
         return self.create_node(new_node_data)
 
-    def create_log_node(self, event_index, topic, event_signature, event_args, attributes_text=None, amount=None, amount_usd=None):
+    def create_log_node(self, event_index, topic, event_signature, event_args, timestamp, attributes_text=None, amount=None, amount_usd=None):
         log_node_data = {
             "chain_graph_id": self.graph_mapping.graph_id,
             "node_type": GraphNodeType.LOG_EVENT.value,
@@ -91,7 +108,8 @@ class GraphObject:
                 "event_signature": event_signature,
                 "event_args": event_args,
             },
-            "event_order": event_index
+            "event_order": event_index,
+            "timestamp": timestamp
         }
         if attributes_text is not None:
             log_node_data["attributes_text"] = attributes_text

@@ -10,7 +10,7 @@ from utils.utils import CustomException, log_error, log_to_cli
 class DuneClient:
     CLASS_NAME = "DuneClient"
 
-    QUERY_STATES = ["QUERY_STATE_PENDING", "QUERY_STATE_COMPLETED"]
+    QUERY_STATES = ["QUERY_STATE_PENDING", "QUERY_STATE_EXECUTING", "QUERY_STATE_COMPLETED"]
 
     def __init__(self, bridge):
         load_dotenv()
@@ -38,12 +38,12 @@ class DuneClient:
                 response.raise_for_status()
 
                 if response.json() is None or response.json()["state"] is None:
-                    raise Exception()
+                    raise Exception("Invalid response from Dune API: missing 'state' field.")
 
                 if response.json()["state"] not in self.QUERY_STATES:
                     raise Exception(f"Unexpected query state: {response.json()['state']}")
 
-                return response.json()["execution_id"]
+                return response.json()
             except Exception as e:
                 error_str = f"Failed to create Dune query. Retrying with backoff {backoff} seconds. Error: {e}"
                 log_error(self.bridge, error_str)
@@ -56,8 +56,8 @@ class DuneClient:
     def execute_query(self, blockchain: str, tx_hashes: list[str]) -> str:
         endpoint = "v1/sql/execute"
         payload = {
-            "sql": "SELECT * FROM from tokens.transfers " +
-                "WHERE blockchain = 'ethereum' " +
+            "sql": "SELECT * FROM tokens.transfers " +
+                f"WHERE blockchain = '{blockchain}' " +
                 "AND token_standard = 'native' " +
                 f"AND tx_hash in ({','.join(tx_hashes)})" + 
                 "ORDER BY tx_hash",
@@ -66,29 +66,31 @@ class DuneClient:
         return self.make_request(endpoint, payload)["execution_id"]
     
     def get_execution_status(self, execution_id: str) -> str:
-        endpoint = f"v1/sql/execution/{execution_id}"
+        endpoint = f"v1/execution/{execution_id}/status"
         payload = None
-        return self.make_request(endpoint, payload)["is_execution_finished"]
+        return self.make_request(endpoint, payload)
 
     def get_execution_results(self, execution_id: str) -> list[dict]:
-        endpoint = f"v1/sql/execution/{execution_id}/results"
+        endpoint = f"v1/execution/{execution_id}/results"
         payload = None
         return self.make_request(endpoint, payload)["result"]
     
     def fetch_native_transactions(self, blockchain: str, tx_hashes: list[str]) -> list[dict]:
         execution_id = self.execute_query(blockchain, tx_hashes)
-        log_to_cli(self.bridge, f"Created Dune query with execution ID {execution_id} for {len(tx_hashes)} transaction hashes.")
+        log_to_cli(f"Created Dune query with execution ID {execution_id} for {len(tx_hashes)} transaction hashes.")
         total_wait_time = 0
         while True:
-            status = self.get_execution_status(execution_id)
-            log_to_cli(self.bridge, f"Dune query execution status for execution ID {execution_id}: {status}")
-            if status == "QUERY_STATE_COMPLETED":
+            response = self.get_execution_status(execution_id)
+            log_to_cli(f"Dune query execution status for execution ID {execution_id}: {response['state']} (wait: {total_wait_time}s)")
+            if response["state"] == "QUERY_STATE_COMPLETED":
                 break
-            time.sleep(3)  # Poll every 3 seconds
-            total_wait_time += 3
+            elif response["state"] == "QUERY_STATE_FAILED":
+                raise CustomException(f"Dune query execution failed for execution ID {execution_id}.")
+            time.sleep(5)  # Poll every 5 seconds
+            total_wait_time += 5
             if total_wait_time > 300:  # Timeout after 5 minutes
                 raise CustomException(f"Dune query execution timed out after 5 minutes for execution ID {execution_id}.")
 
         results = self.get_execution_results(execution_id)
-        log_to_cli(self.bridge, f"Fetched Dune query results for execution ID {execution_id}. Number of native transactions found: {len(results)}")
+        log_to_cli(f"Fetched Dune query results for execution ID {execution_id}. Number of native transactions found: {len(results)}")
         return results

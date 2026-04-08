@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy import text
 
-from config.constants import BLOCKCHAIN_IDS
+from config.constants import BLOCKCHAIN_IDS, Bridge
 from repository.common.repository import (
     NativeTokenRepository,
     TokenMetadataRepository,
@@ -362,7 +362,7 @@ class PriceGenerator:
             self.update_pairs_tried_metadata_fetching(blockchain, token_contract)
 
     def fetch_and_store_token_prices(
-        bridge: str,
+        bridge: Bridge,
         token_price_repo: TokenPriceRepository,
         start_ts: int,
         end_ts: int,

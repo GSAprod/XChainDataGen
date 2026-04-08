@@ -54,6 +54,7 @@ class GraphEdge(Base):
     cctx_graph_id = Column(Integer, nullable=True) # Can be null for edges that are not linked to a cross-chain transaction
     bridge = Column(String(255), nullable=False)
     blockchain = Column(String(255), nullable=True) # Can be none for edges that are not linked to a specific blockchain
+    blockchain_type = Column(String(255), nullable=True) # If a node is part of the source, target chain, or in an offchain process
     source_id = Column(Integer, nullable=False)
     target_id = Column(Integer, nullable=False)
     attributes = Column(JSON, nullable=True) # JSON object of attributes

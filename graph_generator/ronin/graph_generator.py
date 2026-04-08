@@ -77,7 +77,8 @@ data_chunks = {len(event["data"]) // 32}
                 event["topics"][0],
                 event_signature,
                 event,
-                attributes_text=event_text
+                attributes_text=event_text,
+                timestamp=tx.timestamp
             )
             graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
@@ -92,7 +93,8 @@ data_chunks = {len(event["data"]) // 32}
         # Ensure the depositor is a user node
         depositor_node = graph_obj.fetch_or_create_node(
             event_record.depositor,
-            node_type_if_missing=GraphNodeType.USER.value
+            node_type_if_missing=GraphNodeType.USER.value,
+            timestamp=tx.timestamp
         )
         graph_obj.update_node_type(depositor_node.node_id, GraphNodeType.USER.value)
         graph_obj.create_edge(
@@ -107,7 +109,8 @@ data_chunks = {len(event["data"]) // 32}
 
         # Link the routing node and the token node with a function call edge
         token_node = graph_obj.fetch_or_create_token_node(
-            event_record.input_token
+            event_record.input_token,
+            timestamp=tx.timestamp
         )
         graph_obj.create_edge(
             routing_node.node_id,
@@ -153,7 +156,8 @@ destination_chain = {event_record.dst_blockchain}
             event_args,
             attributes_text=event_text,
             amount=int(event_record.amount),
-            amount_usd=amount_usd
+            amount_usd=amount_usd,
+            timestamp=tx.timestamp
         )
         graph_obj.create_edge(
             routing_node.node_id, 
@@ -172,7 +176,8 @@ destination_chain = {event_record.dst_blockchain}
 
         # Link the routing node and the token node with a function call edge
         token_node = graph_obj.fetch_or_create_token_node(
-            event_record.output_token
+            event_record.output_token,
+            timestamp=tx.timestamp
         )
         graph_obj.create_edge(
             routing_node.node_id,
@@ -184,7 +189,8 @@ destination_chain = {event_record.dst_blockchain}
         # Ensure the recipient is a user node
         recipient_node = graph_obj.fetch_or_create_node(
             event_record.recipient,
-            node_type_if_missing=GraphNodeType.USER.value
+            node_type_if_missing=GraphNodeType.USER.value,
+            timestamp=tx.timestamp
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
         
@@ -223,9 +229,10 @@ source_chain = {event_record.src_blockchain}
             event["topics"][0],
             event_signature,
             event_args,
-            event_text,
+            attributes_text=event_text,
             amount=int(event_record.amount),
-            amount_usd=out_amount_usd
+            amount_usd=out_amount_usd,
+            timestamp=tx.timestamp,
         )
         graph_obj.create_edge(
             routing_node.node_id, 
@@ -245,7 +252,8 @@ source_chain = {event_record.src_blockchain}
         # Ensure the withdrawer is a user node
         withdrawer_node = graph_obj.fetch_or_create_node(
             event_record.withdrawer,
-            node_type_if_missing=GraphNodeType.USER.value
+            node_type_if_missing=GraphNodeType.USER.value,
+            timestamp=tx.timestamp
         )
         graph_obj.update_node_type(withdrawer_node.node_id, GraphNodeType.USER.value)
         graph_obj.create_edge(
@@ -260,7 +268,8 @@ source_chain = {event_record.src_blockchain}
 
         # Link the routing node and the token node with a function call edge
         token_node = graph_obj.fetch_or_create_token_node(
-            event_record.input_token
+            event_record.input_token,
+            timestamp=tx.timestamp
         )
         graph_obj.create_edge(
             routing_node.node_id,
@@ -306,7 +315,8 @@ destination_chain = {event_record.dst_blockchain}
             event_args,
             attributes_text=event_text,
             amount=int(event_record.amount),
-            amount_usd=in_amount_usd
+            amount_usd=in_amount_usd,
+            timestamp=tx.timestamp
         )
         graph_obj.create_edge(
             routing_node.node_id, 
@@ -326,6 +336,7 @@ destination_chain = {event_record.dst_blockchain}
         # Link the routing node and the token node with a function call edge
         token_node = graph_obj.fetch_or_create_token_node(
             event_record.output_token,
+            timestamp=tx.timestamp
         )
         graph_obj.create_edge(
             routing_node.node_id,
@@ -337,7 +348,8 @@ destination_chain = {event_record.dst_blockchain}
         # Ensure the recipient is a user node
         recipient_node = graph_obj.fetch_or_create_node(
             event_record.recipient,
-            node_type_if_missing=GraphNodeType.USER.value
+            node_type_if_missing=GraphNodeType.USER.value,
+            timestamp=tx.timestamp
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
 
@@ -378,7 +390,8 @@ source_chain = {event_record.src_blockchain}
             event_args,
             attributes_text=event_text,
             amount=int(event_record.amount),
-            amount_usd=out_amount_usd
+            amount_usd=out_amount_usd,
+            timestamp=tx.timestamp
         )
         graph_obj.create_edge(
             routing_node.node_id, 

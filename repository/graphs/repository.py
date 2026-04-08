@@ -74,7 +74,11 @@ class GraphNodeRepository(BaseRepository):
                 session.commit()
                 return node
             return None
-        
+    
+    def get_by_chain_graph_id(self, graph_id: int):
+        with self.get_session() as session:
+            return session.query(GraphNode).filter(GraphNode.chain_graph_id == graph_id).all()
+
     def assign_cctx_id(self, graph_id: int, cctx_id: int, blockchain_type: BlockchainType = None):
         with self.get_session() as session:
             nodes = session.query(GraphNode).filter(GraphNode.chain_graph_id == graph_id).all()
@@ -97,6 +101,10 @@ class GraphEdgeRepository(BaseRepository):
         with self.get_session() as session:
             return session.query(GraphEdge).filter(GraphEdge.chain_graph_id == graph_id, GraphEdge.source_id == source_id, GraphEdge.target_id == target_id).first()
         
+    def get_by_chain_graph_id(self, graph_id: int):
+        with self.get_session() as session:
+            return session.query(GraphEdge).filter(GraphEdge.chain_graph_id == graph_id).all()
+
     def assign_cctx_id(self, graph_id: int, cctx_id: int, blockchain_type: BlockchainType = None):
         with self.get_session() as session:
             edges = session.query(GraphEdge).filter(GraphEdge.chain_graph_id == graph_id).all()
