@@ -92,5 +92,5 @@ class DuneClient:
                 raise CustomException(f"Dune query execution timed out after 5 minutes for execution ID {execution_id}.")
 
         results = self.get_execution_results(execution_id)
-        log_to_cli(f"Fetched Dune query results for execution ID {execution_id}. Number of native transactions found: {len(results)}")
+        log_to_cli(f"Fetched Dune query results for execution ID {execution_id}. Number of native transactions found: {len(results['rows'])}")
         return results

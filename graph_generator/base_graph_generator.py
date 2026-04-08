@@ -201,25 +201,38 @@ data_size = {len(event["data"]) // 32}
             "amount": value
         })
 
+        # Instead of treating the wrapped currencies as separate token nodes,
+        # we can represent the native token with a single node and link it to the respective log event nodes.
+        # This way, we can avoid redundancy in the graph and have a clearer representation of the value flow,
+        # which is especially important for analysing relations through metapath analysis of the graph.
+        blockchain_config = next((chain for chain in BLOCKCHAIN_IDS.values() if chain["name"] == blockchain), None)
+        native_token_address = blockchain_config["native_token_contract"] if blockchain_config and "native_token_contract" in blockchain_config else "token_native"
+        if blockchain == "ronin":
+            native_token_symbol = "RON" #* Manual override for Ronin, as the native token is not named RON
+        else:
+            native_token_symbol = blockchain_config["native_token"] if blockchain_config else "ETH"
+            if native_token_symbol.startswith("W"):
+                native_token_symbol = native_token_symbol[1:] # remove the "W" prefix for better readability in the graph
+
         # We can also create a log event node for the internal transaction and link it 
         # to the native token node
         native_token_node = graph_obj.fetch_or_create_node(
-            "token_native",
+            native_token_address,
             node_type_if_missing=GraphNodeType.TOKEN.value,
             attributes={
-                "symbol": "ETH Native Currency",
+                "symbol": f"{native_token_symbol} Native Currency",
                 "blockchain": blockchain,
             },
-            attributes_text=f"type = token; blockchain = {blockchain}; symbol = ETH Native Currency",
+            attributes_text=f"type = token; blockchain = {blockchain}; symbol = {native_token_symbol} Native Currency",
             timestamp=timestamp
         )
 
         amount, amount_usd = self.convert_native_value_to_amount(blockchain, timestamp, value)
         description = f"""event Transfer(address from, address to, uint256 value)
-token = ETH Native Currency at token_native
+token = {native_token_symbol} Native Currency at {f'{native_token_address[:6]}...{native_token_address[-4:]}' if native_token_address != "token_native" else "token_native"}
 from = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]})
 to = {to_node.node_type} ({to_node.address[:6]}...{to_node.address[-4:]})
-value = {amount} ETH
+value = {amount} {native_token_symbol}
 blockchain = {blockchain}
 """  # Needs to change symbol based on the blockchain
                         
