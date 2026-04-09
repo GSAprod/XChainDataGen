@@ -44,6 +44,9 @@ class GraphNode(Base):
     amount_usd = Column(Numeric(80), nullable=True)
     event_order = Column(Integer, nullable=True) # Order of events in the same transaction, starting from 0
     timestamp = Column(BigInteger, nullable=True) # Timestamp of the transaction
+    
+    in_degree = Column(Integer, nullable=True) # Number of incoming edges, calculated in post-processing
+    out_degree = Column(Integer, nullable=True) # Number of outgoing edges, calculated in post-processing
 
 class GraphEdge(Base):
     __tablename__ = "graph_edges"

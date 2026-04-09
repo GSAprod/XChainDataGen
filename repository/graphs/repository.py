@@ -1,3 +1,5 @@
+from sqlalchemy import Index, func, select
+
 from graph_generator.graph_label import BlockchainType, GraphNodeType
 from repository.base import BaseRepository
 
@@ -79,6 +81,10 @@ class GraphNodeRepository(BaseRepository):
         with self.get_session() as session:
             return session.query(GraphNode).filter(GraphNode.chain_graph_id == graph_id).all()
 
+    def get_by_cctx_graph_id(self, cctx_graph_id: int):
+        with self.get_session() as session:
+            return session.query(GraphNode).filter(GraphNode.cctx_graph_id == cctx_graph_id).all()
+
     def assign_cctx_id(self, graph_id: int, cctx_id: int, blockchain_type: BlockchainType = None):
         with self.get_session() as session:
             nodes = session.query(GraphNode).filter(GraphNode.chain_graph_id == graph_id).all()
@@ -93,6 +99,31 @@ class GraphNodeRepository(BaseRepository):
         with self.get_session() as session:
             return session.query(GraphNode).filter(GraphNode.chain_graph_id == graph_id, GraphNode.node_type == GraphNodeType.ROUTER.value).first()
 
+    def refresh_degrees(self):
+        with self.get_session() as session:
+            in_degree_subquery = (
+                select(func.count())
+                .select_from(GraphEdge)
+                .where(GraphEdge.target_id == GraphNode.node_id)
+                .scalar_subquery()
+            )
+            out_degree_subquery = (
+                select(func.count())
+                .select_from(GraphEdge)
+                .where(GraphEdge.source_id == GraphNode.node_id)
+                .scalar_subquery()
+            )
+
+            updated_rows = session.query(GraphNode).update(
+                {
+                    GraphNode.in_degree: in_degree_subquery,
+                    GraphNode.out_degree: out_degree_subquery,
+                },
+                synchronize_session=False,
+            )
+            session.commit()
+            return updated_rows
+
 class GraphEdgeRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(GraphEdge, session_factory)
@@ -105,6 +136,10 @@ class GraphEdgeRepository(BaseRepository):
         with self.get_session() as session:
             return session.query(GraphEdge).filter(GraphEdge.chain_graph_id == graph_id).all()
 
+    def get_by_cctx_graph_id(self, cctx_graph_id: int):
+        with self.get_session() as session:
+            return session.query(GraphEdge).filter(GraphEdge.cctx_graph_id == cctx_graph_id).all()
+
     def assign_cctx_id(self, graph_id: int, cctx_id: int, blockchain_type: BlockchainType = None):
         with self.get_session() as session:
             edges = session.query(GraphEdge).filter(GraphEdge.chain_graph_id == graph_id).all()
@@ -114,3 +149,10 @@ class GraphEdgeRepository(BaseRepository):
                     edge.blockchain_type = blockchain_type.value
             session.commit()
             return edges
+
+
+Index("ix_graph_edge_source_id", GraphEdge.source_id)
+Index("ix_graph_edge_target_id", GraphEdge.target_id)
+Index("ix_graph_edge_chain_graph_source", GraphEdge.chain_graph_id, GraphEdge.source_id)
+Index("ix_graph_edge_chain_graph_target", GraphEdge.chain_graph_id, GraphEdge.target_id)
+

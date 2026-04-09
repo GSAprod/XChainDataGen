@@ -546,6 +546,9 @@ blockchain = {token_node.blockchain}
             else:
                 log_to_cli(f"Could not find router nodes for source graph {source_graph_mapping.graph_id} and destination graph {destination_graph_mapping.graph_id}. Skipping creation of validation node for CCTX {cctx_graph_mapping.cctx_graph_id}...", CliColor.ERROR)
 
+        log_to_cli("Finished linking transactions into CCTXs. Refreshing node degrees in the repository...")
+        self.graph_node_repo.refresh_degrees()
+
     def include_native_dune_transfers(self, blockchain):
         # For each transaction hash that we couldn't trace through RPC, we can query Dune for native token transfers related to the transaction
         # and include them in the respective graphs. This way, we can still capture value movements related to the transactions even if the blockchain doesn't support transaction tracing or if the tracing data is incomplete.

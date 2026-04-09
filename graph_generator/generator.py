@@ -34,3 +34,9 @@ class GraphGenerator:
         """Main generation logic."""
 
         self.generator.link_transactions_into_cctxs()
+
+    def post_process_graph_data(self):
+        """Calculate additional features and labels for the generated graph data,
+        that will be useful for training the GNN model."""
+
+        self.generator.post_process_graph_data()
