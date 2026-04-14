@@ -1,9 +1,9 @@
 
 
-from config.constants import BLOCKCHAIN_IDS, Bridge
+from config.constants import Bridge
 from graph_generator.base_graph_generator import BaseGraphGenerator
 from graph_generator.graph_class import GraphObject
-from graph_generator.graph_label import GraphEdgeType, GraphNodeType
+from graph_generator.graph_label import EventType, GraphEdgeType, GraphNodeType
 from repository.database import DBSession
 from repository.ronin.models import RoninCrossChainTransaction
 from repository.ronin.repository import (
@@ -40,6 +40,14 @@ class RoninGraphGenerator(BaseGraphGenerator):
     def fetch_transactions_timestamp_interval(self):
         return self.blockchain_transactions_repo.get_min_timestamp(), self.blockchain_transactions_repo.get_max_timestamp()
 
+    def get_router_event_list(self, blockchain):
+        if blockchain == "ethereum":
+            return "event DepositRequested(bytes32 receiptHash, tuple receipt), " + \
+                   "event TokenWithdrew(bytes32 receiptHash, tuple receipt)"
+        elif blockchain == "ronin":
+            return "event TokenDeposited(bytes32 receiptHash, tuple receipt), " + \
+                   "event WithdrawRequested(bytes32 receiptHash, tuple receipt), "
+
     def fetch_cctx_id(self, cctx: RoninCrossChainTransaction):
         # For Ronin, we can directly use the cctx_id from the database as the unique identifier for the cross-chain transaction
         return cctx.deposit_id
@@ -75,8 +83,10 @@ data_chunks = {len(event["data"]) // 32}
             log_event_node = graph_obj.create_log_node(
                 event_index,
                 event["topics"][0],
+                EventType.ROUTER_UNKNOWN.value,
                 event_signature,
-                event,
+                event["topics"][1:],
+                event["data"],
                 attributes_text=event_text,
                 timestamp=tx.timestamp
             )
@@ -120,16 +130,14 @@ data_chunks = {len(event["data"]) // 32}
         )
 
         event_args = {
-            "receipt": {
-                "deposit_id": event_record.deposit_id,
-                "kind": event_record.kind,
-                "amount": int(event_record.amount),
-                "depositor": event_record.depositor,
-                "input_token": event_record.input_token,
-                "destination_chain": event_record.dst_blockchain,
-                "recipient": event_record.recipient,
-                "output_token": event_record.output_token,
-            }
+            "deposit_id": event_record.deposit_id,
+            "kind": event_record.kind,
+            "amount": int(event_record.amount),
+            "depositor": event_record.depositor,
+            "input_token": event_record.input_token,
+            "destination_chain": event_record.dst_blockchain,
+            "recipient": event_record.recipient,
+            "output_token": event_record.output_token,
         }
         input_token_metadata = self.load_token_metadata(event_record.input_token, graph_obj.graph_mapping.blockchain)
         
@@ -152,11 +160,14 @@ destination_chain = {event_record.dst_blockchain}
         log_event_node = graph_obj.create_log_node(
             event_index,
             event["topics"][0],
+            EventType.DEPOSIT_REQUEST.value,
             event_signature,
             event_args,
+            None,
             attributes_text=event_text,
             amount=int(event_record.amount),
             amount_usd=amount_usd,
+            token_symbol=input_token_metadata.symbol if input_token_metadata else None,
             timestamp=tx.timestamp
         )
         graph_obj.create_edge(
@@ -195,16 +206,14 @@ destination_chain = {event_record.dst_blockchain}
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
         
         event_args = {
-            "receipt": {
-                "deposit_id": event_record.deposit_id,
-                "kind": event_record.kind,
-                "amount": int(event_record.amount),
-                "depositor": event_record.depositor,
-                "input_token": event_record.input_token,
-                "source_chain": event_record.src_blockchain,
-                "recipient": event_record.recipient,
-                "output_token": event_record.output_token,
-            }
+            "deposit_id": event_record.deposit_id,
+            "kind": event_record.kind,
+            "amount": int(event_record.amount),
+            "depositor": event_record.depositor,
+            "input_token": event_record.input_token,
+            "source_chain": event_record.src_blockchain,
+            "recipient": event_record.recipient,
+            "output_token": event_record.output_token,
         }
         output_token_metadata = self.load_token_metadata(event_record.output_token, graph_obj.graph_mapping.blockchain)
         
@@ -227,11 +236,14 @@ source_chain = {event_record.src_blockchain}
         log_event_node = graph_obj.create_log_node(
             event_index,
             event["topics"][0],
+            EventType.DEPOSIT_CONFIRMATION.value,
             event_signature,
             event_args,
+            None,
             attributes_text=event_text,
             amount=int(event_record.amount),
             amount_usd=out_amount_usd,
+            token_symbol=output_token_metadata.symbol if output_token_metadata else None,
             timestamp=tx.timestamp,
         )
         graph_obj.create_edge(
@@ -311,11 +323,14 @@ destination_chain = {event_record.dst_blockchain}
         log_event_node = graph_obj.create_log_node(
             event_index,
             event["topics"][0],
+            EventType.WITHDRAWAL_REQUEST.value,
             event_signature,
             event_args,
+            None,
             attributes_text=event_text,
             amount=int(event_record.amount),
             amount_usd=in_amount_usd,
+            token_symbol=input_token_metadata.symbol if input_token_metadata else None,
             timestamp=tx.timestamp
         )
         graph_obj.create_edge(
@@ -386,11 +401,14 @@ source_chain = {event_record.src_blockchain}
         log_event_node = graph_obj.create_log_node(
             event_index,
             event["topics"][0],
+            EventType.WITHDRAWAL_CONFIRMATION.value,
             event_signature,
             event_args,
+            None,
             attributes_text=event_text,
             amount=int(event_record.amount),
             amount_usd=out_amount_usd,
+            token_symbol=output_token_metadata.symbol if output_token_metadata else None,
             timestamp=tx.timestamp
         )
         graph_obj.create_edge(

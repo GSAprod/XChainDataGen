@@ -15,7 +15,13 @@ from config.constants import (
 from dune.dune_client import DuneClient
 from generator.base_generator import PriceGenerator
 from graph_generator.graph_class import GraphObject
-from graph_generator.graph_label import BlockchainType, GraphEdgeType, GraphLabel, GraphNodeType
+from graph_generator.graph_label import (
+    BlockchainType,
+    EventType,
+    GraphEdgeType,
+    GraphLabel,
+    GraphNodeType,
+)
 from repository.common.models import BlockchainTransaction
 from repository.common.repository import (
     BridgeRoutingContractMetadataRepository,
@@ -137,7 +143,11 @@ class BaseGraphGenerator(ABC):
                 routing_node = graph_obj.fetch_or_create_node(
                     emitted_by,
                     node_type_if_missing=GraphNodeType.ROUTER.value,
-                    attributes_text=f"type = router; blockchain = {blockchain}; bridge = {self.bridge.value}",
+                    attributes_text=f"""type = router; 
+blockchain = {blockchain};
+bridge = {self.bridge.value};
+event_list = {self.get_router_event_list(blockchain)}
+""",
                     timestamp=tx.timestamp
                     # we can also include the function signatures as attributes.
                     # we won't include them for now for space reasons
@@ -179,8 +189,10 @@ class BaseGraphGenerator(ABC):
             log_event_node = graph_obj.create_log_node(
                 op_index,
                 event["topics"][0],
+                EventType.UNKNOWN.value,
                 None,
-                event,
+                event["topics"][1:],
+                event["data"],
                 tx.timestamp,
                 attributes_text=f"""event UnknownEvent
 blockchain = {blockchain}
@@ -216,14 +228,22 @@ data_size = {len(event["data"]) // 32}
 
         # We can also create a log event node for the internal transaction and link it 
         # to the native token node
+        event_list = "event Transfer(address from, address to, uint256 value), " + \
+                     "event Approval(address _owner, address _spender, uint256 _value)"
         native_token_node = graph_obj.fetch_or_create_node(
             native_token_address,
             node_type_if_missing=GraphNodeType.TOKEN.value,
             attributes={
-                "symbol": f"{native_token_symbol} Native Currency",
-                "blockchain": blockchain,
+                "symbol": f"{native_token_symbol}",
+                "name": f"{native_token_symbol} Native Currency",
+                "decimals": 18
             },
-            attributes_text=f"type = token; blockchain = {blockchain}; symbol = {native_token_symbol} Native Currency",
+            attributes_text=f"""type = token; 
+blockchain = {blockchain}; 
+symbol = {native_token_symbol};
+name = {native_token_symbol} Native Currency;
+decimals = 18;
+event_list = {event_list}""",
             timestamp=timestamp
         )
 
@@ -239,11 +259,14 @@ blockchain = {blockchain}
         log_event_node = graph_obj.create_log_node(
             op_index,
             f"{from_address}_{to_address}",
+            EventType.TRANSFER.value,
             f"Transfer(address from, address to, uint256 value)",
-            internal_tx,
+            {"from": from_address, "to": to_address, "value": value},
+            None,
             attributes_text=description,
             amount=value,
             amount_usd=amount_usd,
+            token_symbol=native_token_symbol,
             timestamp=timestamp
         )
         graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
@@ -270,6 +293,11 @@ blockchain = {blockchain}
         date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
         token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
         
+        #* Apeiron token override: because it's not possible to fetch the price of the Apeiron token,
+        #* we will use a manual override of 1000 APEIRON = 1 USD based on the current observed price.
+        if token_metadata.symbol == "APRS":
+            return amount, amount // 1000
+
         if token_price is None and token_metadata.address not in self.unknown_contract_prices:
             log_to_cli(
                 f"Price for token {token_metadata.symbol} on {date} not found. Fetching price using PriceGenerator..."
@@ -293,6 +321,21 @@ blockchain = {blockchain}
         amount_usd = int(int(raw_value) * token_price.price_usd * (10 ** (18 - token_metadata.decimals))) if token_price else None
         return amount, amount_usd
     
+    def fetch_and_save_dune_token_prices(self, blockchain: str, symbol: str, start_ts: int, end_ts: int):
+        if self.dune_client is None:
+            log_to_cli("Dune client not initialized. Cannot fetch token prices from Dune.", CliColor.ERROR)
+            return {}
+        
+        result = self.dune_client.execute_token_pricing_query(blockchain, symbol, start_ts, end_ts)
+        for price_entry in result["rows"]:
+            timestamp = price_entry["timestamp"]
+            self.token_price_repo.create(
+                {
+
+                }
+            )
+
+
     def convert_native_value_to_amount(self, blockchain: str, timestamp: int, raw_value: int):
         # By norm, all EVM chains need to have native token decimals set to 18 for compatibility with Solidity
         amount = float(raw_value) / 10**18
@@ -311,7 +354,7 @@ blockchain = {blockchain}
             min_ts, max_ts = self.fetch_transactions_timestamp_interval()
             try:
                 log_to_cli(f"Price for native token {symbol} on {date} not found. Fetching price using PriceGenerator...")
-                PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, symbol, symbol=symbol, blockchain=blockchain)
+                PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, symbol, symbol=symbol)
                 currency_price = self.token_price_repo.get_token_price_by_symbol_and_date(symbol, date)
             except Exception as e:
                 log_to_cli(f"Failed to fetch price for native token {symbol} through PriceGenerator: {e}", CliColor.ERROR)
@@ -394,8 +437,10 @@ blockchain = {blockchain}
             log_event_node = graph_obj.create_log_node(
                 event_index,
                 event["topics"][0],
+                EventType.TOKEN_UNKNOWN.value,
                 None,
-                event,
+                event["topics"],
+                event["data"],
                 timestamp=tx.timestamp,
                 attributes_text=f"""event UnknownTokenEvent
 token = {token_metadata.name} ({token_metadata.symbol}) at {token_node.address[:6]}...{token_node.address[-4:]}
@@ -432,10 +477,13 @@ blockchain = {token_node.blockchain}
         log_event_node = graph_obj.create_log_node(
             event_index,
             event["topics"][0],
+            EventType.TRANSFER.value if type == GraphEdgeType.TOKEN_TRANSFER.value else EventType.APPROVAL.value,
             event_signature,
             event_args,
+            event["data"],
             amount=value,
             amount_usd=amount_usd,
+            token_symbol=token_metadata.symbol,
             timestamp=tx.timestamp,
             attributes_text=description
         )
@@ -510,8 +558,10 @@ blockchain = {token_node.blockchain}
                                 "cctx_id": cctx_id,
                                 "source_chain": cctx.src_blockchain,
                                 "source_tx": cctx.src_transaction_hash,
+                                "source_timestamp": source_graph_mapping.timestamp,
                                 "target_chain": cctx.dst_blockchain,
-                                "destination_tx": cctx.dst_transaction_hash
+                                "destination_tx": cctx.dst_transaction_hash,
+                                "destination_timestamp": destination_graph_mapping.timestamp
                             },
                             "attributes_text": f"type = validator; cctx_id = {cctx_id}; src_blockchain = {cctx.src_blockchain}; dst_blockchain = {cctx.dst_blockchain}",
                         }
@@ -586,6 +636,10 @@ blockchain = {token_node.blockchain}
 
     @abstractmethod
     def fetch_cross_chain_transactions(self):
+        pass
+
+    @abstractmethod
+    def get_router_event_list(self, blockchain):
         pass
 
     @abstractmethod

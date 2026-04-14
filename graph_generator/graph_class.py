@@ -39,6 +39,7 @@ class GraphObject:
             "blockchain": blockchain,
             "tx_hash": tx_hash,
             "block_number": block_number,
+            "timestamp": timestamp,
             "label": label.value,
         })
         self.tx_timestamp = timestamp
@@ -61,6 +62,8 @@ class GraphObject:
                 return node
         
         token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(address, self.graph_mapping.blockchain)
+        event_list = "event Transfer(address from, address to, uint256 value), " + \
+                     "event Approval(address _owner, address _spender, uint256 _value)"
         new_node_data = {
             "chain_graph_id": self.graph_mapping.graph_id,
             "node_type": GraphNodeType.TOKEN.value,
@@ -72,7 +75,13 @@ class GraphObject:
                 "name": token_metadata.name,
                 "decimals": token_metadata.decimals
             } if token_metadata else None,
-            "attributes_text": f"type = token; blockchain = {self.graph_mapping.blockchain}; symbol = {token_metadata.symbol}; name = {token_metadata.name}; decimals = {token_metadata.decimals}" if token_metadata else None,
+            "attributes_text": f"""type = token;
+blockchain = {self.graph_mapping.blockchain};
+symbol = {token_metadata.symbol};
+name = {token_metadata.name};
+decimals = {token_metadata.decimals};
+event_list = {event_list}""" if token_metadata else None,
+            "token_symbol": token_metadata.symbol if token_metadata else None,
             "timestamp": timestamp
         }
         return self.create_node(new_node_data)
@@ -97,7 +106,7 @@ class GraphObject:
             new_node_data["timestamp"] = timestamp
         return self.create_node(new_node_data)
 
-    def create_log_node(self, event_index, topic, event_signature, event_args, timestamp, attributes_text=None, amount=None, amount_usd=None):
+    def create_log_node(self, event_index, topic, event_type, event_signature, event_args, event_input, timestamp, attributes_text=None, amount=None, amount_usd=None, token_symbol=None):
         log_node_data = {
             "chain_graph_id": self.graph_mapping.graph_id,
             "node_type": GraphNodeType.LOG_EVENT.value,
@@ -106,7 +115,11 @@ class GraphObject:
             "address": topic,       # NOTE: There can be multiple events with the same topic.
             "attributes": {
                 "event_signature": event_signature,
+                "event_type": event_type,
                 "event_args": event_args,
+                "event_input": event_input,
+                "num_args": len(event_args),
+                "input_size": len(event_input[2:]) // 32 if event_input and event_input.startswith("0x") else 0
             },
             "event_order": event_index,
             "timestamp": timestamp
@@ -117,6 +130,8 @@ class GraphObject:
             log_node_data["amount"] = amount
         if amount_usd is not None:
             log_node_data["amount_usd"] = amount_usd
+        if token_symbol is not None:
+            log_node_data["token_symbol"] = token_symbol
         return self.create_node(log_node_data)
 
     def update_node_type(self, node_id: int, new_type: str):

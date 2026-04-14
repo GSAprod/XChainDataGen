@@ -1,5 +1,5 @@
 
-from sqlalchemy import JSON, BigInteger, Column, Float, Integer, Numeric, String
+from sqlalchemy import JSON, BigInteger, Column, Integer, Numeric, String
 
 from repository.database import Base
 
@@ -13,6 +13,7 @@ class GraphMappingBlockchain(Base):
     blockchain = Column(String(20), nullable=False)
     tx_hash = Column(String(66), nullable=False)
     block_number = Column(Integer, nullable=False)
+    timestamp = Column(BigInteger, nullable=True) # Timestamp of the transaction, can be null if not available
     label = Column(String(20), nullable=False)
 
 class GraphMappingCrossChain(Base):
@@ -42,6 +43,7 @@ class GraphNode(Base):
     attributes_text = Column(String, nullable=True) # Text description of attributes for LLM input
     amount = Column(Numeric(80), nullable=True)
     amount_usd = Column(Numeric(80), nullable=True)
+    token_symbol = Column(String(10), nullable=True)
     event_order = Column(Integer, nullable=True) # Order of events in the same transaction, starting from 0
     timestamp = Column(BigInteger, nullable=True) # Timestamp of the transaction
     
