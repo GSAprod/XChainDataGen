@@ -16,13 +16,14 @@ from dune.dune_client import DuneClient
 from generator.base_generator import PriceGenerator
 from graph_generator.graph_class import GraphObject
 from graph_generator.graph_label import (
+    BlockchainGraphLabel,
     BlockchainType,
     EventType,
     GraphEdgeType,
-    GraphLabel,
+    CrossChainGraphLabel,
     GraphNodeType,
 )
-from repository.common.models import BlockchainTransaction
+from repository.common.models import BlockchainTransaction, TokenMetadata
 from repository.common.repository import (
     BridgeRoutingContractMetadataRepository,
     TokenMetadataRepository,
@@ -93,7 +94,7 @@ class BaseGraphGenerator(ABC):
             tx.transaction_hash, 
             tx.block_number,
             tx.timestamp,
-            GraphLabel.NORMAL
+            BlockchainGraphLabel.ANOMALY if tx.transaction_hash in self.chain_anomaly_transactions.get(tx.blockchain, []) else BlockchainGraphLabel.NORMAL
         )
 
         blockchain = tx.blockchain
@@ -137,7 +138,7 @@ class BaseGraphGenerator(ABC):
         for event in tx_receipt["logs"]:
             emitted_by = event["address"]
 
-            if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(emitted_by.lower(), blockchain):
+            if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(self.bridge.value, emitted_by.lower(), blockchain):
                 # If the event is emitted by a known bridge router, we can 
                 # create a router node and include additional relations based on the function calls and events
                 routing_node = graph_obj.fetch_or_create_node(
@@ -271,6 +272,29 @@ blockchain = {blockchain}
         )
         graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
 
+    def create_unknown_router_event_node(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
+        #? What to do if the event is not a known router event? For now we will ignore it
+        # We can still create a log event node and link it to the routing node
+        event_signature = None
+        event_text = f"""event UnknownRouterEvent
+bridge = ronin
+blockchain = {graph_obj.graph_mapping.blockchain}
+topic = {event["topics"][0][:6]}...{event["topics"][0][-4:]}
+number_of_args = {len(event["topics"]) - 1}
+data_chunks = {len(event["data"]) // 32}
+"""
+        log_event_node = graph_obj.create_log_node(
+            event_index,
+            event["topics"][0],
+            EventType.ROUTER_UNKNOWN.value,
+            event_signature,
+            event["topics"][1:],
+            event["data"],
+            attributes_text=event_text,
+            timestamp=tx.timestamp
+        )
+        graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
+
     def load_erc20_contract(self, address):
         checksum_address = Web3.to_checksum_address(address)
         token_abi_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "ABI", "erc20_abi.json"))
@@ -288,53 +312,57 @@ blockchain = {blockchain}
                 return None
         return metadata
 
+    def maybe_fetch_prices_for_token(self, token_metadata, timestamp=None):
+        if timestamp is not None:
+            date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
+            token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
+            if token_price is not None:
+                return True
+        elif self.token_price_repo.exists_price_for_symbol(token_metadata.symbol):
+            return True
+
+        min_ts, max_ts = self.fetch_transactions_timestamp_interval()
+
+        PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, token_metadata.name, symbol=token_metadata.symbol)
+        if timestamp is not None: # Test if the price was successfully fetched
+            token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
+            if token_price is not None:
+                return True
+        else:
+            if self.token_price_repo.exists_price_for_symbol(token_metadata.symbol):
+                return True
+            
+        # If this does not work, try fetching the price using the current chain. This is a fallback mechanism.
+        log_to_cli(f"Failed to fetch price for token {token_metadata.symbol} on ethereum. Trying in {token_metadata.blockchain}...")
+        PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, token_metadata.name, symbol=token_metadata.symbol, blockchain=token_metadata.blockchain, token_address=token_metadata.address)
+        if timestamp is not None: # Test if the price was successfully fetched
+            token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
+            if token_price is not None:
+                return True
+        else:
+            if self.token_price_repo.exists_price_for_symbol(token_metadata.symbol):
+                return True
+
+        return False
+
     def convert_token_value_to_amount(self, timestamp: int, token_metadata, raw_value: int):
         amount = float(raw_value) / (10 ** token_metadata.decimals)
-        date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
-        token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
-        
+
         #* Apeiron token override: because it's not possible to fetch the price of the Apeiron token,
         #* we will use a manual override of 1000 APEIRON = 1 USD based on the current observed price.
         if token_metadata.symbol == "APRS":
             return amount, amount // 1000
 
-        if token_price is None and token_metadata.address not in self.unknown_contract_prices:
-            log_to_cli(
-                f"Price for token {token_metadata.symbol} on {date} not found. Fetching price using PriceGenerator..."
-            )
-            min_ts, max_ts = self.fetch_transactions_timestamp_interval()
-            try:
-                # Initially fetch the token price using the Ethereum chain as a reference (for price consistency between chains)
-                PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, token_metadata.name, symbol=token_metadata.symbol, blockchain="ethereum")
-                token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
-            except Exception as _:
-                # If this does not work, try fetching the price using the current chain. This is a fallback mechanism.
-                try:
-                    log_to_cli(f"Failed to fetch price for token {token_metadata.symbol} on ethereum. Trying in {token_metadata.blockchain}...")
-                    PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, token_metadata.name, symbol=token_metadata.symbol, blockchain=token_metadata.blockchain, token_address=token_metadata.address)
-                    token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
-                except Exception as e2:
-                    log_to_cli(f"Failed to fetch price for token {token_metadata.symbol} through PriceGenerator: {e2}", CliColor.ERROR)
-                    self.unknown_contract_prices.add(token_metadata.address)
-                    return amount, None
-            
-        amount_usd = int(int(raw_value) * token_price.price_usd * (10 ** (18 - token_metadata.decimals))) if token_price else None
-        return amount, amount_usd
-    
-    def fetch_and_save_dune_token_prices(self, blockchain: str, symbol: str, start_ts: int, end_ts: int):
-        if self.dune_client is None:
-            log_to_cli("Dune client not initialized. Cannot fetch token prices from Dune.", CliColor.ERROR)
-            return {}
+        prices_available = self.maybe_fetch_prices_for_token(token_metadata, timestamp)
+
+        if not prices_available:
+            log_to_cli(f"Price for token {token_metadata.symbol} not found. Cannot convert value to USD amount.", CliColor.ERROR)
+            return amount, None
         
-        result = self.dune_client.execute_token_pricing_query(blockchain, symbol, start_ts, end_ts)
-        for price_entry in result["rows"]:
-            timestamp = price_entry["timestamp"]
-            self.token_price_repo.create(
-                {
-
-                }
-            )
-
+        date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")  # Convert epoch timestamp to date postgreSQL format
+        token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
+        amount_usd = int(amount * token_price.price_usd) if token_price else None
+        return amount, amount_usd
 
     def convert_native_value_to_amount(self, blockchain: str, timestamp: int, raw_value: int):
         # By norm, all EVM chains need to have native token decimals set to 18 for compatibility with Solidity
@@ -348,18 +376,13 @@ blockchain = {blockchain}
             if symbol is None:
                 log_to_cli(f"Native token symbol for blockchain {blockchain} not found in BLOCKCHAIN_IDS. Cannot fetch price for native token.", CliColor.ERROR)
                 return amount, None
-
+            
+        prices_available = self.maybe_fetch_prices_for_token(TokenMetadata(symbol=symbol, name=blockchain, decimals=18, address="token_native", blockchain=blockchain), timestamp=timestamp)
+        if not prices_available:
+            log_to_cli(f"Price for native token {symbol} not found. Cannot convert value to USD amount.", CliColor.ERROR)
+            return amount, None
+        
         currency_price = self.token_price_repo.get_token_price_by_symbol_and_date(symbol, date) if symbol else None
-        if currency_price is None:
-            min_ts, max_ts = self.fetch_transactions_timestamp_interval()
-            try:
-                log_to_cli(f"Price for native token {symbol} on {date} not found. Fetching price using PriceGenerator...")
-                PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, symbol, symbol=symbol)
-                currency_price = self.token_price_repo.get_token_price_by_symbol_and_date(symbol, date)
-            except Exception as e:
-                log_to_cli(f"Failed to fetch price for native token {symbol} through PriceGenerator: {e}", CliColor.ERROR)
-                return amount, None
-
         amount_usd = int(int(raw_value) * currency_price.price_usd) if currency_price else None
         return amount, amount_usd
 
@@ -404,10 +427,13 @@ blockchain = {blockchain}
             )
 
         if blockchain in TOKEN_PRICING_SUPPORTED_BLOCKCHAINS:
-            min_ts, max_ts = self.fetch_transactions_timestamp_interval()
-            PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, 
-                function_signatures[0]["result"], function_signatures[1]["result"], blockchain, contract_address
-            )
+            self.maybe_fetch_prices_for_token(TokenMetadata(
+                symbol=function_signatures[1]["result"],
+                name=function_signatures[0]["result"],
+                decimals=function_signatures[2]["result"],
+                blockchain=blockchain,
+                address=contract_address
+            ))
 
         return True
 
@@ -515,6 +541,13 @@ blockchain = {token_node.blockchain}
             if source_graph_mapping is None or destination_graph_mapping is None:
                 log_to_cli(f"Could not find graph mappings for CCTX with source tx {cctx.src_transaction_hash} on {cctx.src_blockchain} and destination tx {cctx.dst_transaction_hash} on {cctx.dst_blockchain}. Skipping...", CliColor.ERROR)
                 continue
+
+            if source_graph_mapping.label == BlockchainGraphLabel.ANOMALY.value:
+                cctx_label = CrossChainGraphLabel.ANOMALY_SOURCE
+            elif destination_graph_mapping.label == BlockchainGraphLabel.ANOMALY.value:
+                cctx_label = CrossChainGraphLabel.ANOMALY_DESTINATION
+            else:
+                cctx_label = self.check_offchain_label(cctx)
                 
             log_to_cli(f"Linking CCTX with source {cctx.src_blockchain}:{cctx.src_transaction_hash} and destination {cctx.dst_blockchain}:{cctx.dst_transaction_hash}")
             # If both graph mappings exist, we can create a cross-chain graph mapping and link the respective graphs in the graph nodes and edges
@@ -527,7 +560,7 @@ blockchain = {token_node.blockchain}
                     "target_chain": cctx.dst_blockchain,
                     "source_tx_hash": cctx.src_transaction_hash,
                     "destination_tx_hash": cctx.dst_transaction_hash,
-                    "label": GraphLabel.NORMAL.value, # Placeholder, should be changed on attack transactions 
+                    "label": cctx_label.value
                 }
             )
             # Update the blockchain graphs and its nodes and edges to link to the cross-chain graph
@@ -599,6 +632,15 @@ blockchain = {token_node.blockchain}
         log_to_cli("Finished linking transactions into CCTXs. Refreshing node degrees in the repository...")
         self.graph_node_repo.refresh_degrees()
 
+    def check_offchain_label(self, cctx):
+        for anomaly in self.offchain_anomaly_transactions:
+            if "source" not in anomaly or "destination" not in anomaly:
+                continue
+
+            if cctx.src_transaction_hash == anomaly["source"] or cctx.dst_transaction_hash == anomaly["destination"]:
+                return CrossChainGraphLabel.ANOMALY_OFFCHAIN
+        return CrossChainGraphLabel.NORMAL
+
     def include_native_dune_transfers(self, blockchain):
         # For each transaction hash that we couldn't trace through RPC, we can query Dune for native token transfers related to the transaction
         # and include them in the respective graphs. This way, we can still capture value movements related to the transactions even if the blockchain doesn't support transaction tracing or if the tracing data is incomplete.
@@ -643,7 +685,7 @@ blockchain = {token_node.blockchain}
         pass
 
     @abstractmethod
-    def fetch_cctx_id(self, cctx):
+    def fetch_cctx_id(self, cctx) -> str:
         pass
 
     @abstractmethod

@@ -4,6 +4,7 @@ from config.constants import Bridge
 from graph_generator.base_graph_generator import BaseGraphGenerator
 from graph_generator.graph_class import GraphObject
 from graph_generator.graph_label import EventType, GraphEdgeType, GraphNodeType
+from graph_generator.ronin.constants import ANOMALY_TRANSACTIONS, OFFCHAIN_ANOMALY_TRANSACTIONS
 from repository.database import DBSession
 from repository.ronin.models import RoninCrossChainTransaction
 from repository.ronin.repository import (
@@ -19,6 +20,8 @@ from repository.ronin.repository import (
 class RoninGraphGenerator(BaseGraphGenerator):
     def __init__(self):
         self.bridge = Bridge.RONIN
+        self.chain_anomaly_transactions = ANOMALY_TRANSACTIONS
+        self.offchain_anomaly_transactions = OFFCHAIN_ANOMALY_TRANSACTIONS
         super().__init__(self.bridge)
 
     def bind_db_to_repos(self) -> None:
@@ -50,7 +53,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
 
     def fetch_cctx_id(self, cctx: RoninCrossChainTransaction):
         # For Ronin, we can directly use the cctx_id from the database as the unique identifier for the cross-chain transaction
-        return cctx.deposit_id
+        return str(cctx.deposit_id)
 
     def parse_bridge_router_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         if (
@@ -70,27 +73,7 @@ class RoninGraphGenerator(BaseGraphGenerator):
         ): # Withdrew
             self.parse_token_withdrew_event(tx, event, event_index, routing_node, graph_obj)
         elif event:
-            #? What to do if the event is not one of the above? For now we will ignore it
-            # We can still create a log event node and link it to the routing node
-            event_signature = None
-            event_text = f"""event UnknownRouterEvent
-bridge = ronin
-blockchain = {graph_obj.graph_mapping.blockchain}
-topic = {event["topics"][0][:6]}...{event["topics"][0][-4:]}
-number_of_args = {len(event["topics"]) - 1}
-data_chunks = {len(event["data"]) // 32}
-"""
-            log_event_node = graph_obj.create_log_node(
-                event_index,
-                event["topics"][0],
-                EventType.ROUTER_UNKNOWN.value,
-                event_signature,
-                event["topics"][1:],
-                event["data"],
-                attributes_text=event_text,
-                timestamp=tx.timestamp
-            )
-            graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
+            self.create_unknown_router_event_node(tx, event, event_index, routing_node, graph_obj)
 
     def parse_deposit_requested_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event DepositRequested(bytes32 receiptHash, tuple receipt)"

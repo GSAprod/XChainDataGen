@@ -1,7 +1,10 @@
 from enum import Enum
 
+class BlockchainGraphLabel(Enum):
+    NORMAL = "normal"
+    ANOMALY = "anomaly"
 
-class GraphLabel(Enum):
+class CrossChainGraphLabel(Enum):
     NORMAL = "normal"
     ANOMALY_SOURCE = "anomaly_source"
     ANOMALY_OFFCHAIN = "anomaly_offchain"
@@ -36,12 +39,14 @@ class GraphEdgeType(Enum):
 class EventType(Enum):
     TRANSFER = "transfer"
     APPROVAL = "approval"
+    BURN = "burn"
+    MINT = "mint"
+    OPERATION_REQUEST_SIGNING = "operation_request_signing"
+    OPERATION_FINALIZED = "operation_finalized"
     DEPOSIT_REQUEST = "deposit_request"
     DEPOSIT_CONFIRMATION = "deposit_confirmation"
     WITHDRAWAL_REQUEST = "withdrawal_request"
     WITHDRAWAL_CONFIRMATION = "withdrawal_confirmation"
-    BURN = "burn"
-    MINT = "mint"
     ROUTER_UNKNOWN = "router_unknown"
     TOKEN_UNKNOWN = "token_unknown"
     UNKNOWN = "unknown"

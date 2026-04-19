@@ -20,7 +20,7 @@ class GraphMappingCrossChain(Base):
     __tablename__ = "graph_mapping_cross_chain"
 
     cctx_graph_id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
-    cctx_id = Column(Integer, nullable=True)
+    cctx_id = Column(String(100), nullable=True)
     bridge = Column(String(20), nullable=False)
     source_chain = Column(String(20), nullable=False)
     target_chain = Column(String(20), nullable=False)
@@ -42,7 +42,7 @@ class GraphNode(Base):
     attributes = Column(JSON, nullable=True) # JSON object of attributes
     attributes_text = Column(String, nullable=True) # Text description of attributes for LLM input
     amount = Column(Numeric(80), nullable=True)
-    amount_usd = Column(Numeric(80), nullable=True)
+    amount_usd = Column(Numeric(100), nullable=True)
     token_symbol = Column(String(10), nullable=True)
     event_order = Column(Integer, nullable=True) # Order of events in the same transaction, starting from 0
     timestamp = Column(BigInteger, nullable=True) # Timestamp of the transaction

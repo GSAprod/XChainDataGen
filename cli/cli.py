@@ -255,6 +255,7 @@ class Cli:
                 "solana",
                 "unichain",
             ],
+            required=True,
             nargs="+",
             help="List of blockchains to extract data from",
         )

@@ -25,7 +25,7 @@ class BaseHandler(ABC):
 
     def handle_bridge_routing_contract_metadata(self, bridge: Bridge, blockchain: str, contract: str, function_signatures: str) -> None:
         try:
-            existing_metadata = self.bridge_routing_contract_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(contract.lower(), blockchain)
+            existing_metadata = self.bridge_routing_contract_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(bridge.value, contract.lower(), blockchain)
             if existing_metadata is None:
                 self.bridge_routing_contract_metadata_repo.create({
                     "bridge": bridge.value,
@@ -33,10 +33,11 @@ class BaseHandler(ABC):
                     "address": contract.lower(),
                     "function_list": function_signatures
                 })
-        except psycopg2.errors.UniqueViolation:
+        except psycopg2.errors.UniqueViolation as _:
             # This can happen if multiple threads are trying to insert the same contract metadata at the same
             pass
         except Exception as e:
+            print(existing_metadata)
             raise CustomException(
                 self.CLASS_NAME,
                 "handle_bridge_routing_contract_metadata",

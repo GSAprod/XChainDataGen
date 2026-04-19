@@ -6,6 +6,7 @@ BRIDGE_CONFIG = {
                 "abi": "0x88ad09518695c6c3712AC10a214bE5109a655671",
                 "contracts": [
                     "0x88ad09518695c6c3712AC10a214bE5109a655671",  # Gnosis Chain: ETH-xDAI Omni Bridge
+                    #"0x8eb3b7d8498a6716904577b2579e1c313d48e347",  # Proxied Version of Gnosis Chain: ETH-xDAI Omni Bridge
                 ],
                 "topics": [
                     "0x59a9a8027b9c87b961e254899821c9a276b5efc35d1f7409ea4f291470f1629a",  # TokensBridgingInitiated (index_topic_1 address token, index_topic_2 address sender, uint256 value, index_topic_3 bytes32 messageId)
@@ -19,6 +20,7 @@ BRIDGE_CONFIG = {
                 ],
                 "topics": [
                     "0x482515ce3d9494a37ce83f18b72b363449458435fafdd7a53ddea7460fe01b58",  # UserRequestForAffirmation (index_topic_1 bytes32 messageId, bytes encodedData)
+                    "0x27333edb8bdcd40a0ae944fb121b5e2d62ea782683946654a0f5e607a908d578"   # SignedForUserRequest (index_topic_1 address signer, bytes32 messageHash)
                 ],
             },
             {
@@ -53,6 +55,7 @@ BRIDGE_CONFIG = {
                     "0x520d2afde79cbd5db58755ac9480f81bc658e5c517fcae7365a3d832590b0183",  # UserRequestForSignature (index_topic_1 bytes32 messageId, bytes encodedData)
                     "0xbf06885f40778f5ccfb64497d3f92ce568ddaedb7e2fb4487f72690418cf8e4c",  # SignedForUserRequest (index_topic_1 address signer, bytes32 messageHash)
                     "0x5df9cc3eb93d8a9a481857a3b70a8ca966e6b80b25cf0ee2cce180ec5afa80a1",  # SignedForAffirmation (index_topic_1 address signer, bytes32 messageHash)
+                    "0xe194ef610f9150a2db4110b3db5116fd623175dca3528d7ae7046a1042f84fe7",  # AffirmationCompleted (index_topic_1 address recipient, uint256 value, bytes32 messageId)
                 ],
             },
             {

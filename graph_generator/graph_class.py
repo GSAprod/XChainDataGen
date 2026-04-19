@@ -1,7 +1,7 @@
 
 
 from config.constants import Bridge
-from graph_generator.graph_label import GraphLabel, GraphNodeType
+from graph_generator.graph_label import CrossChainGraphLabel, GraphNodeType
 from repository.graphs.models import GraphMappingBlockchain
 
 
@@ -33,7 +33,7 @@ class GraphObject:
 
         return self
 
-    def create_graph_mapping(self, bridge: Bridge, blockchain: str, tx_hash: str, block_number: int, timestamp: int, label: GraphLabel) -> GraphMappingBlockchain:
+    def create_graph_mapping(self, bridge: Bridge, blockchain: str, tx_hash: str, block_number: int, timestamp: int, label: CrossChainGraphLabel) -> GraphMappingBlockchain:
         self.graph_mapping = self.graph_mapping_repo.create({
             "bridge": bridge.value,
             "blockchain": blockchain,

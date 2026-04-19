@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Index, func
+from sqlalchemy import Index, func, tuple_
 from sqlalchemy.orm import ColumnProperty
 
 from repository.base import BaseRepository
@@ -96,7 +96,16 @@ class TokenMetadataRepository(BaseRepository):
                 )
                 .first()
             )
-
+    
+    def get_filtered_by_chain_and_addresses(self, chain_and_addresses: set[tuple[str, str]]):
+        filtered_list = [(chain, address.lower()) for chain, address in chain_and_addresses]
+        with self.get_session() as session:
+            query = session.query(TokenMetadata).filter(
+                tuple_(TokenMetadata.blockchain, func.lower(TokenMetadata.address)).in_(
+                    filtered_list
+                )
+            )
+            return query.all()
 
 class NativeTokenRepository(BaseRepository):
     def __init__(self, session_factory):
@@ -110,11 +119,12 @@ class BridgeRoutingContractMetadataRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(BridgeRoutingContractMetadata, session_factory)
 
-    def get_bridge_routing_metadata_by_address_and_blockchain(self, address: str, blockchain: str):
+    def get_bridge_routing_metadata_by_address_and_blockchain(self, bridge: str, address: str, blockchain: str):
         with self.get_session() as session:
             return (
                 session.query(BridgeRoutingContractMetadata)
                 .filter(
+                    BridgeRoutingContractMetadata.bridge == bridge,
                     func.lower(BridgeRoutingContractMetadata.address) == address.lower(),
                     BridgeRoutingContractMetadata.blockchain == blockchain,
                 )

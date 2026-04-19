@@ -120,6 +120,11 @@ class OmnibridgeHandler(BaseHandler):
                     event = self.handle_relayed_message(blockchain, event)
                 elif (
                     event["topic"]
+                    == "0x27333edb8bdcd40a0ae944fb121b5e2d62ea782683946654a0f5e607a908d578"
+                ):  # RelayedMessage (index_topic_1 address sender, index_topic_2 address executor, index_topic_3 bytes32 messageId, bool status))
+                    event = self.handle_relayed_message(blockchain, event)
+                elif (
+                    event["topic"]
                     == "0x127650bcfb0ba017401abe4931453a405140a8fd36fece67bae2db174d3fdd63"
                 ):  # UserRequestForSignature (address recipient, uint256 value)
                     event = self.handle_user_request_for_signature(blockchain, event)
@@ -146,9 +151,13 @@ class OmnibridgeHandler(BaseHandler):
                 elif (
                     event["topic"]
                     == "0x6fc115a803b8703117d9a3956c5a15401cb42401f91630f015eb6b043fa76253"
-                ):  # AffirmationCompleted
+                ):  # AffirmationCompleted(index_topic_1 address recipient, uint256 value)
                     event = self.handle_affirmation_completed(blockchain, event)
-
+                elif (
+                    event["topic"]
+                    == "0xe194ef610f9150a2db4110b3db5116fd623175dca3528d7ae7046a1042f84fe7"
+                ): # AffirmationCompleted(index_topic_1 address sender, index_topic_2 address executor, index_topic_3 bytes32 messageId, bool status)
+                    event = self.handle_affirmation_completed(blockchain, event)
                 if event:
                     included_events.append(event)
 
@@ -303,9 +312,12 @@ class OmnibridgeHandler(BaseHandler):
                 {
                     "blockchain": blockchain,
                     "transaction_hash": event["transaction_hash"],
-                    "recipient": event["recipient"],
-                    "value": str(event["value"]),
-                    "src_transaction_hash": "0x" + event["transactionHash"],
+                    "recipient": event["recipient"] if "recipient" in event else None,
+                    "value": str(event["value"]) if "value" in event else None,
+                    "sender": event["sender"] if "sender" in event else None,
+                    "executor": event["executor"] if "executor" in event else None,
+                    "message_id": event["messageId"] if "messageId" in event else None,
+                    "src_transaction_hash": "0x" + event["transactionHash"] if "transactionHash" in event else None,
                 }
             )
             return event
@@ -324,9 +336,12 @@ class OmnibridgeHandler(BaseHandler):
                 {
                     "blockchain": blockchain,
                     "transaction_hash": event["transaction_hash"],
-                    "recipient": event["recipient"],
-                    "value": str(event["value"]),
-                    "src_transaction_hash": "0x" + event["transactionHash"],
+                    "recipient": event["recipient"] if "recipient" in event else None,
+                    "value": str(event["value"]) if "value" in event else None,
+                    "src_transaction_hash": "0x" + event["transactionHash"] if "transactionHash" in event else None,
+                    "sender": event["sender"] if "sender" in event else None,
+                    "executor": event["executor"] if "executor" in event else None,
+                    "message_id": event["messageId"] if "messageId" in event else None
                 }
             )
             return event

@@ -1,6 +1,7 @@
 from sqlalchemy import func
 
 from repository.base import BaseRepository
+from repository.common.models import TokenMetadata
 
 from .models import (
     OmnibridgeAffirmationCompleted,
@@ -17,10 +18,19 @@ from .models import (
 )
 
 
+
 class OmnibridgeBlockchainTransactionRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(OmnibridgeBlockchainTransaction, session_factory)
 
+    def get_transactions_from_blockchain(self, blockchain: str):
+        with self.get_session() as session:
+            return (
+                session.query(OmnibridgeBlockchainTransaction)
+                .filter(OmnibridgeBlockchainTransaction.blockchain == blockchain)
+                .all()
+            )
+        
     def get_transaction_by_hash(self, transaction_hash: str):
         with self.get_session() as session:
             return session.get(OmnibridgeBlockchainTransaction, transaction_hash)
@@ -38,16 +48,38 @@ class OmnibridgeTokensBridgedRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(OmnibridgeTokensBridged, session_factory)
 
+    def fetch_by_transaction_hash(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(OmnibridgeTokensBridged)
+                .filter(OmnibridgeTokensBridged.transaction_hash == transaction_hash)
+                .first()
+            )
+
 
 class OmnibridgeTokensBridgingInitiatedRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(OmnibridgeTokensBridgingInitiated, session_factory)
 
+    def fetch_by_transaction_hash(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(OmnibridgeTokensBridgingInitiated)
+                .filter(OmnibridgeTokensBridgingInitiated.transaction_hash == transaction_hash)
+                .first()
+            )
 
 class OmnibridgeRelayedMessageRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(OmnibridgeRelayedMessage, session_factory)
 
+    def fetch_by_transaction_hash(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(OmnibridgeRelayedMessage)
+                .filter(OmnibridgeRelayedMessage.transaction_hash == transaction_hash)
+                .first()
+            )
 
 class OmnibridgeSignedForUserRequestRepository(BaseRepository):
     def __init__(self, session_factory):
@@ -63,16 +95,37 @@ class OmnibridgeUserRequestForSignatureRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(OmnibridgeUserRequestForSignature, session_factory)
 
+    def fetch_by_transaction_hash(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(OmnibridgeUserRequestForSignature)
+                .filter(OmnibridgeUserRequestForSignature.transaction_hash == transaction_hash)
+                .first()
+            )
 
 class OmnibridgeAffirmationCompletedRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(OmnibridgeAffirmationCompleted, session_factory)
 
+    def fetch_by_transaction_hash(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(OmnibridgeAffirmationCompleted)
+                .filter(OmnibridgeAffirmationCompleted.transaction_hash == transaction_hash)
+                .first()
+            )
 
 class OmnibridgeUserRequestForAffirmationRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(OmnibridgeUserRequestForAffirmation, session_factory)
 
+    def fetch_by_transaction_hash(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(OmnibridgeUserRequestForAffirmation)
+                .filter(OmnibridgeUserRequestForAffirmation.transaction_hash == transaction_hash)
+                .first()
+            )
 
 ########## Processed Data ##########
 

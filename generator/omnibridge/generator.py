@@ -3,6 +3,7 @@ import time
 from sqlalchemy import text
 
 from config.constants import Bridge
+from dune.dune_client import DuneClient
 from generator.base_generator import BaseGenerator
 from generator.common.price_generator import PriceGenerator
 from repository.common.repository import (
@@ -498,7 +499,12 @@ class OmnibridgeGenerator(BaseGenerator):
         start_time = time.time()
         log_to_cli(build_log_message_generator(self.bridge, "Fetching token prices..."))
 
+        contract_addresses = set()
+
         for cctx in cctxs:
+            contract_addresses.add((cctx.src_blockchain, cctx.src_contract_address))
+            contract_addresses.add((cctx.dst_blockchain, cctx.dst_contract_address))
+
             self.price_generator.populate_token_info(
                 self.bridge,
                 self.token_metadata_repo,
@@ -510,6 +516,29 @@ class OmnibridgeGenerator(BaseGenerator):
                 start_ts,
                 end_ts,
             )
+
+        # Get all token metadata for the tokens which still don't have price info
+        try:
+            dune_client = DuneClient(self.bridge)
+        except CustomException as e:
+            # DUNE could not be initialized, thus we skip the fallback price fetching
+            pass
+
+        if dune_client is not None:
+            contracts_token_metadata = self.token_metadata_repo.get_filtered_by_chain_and_addresses(contract_addresses)
+            token_prices_dune = dune_client.fetch_token_prices(contracts_token_metadata, start_ts, end_ts)
+            
+            for tp in token_prices_dune["rows"]:
+                if self.token_price_repo.get_token_price_by_symbol_and_date(tp["symbol"], tp["timestamp"].split(" ")[0]) is None:
+                    self.token_price_repo.create(
+                        {
+                            "name": "",
+                            "symbol": tp["symbol"],
+                            "price_usd": tp["price"],
+                            "date": tp["timestamp"].split(" ")[0],
+                        }
+                    )
+
 
         end_time = time.time()
         log_to_cli(

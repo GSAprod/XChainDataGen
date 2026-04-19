@@ -4,6 +4,7 @@ import time
 import requests
 from dotenv import load_dotenv
 
+from repository.common.models import TokenMetadata
 from utils.utils import CustomException, log_error, log_to_cli
 
 
@@ -53,7 +54,7 @@ class DuneClient:
 
         raise CustomException(f"Failed to create Dune query after multiple retries.")
     
-    def execute_query(self, blockchain: str, tx_hashes: list[str]) -> str:
+    def execute_transfers_query(self, blockchain: str, tx_hashes: list[str]) -> str:
         endpoint = "v1/sql/execute"
         payload = {
             "sql": "SELECT * FROM tokens.transfers " +
@@ -65,6 +66,26 @@ class DuneClient:
         }
         return self.make_request(endpoint, payload)["execution_id"]
     
+    def execute_token_prices_query(self, token_metadata_list: list[TokenMetadata], start_ts: int, end_ts: int) -> str:
+        endpoint = "v1/sql/execute"
+        token_pairs = ",".join(
+            [
+                f"({tm.address.lower()}, '{tm.blockchain}')"
+                for tm in token_metadata_list
+            ]
+        )
+        payload = {
+            "sql": (
+                "SELECT * FROM prices.day " + 
+                f"WHERE (contract_address, blockchain) IN ({token_pairs}) " +
+                f"AND timestamp >= from_unixtime({start_ts}) " +
+                f"AND timestamp <= from_unixtime({end_ts}) " +
+                "ORDER BY symbol, timestamp, source"
+            ),  # order by source to ensure coinpaprika is preferred when multiple price sources are available
+            "performance": "medium"
+        }
+        return self.make_request(endpoint, payload)["execution_id"]
+
     def get_execution_status(self, execution_id: str) -> str:
         endpoint = f"v1/execution/{execution_id}/status"
         payload = None
@@ -76,7 +97,7 @@ class DuneClient:
         return self.make_request(endpoint, payload)["result"]
     
     def fetch_native_transactions(self, blockchain: str, tx_hashes: list[str]) -> list[dict]:
-        execution_id = self.execute_query(blockchain, tx_hashes)
+        execution_id = self.execute_transfers_query(blockchain, tx_hashes)
         log_to_cli(f"Created Dune query with execution ID {execution_id} for {len(tx_hashes)} transaction hashes.")
         total_wait_time = 0
         while True:
@@ -93,4 +114,24 @@ class DuneClient:
 
         results = self.get_execution_results(execution_id)
         log_to_cli(f"Fetched Dune query results for execution ID {execution_id}. Number of native transactions found: {len(results['rows'])}")
+        return results
+    
+    def fetch_token_prices(self, token_metadata_list: list[TokenMetadata], start_ts: int, end_ts: int):
+        execution_id = self.execute_token_prices_query(token_metadata_list, start_ts, end_ts)
+        log_to_cli(f"Created Dune query with execution ID {execution_id} for token prices.")
+        total_wait_time = 0
+        while True:
+            response = self.get_execution_status(execution_id)
+            log_to_cli(f"Dune query execution status for execution ID {execution_id}: {response['state']} (wait: {total_wait_time}s)")
+            if response["state"] == "QUERY_STATE_COMPLETED":
+                break
+            elif response["state"] == "QUERY_STATE_FAILED":
+                raise CustomException(f"Dune query execution failed for execution ID {execution_id}.")
+            time.sleep(5)  # Poll every 5 seconds
+            total_wait_time += 5
+            if total_wait_time > 300:  # Timeout after 5 minutes
+                raise CustomException(f"Dune query execution timed out after 5 minutes for execution ID {execution_id}.")
+
+        results = self.get_execution_results(execution_id)
+        log_to_cli(f"Fetched Dune query results for execution ID {execution_id}. Number of token prices found: {len(results['rows'])}")
         return results

@@ -66,22 +66,30 @@ class OmnibridgeTokensBridged(Base):
         )
 
 
+# RelayedMessage (index_topic_1 address recipient, uint256 value, bytes32 nonce)
+# RelayedMessage (index_topic_1 address sender, index_topic_2 address executor,
 class OmnibridgeRelayedMessage(Base):
     __tablename__ = "omnibridge_relayed_message"
 
     id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
     blockchain = Column(String(10), nullable=False)
     transaction_hash = Column(String(66), nullable=False)
-    recipient = Column(String(42), nullable=False)
-    value = Column(Numeric(30, 0), nullable=False)
-    src_transaction_hash = Column(String(66), nullable=False)
+    recipient = Column(String(42), nullable=True)
+    value = Column(Numeric(30, 0), nullable=True)
+    src_transaction_hash = Column(String(66), nullable=True)
+    sender = Column(String(42), nullable=True)
+    executor = Column(String(42), nullable=True)
+    message_id = Column(String(66), nullable=True)
 
-    def __init__(self, blockchain, transaction_hash, recipient, value, src_transaction_hash):
+    def __init__(self, blockchain, transaction_hash, recipient=None, value=None, src_transaction_hash=None, sender=None, executor=None, message_id=None):
         self.blockchain = blockchain
         self.transaction_hash = transaction_hash
         self.recipient = recipient
         self.value = value
         self.src_transaction_hash = src_transaction_hash
+        self.sender = sender
+        self.executor = executor
+        self.message_id = message_id
 
     def __repr__(self):
         return (
@@ -90,6 +98,9 @@ class OmnibridgeRelayedMessage(Base):
             f"recipient={self.recipient}, "
             f"value={self.value}, "
             f"src_transaction_hash={self.src_transaction_hash})>"
+            f"sender={self.sender}, "
+            f"executor={self.executor}, "
+            f"message_id={self.message_id}"
         )
 
 
@@ -156,7 +167,7 @@ class OmnibridgeUserRequestForSignature(Base):
     blockchain = Column(String(10), nullable=False)
     transaction_hash = Column(String(66), nullable=False)
     message_id = Column(String(66), nullable=True)
-    encoded_data = Column(String(1000), nullable=True)
+    encoded_data = Column(String(3200), nullable=True)
     encoded_data_hash = Column(String(66), nullable=True)
     recipient = Column(String(42), nullable=True)
     value = Column(Numeric(30, 0), nullable=True)
@@ -191,22 +202,29 @@ class OmnibridgeUserRequestForSignature(Base):
 
 
 # AffirmationCompleted (address recipient, uint256 value, bytes32 transactionHash)
+# AffirmationCompleted (index_topic_1 address sender, index_topic_2 address executor, index_topic_3 bytes32 messageId, bool status)
 class OmnibridgeAffirmationCompleted(Base):
     __tablename__ = "omnibridge_affirmation_completed"
 
     id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
     blockchain = Column(String(10), nullable=False)
     transaction_hash = Column(String(66), nullable=False)
-    recipient = Column(String(42), nullable=False)
-    value = Column(Numeric(30, 0), nullable=False)
-    src_transaction_hash = Column(String(66), nullable=False)
+    recipient = Column(String(42), nullable=True)
+    value = Column(Numeric(30, 0), nullable=True)
+    sender = Column(String(42), nullable=True)
+    executor = Column(String(42), nullable=True)
+    message_id = Column(String(66), nullable=True)
+    src_transaction_hash = Column(String(66), nullable=True)
 
-    def __init__(self, blockchain, transaction_hash, recipient, value, src_transaction_hash):
+    def __init__(self, blockchain, transaction_hash, recipient=None, value=None, src_transaction_hash=None, sender=None, executor=None, message_id=None):
         self.blockchain = blockchain
         self.transaction_hash = transaction_hash
         self.recipient = recipient
         self.value = value
         self.src_transaction_hash = src_transaction_hash
+        self.sender = sender
+        self.executor = executor
+        self.message_id = message_id
 
     def __repr__(self):
         return (
@@ -215,6 +233,9 @@ class OmnibridgeAffirmationCompleted(Base):
             f"recipient={self.recipient}, "
             f"value={self.value}, "
             f"src_transaction_hash={self.src_transaction_hash})>"
+            f"sender={self.sender}, "
+            f"executor={self.executor}, "
+            f"message_id={self.message_id}"
         )
 
 
@@ -227,7 +248,7 @@ class OmnibridgeUserRequestForAffirmation(Base):
     blockchain = Column(String(10), nullable=False)
     transaction_hash = Column(String(66), nullable=False)
     message_id = Column(String(66), nullable=True)
-    encoded_data = Column(String(1000), nullable=True)
+    encoded_data = Column(String(3200), nullable=True)
     recipient = Column(String(42), nullable=True)
     value = Column(Numeric(30, 0), nullable=True)
 
