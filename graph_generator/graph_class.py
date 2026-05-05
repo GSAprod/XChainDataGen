@@ -1,7 +1,5 @@
-
-
 from config.constants import Bridge
-from graph_generator.graph_label import CrossChainGraphLabel, GraphNodeType
+from graph_generator.graph_label import BlockchainGraphLabel, CrossChainGraphLabel, GraphNodeType
 from repository.graphs.models import GraphMappingBlockchain
 
 
@@ -11,7 +9,7 @@ class GraphObject:
         self.node_repo = node_repo
         self.edge_repo = edge_repo
         self.token_metadata_repo = token_metadata_repo
-
+        self.attacker_addresses = {}
         self.graph_mapping = None
         self.tx_timestamp = None
         self.nodes = []
@@ -33,7 +31,7 @@ class GraphObject:
 
         return self
 
-    def create_graph_mapping(self, bridge: Bridge, blockchain: str, tx_hash: str, block_number: int, timestamp: int, label: CrossChainGraphLabel) -> GraphMappingBlockchain:
+    def create_graph_mapping(self, bridge: Bridge, blockchain: str, tx_hash: str, block_number: int, timestamp: int, label: CrossChainGraphLabel, attacker_addresses: set) -> GraphMappingBlockchain:
         self.graph_mapping = self.graph_mapping_repo.create({
             "bridge": bridge.value,
             "blockchain": blockchain,
@@ -43,6 +41,7 @@ class GraphObject:
             "label": label.value,
         })
         self.tx_timestamp = timestamp
+        self.attacker_addresses = attacker_addresses
         return self.graph_mapping
     
     def attach_graph_mapping(self, graph_mapping: GraphMappingBlockchain):
@@ -52,6 +51,12 @@ class GraphObject:
         self.nodes = nodes
     
     def create_node(self, node_data):
+        if node_data.get("address") in self.attacker_addresses:
+            # Update graph mapping label to reflect that this graph contains an attacker address
+            if self.graph_mapping.label != BlockchainGraphLabel.ANOMALY.value:
+                self.graph_mapping.label = BlockchainGraphLabel.ANOMALY.value
+                self.graph_mapping_repo.update_label(self.graph_mapping.graph_id, self.graph_mapping.label)
+
         node = self.node_repo.create(node_data)
         self.nodes.append(node)
         return node
@@ -84,6 +89,7 @@ event_list = {event_list}""" if token_metadata else None,
             "token_symbol": token_metadata.symbol if token_metadata else None,
             "timestamp": timestamp
         }
+
         return self.create_node(new_node_data)
 
     def fetch_or_create_node(self, address, timestamp, attributes=None, attributes_text=None, node_type_if_missing=GraphNodeType.OTHER_ACCOUNT.value):

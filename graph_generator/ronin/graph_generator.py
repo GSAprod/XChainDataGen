@@ -1,10 +1,10 @@
-
+import csv
+import os
 
 from config.constants import Bridge
 from graph_generator.base_graph_generator import BaseGraphGenerator
 from graph_generator.graph_class import GraphObject
 from graph_generator.graph_label import EventType, GraphEdgeType, GraphNodeType
-from graph_generator.ronin.constants import ANOMALY_TRANSACTIONS, OFFCHAIN_ANOMALY_TRANSACTIONS
 from repository.database import DBSession
 from repository.ronin.models import RoninCrossChainTransaction
 from repository.ronin.repository import (
@@ -20,8 +20,6 @@ from repository.ronin.repository import (
 class RoninGraphGenerator(BaseGraphGenerator):
     def __init__(self):
         self.bridge = Bridge.RONIN
-        self.chain_anomaly_transactions = ANOMALY_TRANSACTIONS
-        self.offchain_anomaly_transactions = OFFCHAIN_ANOMALY_TRANSACTIONS
         super().__init__(self.bridge)
 
     def bind_db_to_repos(self) -> None:

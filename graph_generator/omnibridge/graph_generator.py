@@ -22,8 +22,6 @@ from repository.omnibridge.repository import (
 class OmnibridgeGraphGenerator(BaseGraphGenerator):
     def __init__(self):
         self.bridge = Bridge.OMNIBRIDGE
-        self.chain_anomaly_transactions = ANOMALY_TRANSACTIONS
-        self.offchain_anomaly_transactions = OFFCHAIN_ANOMALY_TRANSACTIONS
         super().__init__(self.bridge)
 
     def bind_db_to_repos(self) -> None:

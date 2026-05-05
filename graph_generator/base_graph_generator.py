@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 from abc import ABC, abstractmethod
@@ -47,6 +48,10 @@ class BaseGraphGenerator(ABC):
         self.bind_db_to_repos()
         self.unknown_contracts = set()
         self.unknown_contract_prices = set()
+        self.chain_anomaly_transactions = {}
+        self.offchain_anomaly_transactions = set()
+        self.attacker_addresses = {}
+        self.load_anomaly_data()
 
         try:
             self.dune_client = DuneClient(bridge)
@@ -65,6 +70,47 @@ class BaseGraphGenerator(ABC):
         self.graph_node_repo = GraphNodeRepository(DBSession)
         self.graph_edge_repo = GraphEdgeRepository(DBSession)
 
+    def load_anomaly_data(self):
+        # Load transaction-level anomaly records
+        anomaly_path = os.path.join(os.path.dirname(__file__), self.bridge.value, "anomaly_data/attacks.csv")
+        chain_anomalies = {}
+        with open(anomaly_path) as f:
+            csvreader = csv.DictReader(f)
+            for row in csvreader:
+                blockchain = row.get("blockchain")
+                tx_hash = row.get("tx_hash")
+                if blockchain and tx_hash:
+                    chain_anomalies.setdefault(blockchain, set()).add(tx_hash)
+
+        self.chain_anomaly_transactions = chain_anomalies
+
+        # Load off-chain anomaly records
+        offchain_anomaly_path = os.path.join(os.path.dirname(__file__), self.bridge.value, "anomaly_data/offchain_attacks.csv")
+        offchain_anomalies = set()
+        with open(offchain_anomaly_path) as f:
+            csvreader = csv.DictReader(f)
+            for row in csvreader:
+                src_blockchain = row.get("src_blockchain")
+                src_tx_hash = row.get("src_tx_hash")
+                dst_blockchain = row.get("dst_blockchain")
+                dst_tx_hash = row.get("dst_tx_hash")
+                if src_tx_hash and dst_tx_hash:
+                    offchain_anomalies.add((src_blockchain, src_tx_hash, dst_blockchain, dst_tx_hash))
+
+        self.offchain_anomaly_transactions = offchain_anomalies
+
+        # Load attacker address records
+        attacker_address_path = os.path.join(os.path.dirname(__file__), self.bridge.value, "anomaly_data/attacker_addresses.csv")
+        attackers = {}
+        with open(attacker_address_path) as f:
+            csvreader = csv.DictReader(f)
+            for row in csvreader:
+                blockchain = row.get("blockchain")
+                address = row.get("address")
+                if blockchain and address:
+                    attackers.setdefault(blockchain, set()).add(address)
+
+        self.attacker_addresses = attackers
     
     def generate_graph_data(self, blockchain: str) -> None:
         func_name = "generate_graph_data"
@@ -94,7 +140,8 @@ class BaseGraphGenerator(ABC):
             tx.transaction_hash, 
             tx.block_number,
             tx.timestamp,
-            BlockchainGraphLabel.ANOMALY if tx.transaction_hash in self.chain_anomaly_transactions.get(tx.blockchain, []) else BlockchainGraphLabel.NORMAL
+            BlockchainGraphLabel.ANOMALY if tx.transaction_hash in self.chain_anomaly_transactions.get(tx.blockchain, set()) else BlockchainGraphLabel.NORMAL,
+            self.attacker_addresses.get(tx.blockchain, set())
         )
 
         blockchain = tx.blockchain
@@ -633,12 +680,9 @@ blockchain = {token_node.blockchain}
         self.graph_node_repo.refresh_degrees()
 
     def check_offchain_label(self, cctx):
-        for anomaly in self.offchain_anomaly_transactions:
-            if "source" not in anomaly or "destination" not in anomaly:
-                continue
-
-            if cctx.src_transaction_hash == anomaly["source"] or cctx.dst_transaction_hash == anomaly["destination"]:
-                return CrossChainGraphLabel.ANOMALY_OFFCHAIN
+        if (cctx.src_blockchain, cctx.src_transaction_hash, cctx.dst_blockchain, cctx.dst_transaction_hash) in self.offchain_anomaly_transactions:
+            return CrossChainGraphLabel.ANOMALY_OFFCHAIN
+        
         return CrossChainGraphLabel.NORMAL
 
     def include_native_dune_transfers(self, blockchain):

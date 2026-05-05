@@ -31,6 +31,15 @@ class GraphMappingBlockchainRepository(BaseRepository):
                 session.commit()
                 return graph_mapping
             return None
+        
+    def update_label(self, graph_id: int, new_label: str):
+        with self.get_session() as session:
+            graph_mapping = session.query(GraphMappingBlockchain).filter(GraphMappingBlockchain.graph_id == graph_id).first()
+            if graph_mapping:
+                graph_mapping.label = new_label
+                session.commit()
+                return graph_mapping
+            return None
 
 class GraphMappingCrossChainRepository(BaseRepository):
     def __init__(self, session_factory):
