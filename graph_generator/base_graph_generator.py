@@ -254,6 +254,12 @@ data_size = {len(event["data"]) // 32}
             op_index += 1
 
     def process_internal_token_transfer(self, graph_obj, blockchain, op_index, internal_tx, from_address, to_address, value, timestamp):
+        # Cap the value to avoid outliers in the graph, specifically 
+        # when encoding the max possible int256 amount which is typically used in approval transactions.
+        # TODO APPLY IN OTHER PLACES AS WELL?
+        if value is not None and value > 10e27:
+            value = 10e27
+        
         from_node = graph_obj.fetch_or_create_node(from_address, timestamp=timestamp)
         to_node = graph_obj.fetch_or_create_node(to_address, timestamp=timestamp)
         graph_obj.create_edge(from_node.node_id, to_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, op_index, attributes={
@@ -526,6 +532,9 @@ data_chunks = {len(event["data"]) // 32}
             graph_obj.create_edge(token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
             return
         
+        if value is not None and value > 10e27:
+            value = 10e27
+
         from_node = graph_obj.fetch_or_create_node(from_address, timestamp=tx.timestamp)
         to_node = graph_obj.fetch_or_create_node(to_address, timestamp=tx.timestamp)
 
@@ -709,6 +718,10 @@ blockchain = {token_node.blockchain}
                 from_address = transfer["tx_from"]
                 to_address = transfer["tx_to"]
                 value = int(transfer["amount_raw"])
+
+                if value is not None and value > 10e27:
+                    value = 10e27
+
                 log_to_cli(f"Including native token transfer from Dune for transaction {tx_hash} on {blockchain}: from {from_address} to {to_address} amount {value}")
 
                 # We'll be using negative operation indexes for the internal transactions fetched from Dune
