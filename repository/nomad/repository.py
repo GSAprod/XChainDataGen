@@ -16,9 +16,16 @@ from .models import (
 class NomadRouterSendRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(NomadRouterSend, session_factory)
-    
-    # TODO Verify if arguments correct
+
     def event_exists(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(NomadRouterSend)
+                .filter(NomadRouterSend.transaction_hash == transaction_hash)
+                .first()
+            )
+
+    def fetch_by_transaction_hash(self, transaction_hash: str):
         with self.get_session() as session:
             return (
                 session.query(NomadRouterSend)
@@ -29,8 +36,7 @@ class NomadRouterSendRepository(BaseRepository):
 class NomadRouterReceiveRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(NomadRouterReceive, session_factory)
-    
-    # TODO Verify if arguments correct
+
     def event_exists(self, nonce: int, blockchain: str, src_blockchain: str):
         with self.get_session() as session:
             return (
@@ -40,13 +46,28 @@ class NomadRouterReceiveRepository(BaseRepository):
                 .filter(NomadRouterReceive.src_blockchain == src_blockchain)
                 .first()
             )
+
+    def fetch_by_transaction_hash(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(NomadRouterReceive)
+                .filter(NomadRouterReceive.transaction_hash == transaction_hash)
+                .first()
+            )
         
 class NomadEthHelperSendRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(NomadEthHelperSend, session_factory)
-    
-    # TODO Verify if arguments correct
+
     def event_exists(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(NomadEthHelperSend)
+                .filter(NomadEthHelperSend.transaction_hash == transaction_hash)
+                .first()
+            )
+
+    def fetch_by_transaction_hash(self, transaction_hash: str):
         with self.get_session() as session:
             return (
                 session.query(NomadEthHelperSend)
@@ -57,8 +78,7 @@ class NomadEthHelperSendRepository(BaseRepository):
 class NomadReplicaProcessRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(NomadReplicaProcess, session_factory)
-    
-    # TODO Verify if arguments correct
+
     def event_exists(self, message_hash: str, blockchain: str):
         with self.get_session() as session:
             return (
@@ -67,12 +87,19 @@ class NomadReplicaProcessRepository(BaseRepository):
                 .filter(NomadReplicaProcess.blockchain == blockchain)
                 .first()
             )
+
+    def fetch_by_transaction_hash(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(NomadReplicaProcess)
+                .filter(NomadReplicaProcess.transaction_hash == transaction_hash)
+                .first()
+            )
         
 class NomadHomeDispatchRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(NomadHomeDispatch, session_factory)
-    
-    # TODO Verify if arguments correct
+
     def event_exists(self, message_hash: str, blockchain: str):
         with self.get_session() as session:
             return (
@@ -82,9 +109,25 @@ class NomadHomeDispatchRepository(BaseRepository):
                 .first()
             )
 
+    def fetch_by_transaction_hash(self, transaction_hash: str):
+        with self.get_session() as session:
+            return (
+                session.query(NomadHomeDispatch)
+                .filter(NomadHomeDispatch.transaction_hash == transaction_hash)
+                .first()
+            )
+
 class NomadBlockchainTransactionRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(NomadBlockchainTransaction, session_factory)
+
+    def get_transactions_from_blockchain(self, blockchain: str):
+        with self.get_session() as session:
+            return (
+                session.query(NomadBlockchainTransaction)
+                .filter(NomadBlockchainTransaction.blockchain == blockchain)
+                .all()
+            )
 
     def get_transaction_by_hash(self, transaction_hash: str):
         with self.get_session() as session:

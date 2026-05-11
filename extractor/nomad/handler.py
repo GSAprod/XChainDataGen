@@ -269,12 +269,12 @@ class NomadHandler(BaseHandler):
             # [76:]    body
             #
             # Body layout (BridgeMessage.formatMessage = tokenId || action):
-            # [76:80]   tokenId.domain  (uint32)
-            # [80:112]  tokenId.id      (bytes32, address right-aligned)
-            # [112]     action type     (0x01=Transfer, 0x03=FastTransfer)
-            # [113:145] recipient       (bytes32, address right-aligned)
-            # [145:177] amount          (uint256)
-            # [177:209] details hash    (bytes32)
+            # [76:80]   tokenId.domain       (uint32)
+            # [80:112]  tokenId.id           (bytes32, address right-aligned)
+            # [112]     action type          (0x00=Transfer, 0x01=FastTransfer, 0x02=TransferToHook)
+            # [113:145] recipient            (bytes32, address right-aligned)
+            # [145:177] amount               (uint256)
+            # [177:209] details hash         (bytes32)
             message_hex = event["message"]
             msg = bytes.fromhex(message_hex[2:] if message_hex.startswith("0x") else message_hex)
 
