@@ -17,7 +17,8 @@ BRIDGE_CONFIG = {
                 ],
             },
             {
-                "abi": "0x2d6775c1673d4ce55e1f827a0d53e62c43d1f304", # ETH Helper (Implementation Address)
+                # Ethereum ETH Helper
+                "abi": "0x2d6775c1673d4ce55e1f827a0d53e62c43d1f304",
                 "contracts": [
                     "0x2d6775c1673d4ce55e1f827a0d53e62c43d1f304",  # ETH Helper
                 ],
@@ -27,12 +28,15 @@ BRIDGE_CONFIG = {
                 ],
             },
             {
-                # Replica Contract
+                # Replica Contracts (1 per chain)
                 # Implementation Address (Post-attack): 0x7f221a1850c12b57fed1f0831dd25399a13b68c2
                 "abi": "0x049b51e531fd8f90da6d92ea83dc4125002f20ef", 
                 "contracts": [
-                    "0x049b51e531fd8f90da6d92ea83dc4125002f20ef", # Ethereum: Nomad Withdrawals Manager Proxy
-                    "0x5d94309e5a0090b165fa4181519701637b6daeba"  # Ethereum: Nomad Withdrawals Manager Fallback Proxy
+                    "0x049b51e531fd8f90da6d92ea83dc4125002f20ef", # Rplica for Moonbeam
+                    "0x5d94309e5a0090b165fa4181519701637b6daeba", # Replica for Avalanche
+                    "0x5bae47bf29f4e9b1e275c0b427b84c4daa30033a", # Replica for Evmos
+                    "0xef989866b66a491e7b6c7473d73b589450d0f766", # Replica for Milkomeda C1
+                    "0x0a627a6398f429b62969cd475fb5ba8e04a4eb70", # Replica for XDai (Gnosis)
                 ],
                 "topics": [
                     # event Process(bytes32 indexed messageHash, bool indexed success, bytes indexed returnData)
