@@ -1,4 +1,3 @@
-# TODO REVIEW
 from config.constants import Bridge
 from graph_generator.base_graph_generator import BaseGraphGenerator
 from graph_generator.graph_class import GraphObject
@@ -47,7 +46,7 @@ class NomadGraphGenerator(BaseGraphGenerator):
     def fetch_cctx_id(self, cctx: NomadCrossChainTransaction) -> str:
         return cctx.deposit_hash
 
-    def get_router_event_list(self, blockchain):
+    def get_router_event_list(self, _):
         return (
             "event Send(address token, address from, uint32 toDomain, bytes32 toId, uint256 amount, bool fastLiquidityEnabled), "
             "event Receive(uint32 originAndNonce, address token, address recipient, address liquidityProvider, uint256 amount), "
@@ -58,15 +57,25 @@ class NomadGraphGenerator(BaseGraphGenerator):
 
     def parse_bridge_router_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         topic = event["topics"][0]
-        if topic == "0xa3d219cf126a12be40d7ad1ceef46231c987988dd4e686457b610e1b6b80a4bf":
+        if (
+            topic == "0xa3d219cf126a12be40d7ad1ceef46231c987988dd4e686457b610e1b6b80a4bf"
+        ): # Send (BridgeRouter)
             self.parse_router_send_event(tx, event, event_index, routing_node, graph_obj)
-        elif topic == "0x9f9a97db84f39202ca3b409b63f7ccf7d3fd810e176573c7483088b6f181bbbb":
+        elif (
+            topic == "0x9f9a97db84f39202ca3b409b63f7ccf7d3fd810e176573c7483088b6f181bbbb"
+        ): # Receive (BridgeRouter)
             self.parse_router_receive_event(tx, event, event_index, routing_node, graph_obj)
-        elif topic == "0x7d4b3c5c44bd8008199bb99f184426274cf24f917f4da3485d6a39f894366b10":
+        elif (
+            topic == "0x7d4b3c5c44bd8008199bb99f184426274cf24f917f4da3485d6a39f894366b10"
+        ): # Send (ETHHelper)
             self.parse_eth_helper_send_event(tx, event, event_index, routing_node, graph_obj)
-        elif topic == "0x9d4c83d2e57d7d381feb264b44a5015e7f9ef26340f4fc46b558a6dc16dd811a":
+        elif (
+            topic == "0x9d4c83d2e57d7d381feb264b44a5015e7f9ef26340f4fc46b558a6dc16dd811a"
+        ): # Dispatch (Home)
             self.parse_home_dispatch_event(tx, event, event_index, routing_node, graph_obj)
-        elif topic == "0xd42de95a9b26f1be134c8ecce389dc4fcfa18753d01661b7b361233569e8fe48":
+        elif (
+            topic == "0xd42de95a9b26f1be134c8ecce389dc4fcfa18753d01661b7b361233569e8fe48"
+        ): # Process (Replica)
             self.parse_replica_process_event(tx, event, event_index, routing_node, graph_obj)
         elif event:
             self.create_unknown_router_event_node(tx, event, event_index, routing_node, graph_obj)
@@ -82,23 +91,43 @@ class NomadGraphGenerator(BaseGraphGenerator):
         if value is not None and value > 10e27:
             value = 10e27
 
+        # Ensure the depositor is a user node
+        #* Note: The depositor can be the ETHHelper contract in some cases.
+        #* If that is the case, the ETHHelper's Send event will convert the
+        #* user node back into a router node. However, we don't want to 
+        #* create a Transaction edge between the Router and ETHHelper.
+        #* A function call edge will be created between the two routers instead
+        #* when parsing the ETHHelper's Send event.
         depositor_node = graph_obj.fetch_or_create_node(
             event_record.depositor,
             node_type_if_missing=GraphNodeType.USER.value,
             timestamp=tx.timestamp,
         )
-        graph_obj.update_node_type(depositor_node.node_id, GraphNodeType.USER.value)
-        graph_obj.create_edge(
-            depositor_node.node_id,
-            routing_node.node_id,
-            GraphEdgeType.TRANSACTION.value,
-            event_index,
-            attributes={"amount": int(value)},
-        )
+        if event_record.depositor in (
+            "0x2d6775c1673d4ce55e1f827a0d53e62c43d1f304", # Ethereum ETH Helper
+            "0xb70588b1a51f847d13158ff18e9cac861df5fb00"  # Moonbeam ETH Helper
+        ):
+            graph_obj.update_node_type(depositor_node.node_id, GraphNodeType.ROUTER.value)
+        else:
+            graph_obj.update_node_type(depositor_node.node_id, GraphNodeType.USER.value)
+            graph_obj.create_edge(
+                depositor_node.node_id,
+                routing_node.node_id,
+                GraphEdgeType.TRANSACTION.value,
+                event_index,
+                attributes={"amount": int(value)},
+            )
 
+        # Link the routing node and the token node with a function call edge
         token_node = graph_obj.fetch_or_create_token_node(
             event_record.input_token,
             timestamp=tx.timestamp,
+        )
+        graph_obj.create_edge(
+            routing_node.node_id,
+            token_node.node_id,
+            GraphEdgeType.FUNCTION_CALL.value,
+            event_index,
         )
 
         input_token_metadata = self.load_token_metadata(event_record.input_token, graph_obj.graph_mapping.blockchain)
@@ -124,6 +153,7 @@ input_token ={f" {input_token_metadata.name} ({input_token_metadata.symbol}) at"
 recipient = {GraphNodeType.USER.value} ({event_record.recipient[:6]}...{event_record.recipient[-4:]})
 destination_chain = {event_record.dst_blockchain}
 """
+        # Create and link log event node to the routing node
         log_event_node = graph_obj.create_log_node(
             event_index,
             event["topics"][0],
@@ -137,7 +167,12 @@ destination_chain = {event_record.dst_blockchain}
             token_symbol=input_token_metadata.symbol if input_token_metadata else None,
             timestamp=tx.timestamp,
         )
-        graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
+        graph_obj.create_edge(
+            routing_node.node_id, 
+            log_event_node.node_id, 
+            GraphEdgeType.LOG_RELATION.value, 
+            event_index
+        )
 
         # Link BridgeRouter → Home (Home was created first during Dispatch, so it has a lower node_id)
         other_routers = sorted(
@@ -150,6 +185,7 @@ destination_chain = {event_record.dst_blockchain}
 
     def parse_router_receive_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Receive(uint32 originAndNonce, address token, address recipient, address liquidityProvider, uint256 amount)"
+        # Fetch the respective metadata from the repository
         event_record = self.router_receive_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
         if event_record is None:
             return
@@ -158,6 +194,7 @@ destination_chain = {event_record.dst_blockchain}
         if value is not None and value > 10e27:
             value = 10e27
 
+        # Ensure the recipient is a user node
         recipient_node = graph_obj.fetch_or_create_node(
             event_record.recipient,
             node_type_if_missing=GraphNodeType.USER.value,
@@ -165,9 +202,16 @@ destination_chain = {event_record.dst_blockchain}
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
 
-        graph_obj.fetch_or_create_token_node(
+        # Link the routing node and the token node with a function call edge
+        token_node = graph_obj.fetch_or_create_token_node(
             event_record.output_token,
             timestamp=tx.timestamp,
+        )
+        graph_obj.create_edge(
+            routing_node.node_id,
+            token_node.node_id,
+            GraphEdgeType.FUNCTION_CALL.value,
+            event_index,
         )
 
         output_token_metadata = self.load_token_metadata(event_record.output_token, graph_obj.graph_mapping.blockchain)
@@ -192,6 +236,8 @@ output_token ={f" {output_token_metadata.name} ({output_token_metadata.symbol}) 
 {f"amount = {amount} {output_token_metadata.symbol}" if output_token_metadata else f"amount = {int(value)}"}
 recipient = {recipient_node.node_type} ({recipient_node.address[:6]}...{recipient_node.address[-4:]})
 """
+
+        # Create and link log event node to the routing node
         log_event_node = graph_obj.create_log_node(
             event_index,
             event["topics"][0],
@@ -205,7 +251,12 @@ recipient = {recipient_node.node_type} ({recipient_node.address[:6]}...{recipien
             token_symbol=output_token_metadata.symbol if output_token_metadata else None,
             timestamp=tx.timestamp,
         )
-        graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
+        graph_obj.create_edge(
+            routing_node.node_id, 
+            log_event_node.node_id, 
+            GraphEdgeType.LOG_RELATION.value, 
+            event_index
+        )
 
     def parse_eth_helper_send_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Send(address indexed from)"
@@ -213,6 +264,7 @@ recipient = {recipient_node.node_type} ({recipient_node.address[:6]}...{recipien
         if event_record is None:
             return
 
+        # Ensure the sender is a user node
         from_node = graph_obj.fetch_or_create_node(
             event_record.from_address,
             node_type_if_missing=GraphNodeType.USER.value,
@@ -225,6 +277,8 @@ bridge = nomad
 blockchain = {graph_obj.graph_mapping.blockchain}
 from = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]})
 """
+
+        # Create and link log event node to the routing node
         log_event_node = graph_obj.create_log_node(
             event_index,
             event["topics"][0],
@@ -235,7 +289,12 @@ from = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]}
             attributes_text=event_text,
             timestamp=tx.timestamp,
         )
-        graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
+        graph_obj.create_edge(
+            routing_node.node_id, 
+            log_event_node.node_id, 
+            GraphEdgeType.LOG_RELATION.value, 
+            event_index
+        )
 
         # Link BridgeRouter → ETHHelper (BridgeRouter is the most recently created router node before ETHHelper)
         other_routers = sorted(
@@ -248,6 +307,7 @@ from = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]}
 
     def parse_home_dispatch_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Dispatch(bytes32 messageHash, uint256 leafIndex, uint64 destinationAndNonce, bytes32 committedRoot, bytes message)"
+        # Fetch the respective metadata from the repository
         event_record = self.home_dispatch_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
         if event_record is None:
             return
@@ -276,6 +336,8 @@ amount = {int(value)}
             "recipient": event_record.recipient,
             "amount": int(value),
         }
+
+        # Create and link log event node to the routing node
         log_event_node = graph_obj.create_log_node(
             event_index,
             event["topics"][0],
@@ -307,6 +369,8 @@ success = {bool(event_record.success)}
             "success": bool(event_record.success),
             "returnData": event_record.return_data,
         }
+
+        # Create and link log event node to the routing node
         log_event_node = graph_obj.create_log_node(
             event_index,
             event["topics"][0],

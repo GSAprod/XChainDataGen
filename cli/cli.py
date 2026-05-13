@@ -255,6 +255,7 @@ class Cli:
                 "ronin",
                 "solana",
                 "unichain",
+                "moonbeam",
             ],
             required=True,
             nargs="+",
