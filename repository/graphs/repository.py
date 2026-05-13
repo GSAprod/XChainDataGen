@@ -85,6 +85,15 @@ class GraphNodeRepository(BaseRepository):
                 session.commit()
                 return node
             return None
+
+    def update_amount_usd(self, node_id: int, amount_usd: float):
+        with self.get_session() as session:
+            node = session.query(GraphNode).filter(GraphNode.node_id == node_id).first()
+            if node:
+                node.amount_usd = amount_usd
+                session.commit()
+                return node
+            return None
     
     def get_by_chain_graph_id(self, graph_id: int):
         with self.get_session() as session:

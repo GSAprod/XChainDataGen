@@ -55,7 +55,9 @@ class BaseGraphGenerator(ABC):
 
         try:
             self.dune_client = DuneClient(bridge)
-            self.tx_to_query_dune = []
+            self.internal_tx_to_query_dune = []
+            # Each element: (node_id, symbol, timestamp, amount)
+            self.price_nodes_to_query_dune = []
         except Exception as e:
             log_to_cli(f"Failed to initialize Dune client: {e}. Dune-related functionalities will not work.", CliColor.ERROR)
             self.dune_client = None
@@ -113,8 +115,9 @@ class BaseGraphGenerator(ABC):
         self.attacker_addresses = attackers
     
     def generate_graph_data(self, blockchain: str) -> None:
-        func_name = "generate_graph_data"
-        
+        self.internal_tx_to_query_dune = []
+        self.price_nodes_to_query_dune = []
+
         # Create a graph per single-ledger transaction
         txs = self.fetch_transactions_for_blockchain(blockchain)
         for tx in txs:
@@ -122,9 +125,11 @@ class BaseGraphGenerator(ABC):
 
         if blockchain not in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS and self.dune_client is not None:
             log_to_cli(f"Blockchain {blockchain} does not support transaction tracing. Will query Dune for native token transfers related to the transactions to include in the graphs...")
-            #self.tx_to_query_dune.extend([tx.transaction_hash for tx in txs]) #! TESTING ONLY, REMOVE THIS
-            if len(self.tx_to_query_dune) > 0:
+            if len(self.internal_tx_to_query_dune) > 0:
                 self.include_native_dune_transfers(blockchain)
+
+        if self.dune_client is not None and self.price_nodes_to_query_dune:
+            self.backfill_missing_usd_prices(blockchain)
 
     def process_partial_transaction(self, tx: BlockchainTransaction):
         if self.blockchain_graph_mapping_repo.graph_exists(self.bridge.value, tx.blockchain, tx.transaction_hash) is not None:
@@ -180,7 +185,7 @@ class BaseGraphGenerator(ABC):
             # If the blockchain doesn't support transaction tracing, 
             # The transaction will be queried with Dune later 
             # for native token transfers related to the transaction
-            self.tx_to_query_dune.append(tx_hash)
+            self.internal_tx_to_query_dune.append(tx_hash)
 
         for event in tx_receipt["logs"]:
             emitted_by = event["address"]
@@ -323,6 +328,10 @@ blockchain = {blockchain}
             token_symbol=native_token_symbol,
             timestamp=timestamp
         )
+        if amount_usd is None:
+            self.price_nodes_to_query_dune.append(
+                (log_event_node.node_id, native_token_symbol, timestamp, amount)
+            )
         graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
 
     def create_unknown_router_event_node(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
@@ -366,6 +375,14 @@ data_chunks = {len(event["data"]) // 32}
         return metadata
 
     def maybe_fetch_prices_for_token(self, token_metadata, timestamp=None):
+        if token_metadata.symbol == "":
+            # Hardcoded override for the USDC token on Evmos, which has an empty symbol in the token metadata.
+            if token_metadata.address == "0xa2327a938febf5fec13bacfb16ae10ecbc4cbdcf":
+                token_metadata.symbol = "USDC"
+            else:
+                log_to_cli(f"[WARNING] Token with address {token_metadata.address} on blockchain {token_metadata.blockchain} has no symbol. Skipping price fetching...", CliColor.ERROR)
+                return False
+
         if timestamp is not None:
             date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
             token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
@@ -376,25 +393,35 @@ data_chunks = {len(event["data"]) // 32}
 
         min_ts, max_ts = self.fetch_transactions_timestamp_interval()
 
-        PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, token_metadata.name, symbol=token_metadata.symbol)
-        if timestamp is not None: # Test if the price was successfully fetched
-            token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
-            if token_price is not None:
-                return True
+        if (token_metadata.symbol, token_metadata.blockchain) not in self.unknown_contract_prices:
+            if token_metadata.blockchain not in TOKEN_PRICING_SUPPORTED_BLOCKCHAINS:
+
+            PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, token_metadata.name, symbol=token_metadata.symbol)
+            if timestamp is not None: # Test if the price was successfully fetched
+                token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
+                if token_price is not None:
+                    return True
+            else:
+                if self.token_price_repo.exists_price_for_symbol(token_metadata.symbol):
+                    return True
+                
+            # If this does not work, try fetching the price using the current chain. This is a fallback mechanism.
+            log_to_cli(f"Failed to fetch price for token {token_metadata.symbol} on ethereum. Trying in {token_metadata.blockchain}...")
+            PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, token_metadata.name, symbol=token_metadata.symbol, blockchain=token_metadata.blockchain, token_address=token_metadata.address)
+            if timestamp is not None: # Test if the price was successfully fetched
+                token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
+                if token_price is not None:
+                    return True
+            else:
+                if self.token_price_repo.exists_price_for_symbol(token_metadata.symbol):
+                    return True
+
+            # To prevent multiple failed attempts for the same token (and potentially hitting rate limits),
+            # we will keep track of the tokens for which price fetching has failed and skip them in future attempts.
+            log_to_cli(f"[WARNING] Could not fetch price for token {token_metadata.symbol}. Skipping...", CliColor.ERROR)
+            self.unknown_contract_prices.add((token_metadata.symbol, token_metadata.blockchain))
         else:
-            if self.token_price_repo.exists_price_for_symbol(token_metadata.symbol):
-                return True
-            
-        # If this does not work, try fetching the price using the current chain. This is a fallback mechanism.
-        log_to_cli(f"Failed to fetch price for token {token_metadata.symbol} on ethereum. Trying in {token_metadata.blockchain}...")
-        PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, token_metadata.name, symbol=token_metadata.symbol, blockchain=token_metadata.blockchain, token_address=token_metadata.address)
-        if timestamp is not None: # Test if the price was successfully fetched
-            token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
-            if token_price is not None:
-                return True
-        else:
-            if self.token_price_repo.exists_price_for_symbol(token_metadata.symbol):
-                return True
+            log_to_cli(f"[WARNING] Previous attempts for fetching price for token {token_metadata.symbol} have failed. Skipping price fetching...", CliColor.ERROR)
 
         return False
 
@@ -569,6 +596,10 @@ blockchain = {token_node.blockchain}
             timestamp=tx.timestamp,
             attributes_text=description
         )
+        if amount_usd is None:
+            self.price_nodes_to_query_dune.append(
+                (log_event_node.node_id, token_metadata.symbol, tx.timestamp, amount)
+            )
         graph_obj.create_edge(token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
 
     @abstractmethod
@@ -694,10 +725,50 @@ blockchain = {token_node.blockchain}
         
         return CrossChainGraphLabel.NORMAL
 
+    def backfill_missing_usd_prices(self, blockchain):
+        symbols = list({symbol for _, symbol, _, _ in self.price_nodes_to_query_dune})
+        min_ts = min(ts for _, _, ts, _ in self.price_nodes_to_query_dune)
+        max_ts = max(ts for _, _, ts, _ in self.price_nodes_to_query_dune)
+
+        log_to_cli(
+            f"Querying Dune for prices of {len(symbols)} symbol(s) on {blockchain} "
+            f"to backfill {len(self.price_nodes_to_query_dune)} node(s) missing USD amounts..."
+        )
+        try:
+            token_prices_dune = self.dune_client.fetch_token_prices_through_symbol(symbols, min_ts, max_ts)
+
+            for tp in token_prices_dune["rows"]:
+                date = tp["timestamp"].split(" ")[0]
+                if self.token_price_repo.get_token_price_by_symbol_and_date(
+                    tp["symbol"], date
+                ) is None:
+                    self.token_price_repo.create(
+                        {
+                            "name": "",
+                            "symbol": tp["symbol"],
+                            "price_usd": tp["price"],
+                            "date": date,
+                        }
+                    )
+
+            for node_id, symbol, timestamp, amount in self.price_nodes_to_query_dune:
+                date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
+                token_price = self.token_price_repo.get_token_price_by_symbol_and_date(
+                    symbol, date
+                )
+                if token_price is not None:
+                    amount_usd = int(amount * token_price.price_usd)
+                    self.graph_node_repo.update_amount_usd(node_id, amount_usd)
+        except Exception as e:
+            log_to_cli(
+                f"Error backfilling USD prices from Dune for blockchain {blockchain}: {e}",
+                CliColor.ERROR
+            )
+
     def include_native_dune_transfers(self, blockchain):
         # For each transaction hash that we couldn't trace through RPC, we can query Dune for native token transfers related to the transaction
         # and include them in the respective graphs. This way, we can still capture value movements related to the transactions even if the blockchain doesn't support transaction tracing or if the tracing data is incomplete.
-        tx_hashes = self.tx_to_query_dune
+        tx_hashes = self.internal_tx_to_query_dune
         if len(tx_hashes) == 0:
             return
         

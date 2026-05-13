@@ -85,6 +85,25 @@ class DuneClient:
             "performance": "medium"
         }
         return self.make_request(endpoint, payload)["execution_id"]
+    
+    def execute_token_prices_by_symbol_query(self, symbols_list: list[str], start_ts: int, end_ts: int) -> str:
+        endpoint = "v1/sql/execute"
+        symbols_str = ",".join([f"'{symbol}'" for symbol in symbols_list])
+        payload = {
+            "sql": (
+                "SELECT * FROM (" + 
+                    "SELECT *, ROW_NUMBER() OVER (PARTITION BY symbol, timestamp ORDER BY source) AS rn " + 
+                        "FROM prices.day " + 
+                        f"WHERE symbol IN ({symbols_str}) "
+                        f"AND timestamp >= from_unixtime({start_ts}) "
+                        f"AND timestamp <= from_unixtime({end_ts})"
+                    ") AS deduped "
+                "WHERE rn = 1 "
+                "ORDER BY symbol, timestamp, source"
+            ),  # order by source to ensure coinpaprika is preferred when multiple price sources are available
+            "performance": "medium"
+        }
+        return self.make_request(endpoint, payload)["execution_id"]
 
     def get_execution_status(self, execution_id: str) -> str:
         endpoint = f"v1/execution/{execution_id}/status"
@@ -132,6 +151,26 @@ class DuneClient:
             if total_wait_time > 300:  # Timeout after 5 minutes
                 raise CustomException(f"Dune query execution timed out after 5 minutes for execution ID {execution_id}.")
 
+        results = self.get_execution_results(execution_id)
+        log_to_cli(f"Fetched Dune query results for execution ID {execution_id}. Number of token prices found: {len(results['rows'])}")
+        return results
+    
+    def fetch_token_prices_through_symbol(self, symbols_list: list[str], start_ts: int, end_ts: int):
+        execution_id = self.execute_token_prices_by_symbol_query(symbols_list, start_ts, end_ts)
+        log_to_cli(f"Created Dune query with execution ID {execution_id} for token prices by symbol.")
+        total_wait_time = 0
+        while True:
+            response = self.get_execution_status(execution_id)
+            log_to_cli(f"Dune query execution status for execution ID {execution_id}: {response['state']} (wait: {total_wait_time}s)")
+            if response["state"] == "QUERY_STATE_COMPLETED":
+                break
+            elif response["state"] == "QUERY_STATE_FAILED":
+                raise CustomException(f"Dune query execution failed for execution ID {execution_id}.")
+            time.sleep(5)  # Poll every 5 seconds
+            total_wait_time += 5
+            if total_wait_time > 300:  # Timeout after 5 minutes
+                raise CustomException(f"Dune query execution timed out after 5 minutes for execution ID {execution_id}.")
+            
         results = self.get_execution_results(execution_id)
         log_to_cli(f"Fetched Dune query results for execution ID {execution_id}. Number of token prices found: {len(results['rows'])}")
         return results
