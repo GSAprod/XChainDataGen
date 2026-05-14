@@ -1,20 +1,13 @@
 import csv
-import json
 import os
 from abc import ABC, abstractmethod
-from datetime import datetime
-
-from eth_abi import decode as abi_decode
-from web3 import Web3
 
 from config.constants import (
     BLOCKCHAIN_IDS,
-    TOKEN_PRICING_SUPPORTED_BLOCKCHAINS,
     TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS,
     Bridge,
 )
 from dune.dune_client import DuneClient
-from generator.base_generator import PriceGenerator
 from graph_generator.graph_class import GraphObject
 from graph_generator.graph_label import (
     BlockchainGraphLabel,
@@ -24,7 +17,9 @@ from graph_generator.graph_label import (
     CrossChainGraphLabel,
     GraphNodeType,
 )
-from repository.common.models import BlockchainTransaction, TokenMetadata
+from graph_generator.pricing import TokenPricingService
+from graph_generator.token_inspector import TokenInspector
+from repository.common.models import BlockchainTransaction
 from repository.common.repository import (
     BridgeRoutingContractMetadataRepository,
     TokenMetadataRepository,
@@ -46,8 +41,6 @@ class BaseGraphGenerator(ABC):
         self.bridge = bridge
         self.rpc_client = EvmRPCClient(bridge)
         self.bind_db_to_repos()
-        self.unknown_contracts = set()
-        self.unknown_contract_prices = set()
         self.chain_anomaly_transactions = {}
         self.offchain_anomaly_transactions = set()
         self.attacker_addresses = {}
@@ -56,11 +49,18 @@ class BaseGraphGenerator(ABC):
         try:
             self.dune_client = DuneClient(bridge)
             self.internal_tx_to_query_dune = []
-            # Each element: (node_id, symbol, timestamp, amount)
-            self.price_nodes_to_query_dune = []
         except Exception as e:
             log_to_cli(f"Failed to initialize Dune client: {e}. Dune-related functionalities will not work.", CliColor.ERROR)
             self.dune_client = None
+
+        self.pricing = TokenPricingService(
+            bridge,
+            self.token_metadata_repo,
+            self.token_price_repo,
+            self.dune_client,
+            self.fetch_transactions_timestamp_interval,
+        )
+        self.inspector = TokenInspector(self.rpc_client, self.token_metadata_repo)
 
     def bind_db_to_repos(self) -> None:
         self.bridge_router_metadata_repo = BridgeRoutingContractMetadataRepository(DBSession)
@@ -73,198 +73,172 @@ class BaseGraphGenerator(ABC):
         self.graph_edge_repo = GraphEdgeRepository(DBSession)
 
     def load_anomaly_data(self):
-        # Load transaction-level anomaly records
+        """
+        Loads anomaly data from CSV files for marking transactions and addresses in the graph.
+        Expects three CSV files in the format:
+        1. attacks.csv with columns: blockchain, tx_hash
+        2. offchain_attacks.csv with columns: src_blockchain, src_tx_hash, dst_blockchain, dst_tx_hash
+        3. attacker_addresses.csv with columns: blockchain, address
+        """
+        # Load on-chain anomalies
         anomaly_path = os.path.join(os.path.dirname(__file__), self.bridge.value, "anomaly_data/attacks.csv")
         chain_anomalies = {}
         with open(anomaly_path) as f:
-            csvreader = csv.DictReader(f)
-            for row in csvreader:
+            for row in csv.DictReader(f):
                 blockchain = row.get("blockchain")
                 tx_hash = row.get("tx_hash")
                 if blockchain and tx_hash:
                     chain_anomalies.setdefault(blockchain, set()).add(tx_hash)
-
         self.chain_anomaly_transactions = chain_anomalies
 
-        # Load off-chain anomaly records
+        # Load off-chain anomalies
         offchain_anomaly_path = os.path.join(os.path.dirname(__file__), self.bridge.value, "anomaly_data/offchain_attacks.csv")
         offchain_anomalies = set()
         with open(offchain_anomaly_path) as f:
-            csvreader = csv.DictReader(f)
-            for row in csvreader:
+            for row in csv.DictReader(f):
                 src_blockchain = row.get("src_blockchain")
                 src_tx_hash = row.get("src_tx_hash")
                 dst_blockchain = row.get("dst_blockchain")
                 dst_tx_hash = row.get("dst_tx_hash")
                 if src_tx_hash and dst_tx_hash:
                     offchain_anomalies.add((src_blockchain, src_tx_hash, dst_blockchain, dst_tx_hash))
-
         self.offchain_anomaly_transactions = offchain_anomalies
 
-        # Load attacker address records
+        # Load known attacker addresses
         attacker_address_path = os.path.join(os.path.dirname(__file__), self.bridge.value, "anomaly_data/attacker_addresses.csv")
         attackers = {}
         with open(attacker_address_path) as f:
-            csvreader = csv.DictReader(f)
-            for row in csvreader:
+            for row in csv.DictReader(f):
                 blockchain = row.get("blockchain")
                 address = row.get("address")
                 if blockchain and address:
                     attackers.setdefault(blockchain, set()).add(address)
-
         self.attacker_addresses = attackers
-    
+
     def generate_graph_data(self, blockchain: str) -> None:
         self.internal_tx_to_query_dune = []
-        self.price_nodes_to_query_dune = []
+        self.pricing.reset()
 
-        # Create a graph per single-ledger transaction
-        txs = self.fetch_transactions_for_blockchain(blockchain)
-        for tx in txs:
+        for tx in self.fetch_transactions_for_blockchain(blockchain):
             self.process_partial_transaction(tx)
 
         if blockchain not in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS and self.dune_client is not None:
-            log_to_cli(f"Blockchain {blockchain} does not support transaction tracing. Will query Dune for native token transfers related to the transactions to include in the graphs...")
-            if len(self.internal_tx_to_query_dune) > 0:
+            log_to_cli(f"Blockchain {blockchain} does not support transaction tracing. Will query Dune for native token transfers...")
+            if self.internal_tx_to_query_dune:
                 self.include_native_dune_transfers(blockchain)
 
-        if self.dune_client is not None and self.price_nodes_to_query_dune:
-            self.backfill_missing_usd_prices(blockchain)
+        if self.dune_client is not None:
+            self.pricing.batch_resolve_pending(self.graph_node_repo)
 
     def process_partial_transaction(self, tx: BlockchainTransaction):
         if self.blockchain_graph_mapping_repo.graph_exists(self.bridge.value, tx.blockchain, tx.transaction_hash) is not None:
             return
 
-        log_to_cli(
-            f"Blockchain {tx.blockchain} - Processing transaction {tx.transaction_hash} for graph generation..."
-        )
+        # Create initial graph mapping and nodes for the transaction 
+        # before processing events and traces, so that we have a graph context
+        # to link events and internal transactions to, and to record missing price info if needed
+        log_to_cli(f"Blockchain {tx.blockchain} - Processing transaction {tx.transaction_hash} for graph generation...")
         graph_obj = GraphObject(self.blockchain_graph_mapping_repo, self.graph_node_repo, self.graph_edge_repo, self.token_metadata_repo)
         graph_obj.create_graph_mapping(
-            self.bridge, 
-            tx.blockchain, 
-            tx.transaction_hash, 
+            self.bridge,
+            tx.blockchain,
+            tx.transaction_hash,
             tx.block_number,
             tx.timestamp,
             BlockchainGraphLabel.ANOMALY if tx.transaction_hash in self.chain_anomaly_transactions.get(tx.blockchain, set()) else BlockchainGraphLabel.NORMAL,
             self.attacker_addresses.get(tx.blockchain, set())
         )
 
-        blockchain = tx.blockchain
-        tx_hash = tx.transaction_hash
-        tx_receipt = self.rpc_client.get_transaction_receipt(blockchain, tx_hash)
+        # First check for internal transactions (if supported) to capture token transfers that may not emit events.
+        op_index = self._process_traces(graph_obj, tx)
 
+        # Then process log events to capture token transfers and approvals, as well as router events. 
+        # For tokens, also attempt to resolve price info and record any missing prices for later resolution.
+        tx_receipt = self.rpc_client.get_transaction_receipt(tx.blockchain, tx.transaction_hash)
+        for event in tx_receipt["logs"]:
+            self._dispatch_log_event(graph_obj, tx, event, op_index)
+            op_index += 1
+
+    def _process_traces(self, graph_obj: GraphObject, tx: BlockchainTransaction) -> int:
         op_index = 0
-
-        # Check for internal transactions first, that move value between addresses
-        # and include them in the graph as well (if blockchain supports it)
-        if blockchain in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS:
-            internal_txs = self.rpc_client.get_transaction_trace(blockchain, tx_hash)
-            internal_inputs = set()     # to avoid processing the same delegatecall
+        if tx.blockchain in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS:
+            internal_txs = self.rpc_client.get_transaction_trace(tx.blockchain, tx.transaction_hash)
+            internal_inputs = set()
             for internal_tx in internal_txs:
                 if (
                     internal_tx["type"] == "delegatecall"
                     and internal_tx["action"]["input"] in internal_inputs
-                ):
-                    # If the delegatecall input is the same as a previous one, we can assume it's part of the same execution flow and skip it to avoid redundancy in the graph
+                ): # Skip delegatecalls with duplicate input data to avoid processing the same token transfer multiple times
                     continue
                 elif (
-                    internal_tx["type"] == "call" 
-                    and internal_tx["action"]["callType"] in ["call", "callcode", "delegatecall"] 
-                    and internal_tx["action"]["value"] != '0x0'
-                ):
-                    # Add an edge for the value transfer between the from and to addresses
+                    internal_tx["type"] == "call"
+                    and internal_tx["action"]["callType"] in ["call", "callcode", "delegatecall"]
+                    and internal_tx["action"]["value"] != "0x0"
+                ): # Process internal transactions that transfer native tokens (value > 0)
                     from_address = internal_tx["action"]["from"]
                     to_address = internal_tx["action"]["to"]
                     value = int(internal_tx["action"]["value"], 16)
-
-                    self.process_internal_token_transfer(graph_obj, blockchain, op_index, internal_tx, from_address, to_address, value, tx.timestamp)
-                    # Add the delegatecall input to the set to avoid re-processing
+                    self.process_internal_token_transfer(graph_obj, tx.blockchain, op_index, internal_tx, from_address, to_address, value, tx.timestamp)
                     op_index += 1
                     internal_inputs.add(internal_tx["action"]["input"])
         else:
-            # If the blockchain doesn't support transaction tracing, 
-            # The transaction will be queried with Dune later 
-            # for native token transfers related to the transaction
-            self.internal_tx_to_query_dune.append(tx_hash)
+            # If a blockchain doesn't support transaction tracing, we will 
+            # rely on Dune to provide information about native token transfers
+            # that may not emit events.
+            self.internal_tx_to_query_dune.append(tx.transaction_hash)
+        return op_index
 
-        for event in tx_receipt["logs"]:
-            emitted_by = event["address"]
+    def _dispatch_log_event(self, graph_obj: GraphObject, tx: BlockchainTransaction, event: dict, op_index: int):
+        emitted_by = event["address"]
+        blockchain = tx.blockchain
 
-            if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(self.bridge.value, emitted_by.lower(), blockchain):
-                # If the event is emitted by a known bridge router, we can 
-                # create a router node and include additional relations based on the function calls and events
-                routing_node = graph_obj.fetch_or_create_node(
-                    emitted_by,
-                    node_type_if_missing=GraphNodeType.ROUTER.value,
-                    attributes_text=f"""type = router; 
-blockchain = {blockchain};
-bridge = {self.bridge.value};
-event_list = {self.get_router_event_list(blockchain)}
-""",
-                    timestamp=tx.timestamp
-                    # we can also include the function signatures as attributes.
-                    # we won't include them for now for space reasons
-                )
-                graph_obj.update_node_type(routing_node.node_id, GraphNodeType.ROUTER.value)
-                self.parse_bridge_router_event(tx, event, op_index, routing_node, graph_obj)
-                op_index += 1
-                continue
-
-            # Check if the address is a known token contract
-            token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(
-                emitted_by, blockchain
+        # First check if the event was emitted by a known router contract, 
+        # as this will determine how we parse the event and link it in the graph
+        if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
+            self.bridge.value, emitted_by.lower(), blockchain
+        ):
+            routing_node = graph_obj.fetch_or_create_node(
+                emitted_by,
+                node_type_if_missing=GraphNodeType.ROUTER.value,
+                timestamp=tx.timestamp
             )
+            graph_obj.update_node_type(routing_node.node_id, GraphNodeType.ROUTER.value)
+            self.parse_bridge_router_event(tx, event, op_index, routing_node, graph_obj)
+            return
 
-            # If no token info exists, check if the address is an ERC20 contract
-            # and try to fetch its metadata, if it's the case
-            if token_metadata is None and emitted_by not in self.unknown_contracts:
-                log_to_cli(
-                    f"Blockchain {blockchain} - Address {emitted_by} not found in token metadata repository. Checking if it's an ERC20 contract..."
-                )
-                if self.check_if_contract_erc20(emitted_by, blockchain):
-                    token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(emitted_by, blockchain)
-                else:
-                    self.unknown_contracts.add(emitted_by)
+        # If not a router event, check if it's a token event by trying to fetch
+        # or create token metadata for the emitting address.
+        token_metadata = self.inspector.ensure_metadata(emitted_by, blockchain)
+        if token_metadata is not None:
+            token_node = graph_obj.fetch_or_create_token_node(emitted_by, timestamp=tx.timestamp)
+            self.parse_token_event(tx, event, op_index, token_node, graph_obj, token_metadata, op_index)
+            return
 
-            # If the event is emitted by a known token contract, we can create a token node 
-            # and parse the event to include additional relations to the graph
-            if token_metadata is not None:
-                token_node = graph_obj.fetch_or_create_token_node(
-                    emitted_by,
-                    timestamp=tx.timestamp
-                )
-                self.parse_token_event(tx, event, op_index, token_node, graph_obj, token_metadata, op_index)
-                op_index += 1
-                continue
+        # Otherwise, we treat it as an unknown event and just create a log node for it 
+        # without attempting to parse the event data, 
+        # but still link it to the emitting address node in the graph for context.
+        self._handle_unknown_event(graph_obj, tx, event, op_index)
 
-            # For other events, we can create a log event node and link it to the respective address node
-            address_node = graph_obj.fetch_or_create_node(emitted_by, timestamp=tx.timestamp)
-            log_event_node = graph_obj.create_log_node(
-                op_index,
-                event["topics"][0],
-                EventType.UNKNOWN.value,
-                None,
-                event["topics"][1:],
-                event["data"],
-                tx.timestamp,
-                attributes_text=f"""event UnknownEvent
-blockchain = {blockchain}
-address = {event["address"][:6]}...{event["address"][-4:]}
-topic = {event["topics"][0][:6]}...{event["topics"][0][-4:]}
-number_of_args = {len(event["topics"]) - 1}
-data_size = {len(event["data"]) // 32}
-"""
-            )
-            graph_obj.create_edge(address_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
-            op_index += 1
+    def _handle_unknown_event(self, graph_obj: GraphObject, tx: BlockchainTransaction, event: dict, op_index: int):
+        address_node = graph_obj.fetch_or_create_node(event["address"], timestamp=tx.timestamp)
+        log_event_node = graph_obj.create_log_node(
+            op_index,
+            event["topics"][0],
+            EventType.UNKNOWN.value,
+            None,
+            event["topics"][1:],
+            event["data"],
+            tx.timestamp,
+        )
+        graph_obj.create_edge(address_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
 
-    def process_internal_token_transfer(self, graph_obj, blockchain, op_index, internal_tx, from_address, to_address, value, timestamp):
-        # Cap the value to avoid outliers in the graph, specifically 
-        # when encoding the max possible int256 amount which is typically used in approval transactions.
-        # TODO APPLY IN OTHER PLACES AS WELL?
+    def process_internal_token_transfer(self, graph_obj: GraphObject, blockchain, op_index, internal_tx, from_address, to_address, value, timestamp):
+        # Cap value to avoid overflow issues in the graph dataset
         if value is not None and value > 10e27:
             value = 10e27
-        
+
+        # Create a token transfer edge for the internal transaction,
+        # linking the sender and recipient addresses for the transfer.
         from_node = graph_obj.fetch_or_create_node(from_address, timestamp=timestamp)
         to_node = graph_obj.fetch_or_create_node(to_address, timestamp=timestamp)
         graph_obj.create_edge(from_node.node_id, to_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, op_index, attributes={
@@ -272,264 +246,80 @@ data_size = {len(event["data"]) // 32}
             "amount": value
         })
 
-        # Instead of treating the wrapped currencies as separate token nodes,
-        # we can represent the native token with a single node and link it to the respective log event nodes.
-        # This way, we can avoid redundancy in the graph and have a clearer representation of the value flow,
-        # which is especially important for analysing relations through metapath analysis of the graph.
+        # For native token transfers, we won't have an ERC-20 Transfer event to capture the token metadata and price info, 
+        # so we attempt to resolve the price here and create a log node for the transfer 
+        # directly from the internal transaction data.
         blockchain_config = next((chain for chain in BLOCKCHAIN_IDS.values() if chain["name"] == blockchain), None)
         native_token_address = blockchain_config["native_token_contract"] if blockchain_config and "native_token_contract" in blockchain_config else "token_native"
         if blockchain == "ronin":
-            native_token_symbol = "RON" #* Manual override for Ronin, as the native token is not named RON
+            native_token_symbol = "RON"
         else:
             native_token_symbol = blockchain_config["native_token"] if blockchain_config else "ETH"
             if native_token_symbol.startswith("W"):
-                native_token_symbol = native_token_symbol[1:] # remove the "W" prefix for better readability in the graph
+                native_token_symbol = native_token_symbol[1:]
 
-        # We can also create a log event node for the internal transaction and link it 
-        # to the native token node
-        event_list = "event Transfer(address from, address to, uint256 value), " + \
-                     "event Approval(address _owner, address _spender, uint256 _value)"
+        # Create the native token node (if it doesn't already exist)
         native_token_node = graph_obj.fetch_or_create_node(
             native_token_address,
             node_type_if_missing=GraphNodeType.TOKEN.value,
             attributes={
-                "symbol": f"{native_token_symbol}",
+                "symbol": native_token_symbol,
                 "name": f"{native_token_symbol} Native Currency",
                 "decimals": 18
             },
-            attributes_text=f"""type = token; 
-blockchain = {blockchain}; 
-symbol = {native_token_symbol};
-name = {native_token_symbol} Native Currency;
-decimals = 18;
-event_list = {event_list}""",
             timestamp=timestamp
         )
 
-        amount, amount_usd = self.convert_native_value_to_amount(blockchain, timestamp, value)
-        description = f"""event Transfer(address from, address to, uint256 value)
-token = {native_token_symbol} Native Currency at {f'{native_token_address[:6]}...{native_token_address[-4:]}' if native_token_address != "token_native" else "token_native"}
-from = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]})
-to = {to_node.node_type} ({to_node.address[:6]}...{to_node.address[-4:]})
-value = {amount} {native_token_symbol}
-blockchain = {blockchain}
-"""  # Needs to change symbol based on the blockchain
-                        
+        # Resolve price for the native token transfer and 
+        # create a log node for the transfer, linking it to the native token node for context.
+        amount, amount_usd = self.pricing.resolve_native_amount(blockchain, value, timestamp)
         log_event_node = graph_obj.create_log_node(
             op_index,
             f"{from_address}_{to_address}",
             EventType.TRANSFER.value,
-            f"Transfer(address from, address to, uint256 value)",
+            "Transfer(address from, address to, uint256 value)",
             {"from": from_address, "to": to_address, "value": value},
             None,
-            attributes_text=description,
             amount=value,
             amount_usd=amount_usd,
             token_symbol=native_token_symbol,
             timestamp=timestamp
         )
         if amount_usd is None:
-            self.price_nodes_to_query_dune.append(
-                (log_event_node.node_id, native_token_symbol, timestamp, amount)
-            )
+            self.pricing.record_missing_price(log_event_node.node_id, native_token_symbol, timestamp, amount)
         graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
 
     def create_unknown_router_event_node(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
-        #? What to do if the event is not a known router event? For now we will ignore it
-        # We can still create a log event node and link it to the routing node
-        event_signature = None
-        event_text = f"""event UnknownRouterEvent
-bridge = ronin
-blockchain = {graph_obj.graph_mapping.blockchain}
-topic = {event["topics"][0][:6]}...{event["topics"][0][-4:]}
-number_of_args = {len(event["topics"]) - 1}
-data_chunks = {len(event["data"]) // 32}
-"""
+        """
+        For events emitted by the router contract that we don't have specific parsing logic for,
+        we still want to capture them in the graph as unknown events linked to the router node,
+        as they may provide important context for the transaction and could be relevant for anomaly detection.
+        """
         log_event_node = graph_obj.create_log_node(
             event_index,
             event["topics"][0],
             EventType.ROUTER_UNKNOWN.value,
-            event_signature,
+            None,
             event["topics"][1:],
             event["data"],
-            attributes_text=event_text,
-            timestamp=tx.timestamp
+            tx.timestamp
         )
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
-    def load_erc20_contract(self, address):
-        checksum_address = Web3.to_checksum_address(address)
-        token_abi_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "ABI", "erc20_abi.json"))
-        with open(token_abi_path, "r") as abi_file:
-            abi = json.load(abi_file)
-        return Web3().eth.contract(address=checksum_address, abi=abi)
-    
-    def load_token_metadata(self, contract_address: str, blockchain: str):
-        metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(contract_address, blockchain)
-        if metadata is None:
-            res = self.check_if_contract_erc20(contract_address, blockchain)
-            if res:
-                metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(contract_address, blockchain)
-            else:
-                return None
-        return metadata
-
-    def maybe_fetch_prices_for_token(self, token_metadata, timestamp=None):
-        if token_metadata.symbol == "":
-            # Hardcoded override for the USDC token on Evmos, which has an empty symbol in the token metadata.
-            if token_metadata.address == "0xa2327a938febf5fec13bacfb16ae10ecbc4cbdcf":
-                token_metadata.symbol = "USDC"
-            else:
-                log_to_cli(f"[WARNING] Token with address {token_metadata.address} on blockchain {token_metadata.blockchain} has no symbol. Skipping price fetching...", CliColor.ERROR)
-                return False
-
-        if timestamp is not None:
-            date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
-            token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
-            if token_price is not None:
-                return True
-        elif self.token_price_repo.exists_price_for_symbol(token_metadata.symbol):
-            return True
-
-        min_ts, max_ts = self.fetch_transactions_timestamp_interval()
-
-        if (token_metadata.symbol, token_metadata.blockchain) not in self.unknown_contract_prices:
-            if token_metadata.blockchain not in TOKEN_PRICING_SUPPORTED_BLOCKCHAINS:
-
-            PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, token_metadata.name, symbol=token_metadata.symbol)
-            if timestamp is not None: # Test if the price was successfully fetched
-                token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
-                if token_price is not None:
-                    return True
-            else:
-                if self.token_price_repo.exists_price_for_symbol(token_metadata.symbol):
-                    return True
-                
-            # If this does not work, try fetching the price using the current chain. This is a fallback mechanism.
-            log_to_cli(f"Failed to fetch price for token {token_metadata.symbol} on ethereum. Trying in {token_metadata.blockchain}...")
-            PriceGenerator.fetch_and_store_token_prices(self.bridge, self.token_price_repo, min_ts, max_ts, token_metadata.name, symbol=token_metadata.symbol, blockchain=token_metadata.blockchain, token_address=token_metadata.address)
-            if timestamp is not None: # Test if the price was successfully fetched
-                token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
-                if token_price is not None:
-                    return True
-            else:
-                if self.token_price_repo.exists_price_for_symbol(token_metadata.symbol):
-                    return True
-
-            # To prevent multiple failed attempts for the same token (and potentially hitting rate limits),
-            # we will keep track of the tokens for which price fetching has failed and skip them in future attempts.
-            log_to_cli(f"[WARNING] Could not fetch price for token {token_metadata.symbol}. Skipping...", CliColor.ERROR)
-            self.unknown_contract_prices.add((token_metadata.symbol, token_metadata.blockchain))
-        else:
-            log_to_cli(f"[WARNING] Previous attempts for fetching price for token {token_metadata.symbol} have failed. Skipping price fetching...", CliColor.ERROR)
-
-        return False
-
-    def convert_token_value_to_amount(self, timestamp: int, token_metadata, raw_value: int):
-        amount = float(raw_value) / (10 ** token_metadata.decimals)
-
-        #* Apeiron token override: because it's not possible to fetch the price of the Apeiron token,
-        #* we will use a manual override of 1000 APEIRON = 1 USD based on the current observed price.
-        if token_metadata.symbol == "APRS":
-            return amount, amount // 1000
-
-        prices_available = self.maybe_fetch_prices_for_token(token_metadata, timestamp)
-
-        if not prices_available:
-            log_to_cli(f"Price for token {token_metadata.symbol} not found. Cannot convert value to USD amount.", CliColor.ERROR)
-            return amount, None
-        
-        date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")  # Convert epoch timestamp to date postgreSQL format
-        token_price = self.token_price_repo.get_token_price_by_symbol_and_date(token_metadata.symbol, date)
-        amount_usd = int(amount * token_price.price_usd) if token_price else None
-        return amount, amount_usd
-
-    def convert_native_value_to_amount(self, blockchain: str, timestamp: int, raw_value: int):
-        # By norm, all EVM chains need to have native token decimals set to 18 for compatibility with Solidity
-        amount = float(raw_value) / 10**18
-        date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
-        if blockchain == "ronin":
-            symbol = "RON" #* Manual override for Ronin, as the native token is not named RON
-        else:
-            blockchain_config = next((chain for chain in BLOCKCHAIN_IDS.values() if chain["name"] == blockchain), None)
-            symbol = blockchain_config["native_token"] if blockchain_config else None
-            if symbol is None:
-                log_to_cli(f"Native token symbol for blockchain {blockchain} not found in BLOCKCHAIN_IDS. Cannot fetch price for native token.", CliColor.ERROR)
-                return amount, None
-            
-        prices_available = self.maybe_fetch_prices_for_token(TokenMetadata(symbol=symbol, name=blockchain, decimals=18, address="token_native", blockchain=blockchain), timestamp=timestamp)
-        if not prices_available:
-            log_to_cli(f"Price for native token {symbol} not found. Cannot convert value to USD amount.", CliColor.ERROR)
-            return amount, None
-        
-        currency_price = self.token_price_repo.get_token_price_by_symbol_and_date(symbol, date) if symbol else None
-        amount_usd = int(int(raw_value) * currency_price.price_usd) if currency_price else None
-        return amount, amount_usd
-
-    def check_if_contract_erc20(self, contract_address: str, blockchain: str) -> bool:
-        function_signatures = [
-            { "signature": "0x06fdde03", "name": "name", "result": None, "resultType": "string" }, # name()
-            { "signature": "0x95d89b41", "name": "symbol", "result": None, "resultType": "string" }, # symbol()
-            { "signature": "0x313ce567", "name": "decimals", "result": None, "resultType": "uint8" }, # decimals()
-            { "signature": "0x18160ddd", "name": "totalSupply", "result": None, "resultType": "uint256" }, # totalSupply()
-        ]
-        
-        for func in function_signatures:
-            try:
-                res = self.rpc_client.function_call(blockchain, contract_address, func["signature"], no_backoff=True)
-                if res is None or res == "0x0":
-                    return False
-                
-                if func["resultType"] == "string":
-                    func["result"] = abi_decode(["string"], bytes.fromhex(res[2:]))[0]
-                elif func["resultType"] == "uint8" or func["resultType"] == "uint256":
-                    func["result"] = int(res, 16)
-                else:
-                    func["result"] = res
-            except Exception as e:
-                # If any of the function calls fail, we can assume it's not an ERC20 contract
-                log_to_cli(f"Blockchain {blockchain} - [WARNING] Error calling function {func['name']} on contract {contract_address}: {e}", CliColor.ERROR)
-                return False
-
-        # Save the token metadata to the repository if it doesn't exist
-        log_to_cli(
-            f"Added newly discovered ERC20 token contract to the repository: {contract_address} with name {function_signatures[0]['result']} and symbol {function_signatures[1]['result']}"
-        )
-        if self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(contract_address, blockchain) is None:
-            self.token_metadata_repo.create(
-                {
-                    "symbol": function_signatures[1]["result"],
-                    "name": function_signatures[0]["result"],
-                    "decimals": function_signatures[2]["result"],
-                    "blockchain": blockchain,
-                    "address": contract_address
-                }
-            )
-
-        if blockchain in TOKEN_PRICING_SUPPORTED_BLOCKCHAINS:
-            self.maybe_fetch_prices_for_token(TokenMetadata(
-                symbol=function_signatures[1]["result"],
-                name=function_signatures[0]["result"],
-                decimals=function_signatures[2]["result"],
-                blockchain=blockchain,
-                address=contract_address
-            ))
-
-        return True
-
     def parse_token_event(self, tx, event, event_index, token_node, graph_obj: GraphObject, token_metadata, op_index):
-        contract = self.load_erc20_contract(token_node.address)
-        
-        # Parsing logic for ERC20 Token events
+        contract = self.inspector.load_erc20_contract(token_node.address)
+
+        # Check if the event is a Transfer or Approval event
+        # and extract the relevant information to create edges and log nodes
         from_address, to_address, value, type = None, None, None, None
-        if event["topics"][0] == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": # Transfer
+        if event["topics"][0] == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef":  # Transfer
             event_signature = "event Transfer(address _from, address _to, uint256 _value)"
             event_args = contract.events.Transfer().process_log(event)["args"]
             from_address = event_args["from"]
             to_address = event_args["to"]
             value = event_args["value"]
             type = GraphEdgeType.TOKEN_TRANSFER.value
-        elif event["topics"][0] == "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925": # Approval
+        elif event["topics"][0] == "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925":  # Approval
             event_signature = "event Approval(address _owner, address _spender, uint256 _value)"
             event_args = contract.events.Approval().process_log(event)["args"]
             from_address = event_args["owner"]
@@ -537,9 +327,9 @@ data_chunks = {len(event["data"]) // 32}
             value = event_args["value"]
             type = GraphEdgeType.TOKEN_AUTH.value
         else:
-            # For other events, we can create a log event node and link it to the token node
-            event_signature = None
-            event_args = None
+            # If it's an event from a token contract but not a Transfer or Approval,
+            # we still want to capture it in the graph as an unknown token event,
+            # as it may provide important context about interactions with the token contract.
             log_event_node = graph_obj.create_log_node(
                 event_index,
                 event["topics"][0],
@@ -548,41 +338,21 @@ data_chunks = {len(event["data"]) // 32}
                 event["topics"],
                 event["data"],
                 timestamp=tx.timestamp,
-                attributes_text=f"""event UnknownTokenEvent
-token = {token_metadata.name} ({token_metadata.symbol}) at {token_node.address[:6]}...{token_node.address[-4:]}
-blockchain = {token_node.blockchain}
-topic: {event['topics'][0][:6]}...{event['topics'][0][-4:]}
-number_of_args = {len(event["topics"]) - 1}
-data_chunks = {len(event["data"]) // 32}
-"""
             )
             graph_obj.create_edge(token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
             return
-        
+
+        # Cap value to avoid overflow issues in the graph dataset
         if value is not None and value > 10e27:
             value = 10e27
 
+        # Create edges for the token transfer or approval, linking the sender to the recipient address
         from_node = graph_obj.fetch_or_create_node(from_address, timestamp=tx.timestamp)
         to_node = graph_obj.fetch_or_create_node(to_address, timestamp=tx.timestamp)
-
-        #normalize for llm:
-        # For better readability of the graph data when normalized for LLMs, 
-        # we include the event signature and arguments in a more human-readable format
-        from_text = "from" if type == GraphEdgeType.TOKEN_TRANSFER.value else "owner"
-        to_text = "to" if type == GraphEdgeType.TOKEN_TRANSFER.value else "spender"
-        
-        amount, amount_usd = self.convert_token_value_to_amount(tx.timestamp, token_metadata, value)
-        description = f"""{event_signature}
-token = {token_metadata.name} ({token_metadata.symbol}) at {token_node.address[:6]}...{token_node.address[-4:]}
-{from_text} = {from_node.node_type} ({from_node.address[:6]}...{from_node.address[-4:]})
-{to_text} = {to_node.node_type} ({to_node.address[:6]}...{to_node.address[-4:]})
-value = {amount} {token_metadata.symbol}
-blockchain = {token_node.blockchain}
-"""
-
+        amount, amount_usd = self.pricing.resolve_token_amount(token_metadata, value, tx.timestamp)
         graph_obj.create_edge(from_node.node_id, to_node.node_id, type, op_index)
 
-        # Create and link log event node to the token node
+        # Create a log node for the token event, linking it to the token node for context
         log_event_node = graph_obj.create_log_node(
             event_index,
             event["topics"][0],
@@ -594,39 +364,26 @@ blockchain = {token_node.blockchain}
             amount_usd=amount_usd,
             token_symbol=token_metadata.symbol,
             timestamp=tx.timestamp,
-            attributes_text=description
         )
         if amount_usd is None:
-            self.price_nodes_to_query_dune.append(
-                (log_event_node.node_id, token_metadata.symbol, tx.timestamp, amount)
-            )
+            # Record missing price info for later resolution
+            self.pricing.record_missing_price(log_event_node.node_id, token_metadata.symbol, tx.timestamp, amount)
         graph_obj.create_edge(token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
 
-    @abstractmethod
-    def fetch_transactions_for_blockchain(self, blockchain: str):
-        pass
-
-    @abstractmethod
-    def parse_bridge_router_event(self, tx, event, event_index: int, routing_node, graph_obj: GraphObject):
-        pass
-
     def link_transactions_into_cctxs(self):
-        # First, fetch all the generated graphs for the bridge and blockchains
         cctx_data = self.fetch_cross_chain_transactions()
-        
+
         for cctx in cctx_data:
-            # Skip if the CCTX is already linked to a graph
             if self.cctx_graph_mapping_repo.get_by_chain_tx_hash(self.bridge.value, cctx.src_blockchain, cctx.src_transaction_hash):
                 continue
             elif self.cctx_graph_mapping_repo.get_by_chain_tx_hash(self.bridge.value, cctx.dst_blockchain, cctx.dst_transaction_hash):
                 continue
 
-            # Get the respective graph mappings for the source and destination transactions
             source_graph_mapping = self.blockchain_graph_mapping_repo.graph_exists(self.bridge.value, cctx.src_blockchain, cctx.src_transaction_hash)
             destination_graph_mapping = self.blockchain_graph_mapping_repo.graph_exists(self.bridge.value, cctx.dst_blockchain, cctx.dst_transaction_hash)
 
             if source_graph_mapping is None or destination_graph_mapping is None:
-                log_to_cli(f"Could not find graph mappings for CCTX with source tx {cctx.src_transaction_hash} on {cctx.src_blockchain} and destination tx {cctx.dst_transaction_hash} on {cctx.dst_blockchain}. Skipping...", CliColor.ERROR)
+                log_to_cli(f"Could not find graph mappings for CCTX src={cctx.src_transaction_hash}@{cctx.src_blockchain} dst={cctx.dst_transaction_hash}@{cctx.dst_blockchain}. Skipping...", CliColor.ERROR)
                 continue
 
             if source_graph_mapping.label == BlockchainGraphLabel.ANOMALY.value:
@@ -635,22 +392,18 @@ blockchain = {token_node.blockchain}
                 cctx_label = CrossChainGraphLabel.ANOMALY_DESTINATION
             else:
                 cctx_label = self.check_offchain_label(cctx)
-                
+
             log_to_cli(f"Linking CCTX with source {cctx.src_blockchain}:{cctx.src_transaction_hash} and destination {cctx.dst_blockchain}:{cctx.dst_transaction_hash}")
-            # If both graph mappings exist, we can create a cross-chain graph mapping and link the respective graphs in the graph nodes and edges
             cctx_id = self.fetch_cctx_id(cctx)
-            cctx_graph_mapping = self.cctx_graph_mapping_repo.create(
-                {
-                    "cctx_id": cctx_id,
-                    "bridge": self.bridge.value,
-                    "source_chain": cctx.src_blockchain,
-                    "target_chain": cctx.dst_blockchain,
-                    "source_tx_hash": cctx.src_transaction_hash,
-                    "destination_tx_hash": cctx.dst_transaction_hash,
-                    "label": cctx_label.value
-                }
-            )
-            # Update the blockchain graphs and its nodes and edges to link to the cross-chain graph
+            cctx_graph_mapping = self.cctx_graph_mapping_repo.create({
+                "cctx_id": cctx_id,
+                "bridge": self.bridge.value,
+                "source_chain": cctx.src_blockchain,
+                "target_chain": cctx.dst_blockchain,
+                "source_tx_hash": cctx.src_transaction_hash,
+                "destination_tx_hash": cctx.dst_transaction_hash,
+                "label": cctx_label.value
+            })
             self.blockchain_graph_mapping_repo.assign_cctx_id(source_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
             self.blockchain_graph_mapping_repo.assign_cctx_id(destination_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id)
 
@@ -660,61 +413,52 @@ blockchain = {token_node.blockchain}
             self.graph_edge_repo.assign_cctx_id(source_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id, blockchain_type=BlockchainType.SOURCE)
             self.graph_edge_repo.assign_cctx_id(destination_graph_mapping.graph_id, cctx_graph_mapping.cctx_graph_id, blockchain_type=BlockchainType.DESTINATION)
 
-            # Create validation nodes in order to structurally link the graphs together
             src_router_node = self.graph_node_repo.get_router_node_by_graph_id(source_graph_mapping.graph_id)
             dst_router_node = self.graph_node_repo.get_router_node_by_graph_id(destination_graph_mapping.graph_id)
             if src_router_node is not None and dst_router_node is not None:
                 if self.graph_node_repo.get_by_address(destination_graph_mapping.graph_id, f"validator_{cctx_id}") is None:
-                    validator_node = self.graph_node_repo.create(
-                        {
-                            "node_type": GraphNodeType.VALIDATOR.value,
-                            "chain_graph_id": destination_graph_mapping.graph_id, # can be either source or destination
-                            "cctx_graph_id": cctx_graph_mapping.cctx_graph_id,
-                            "bridge": self.bridge.value,
-                            "blockchain": None,
-                            "blockchain_type": BlockchainType.OFFCHAIN.value,
-                            "address": f"validator_{cctx_id}",
-                            "attributes": {
-                                "cctx_id": cctx_id,
-                                "source_chain": cctx.src_blockchain,
-                                "source_tx": cctx.src_transaction_hash,
-                                "source_timestamp": source_graph_mapping.timestamp,
-                                "target_chain": cctx.dst_blockchain,
-                                "destination_tx": cctx.dst_transaction_hash,
-                                "destination_timestamp": destination_graph_mapping.timestamp
-                            },
-                            "attributes_text": f"type = validator; cctx_id = {cctx_id}; src_blockchain = {cctx.src_blockchain}; dst_blockchain = {cctx.dst_blockchain}",
-                        }
-                    )
+                    validator_node = self.graph_node_repo.create({
+                        "node_type": GraphNodeType.VALIDATOR.value,
+                        "chain_graph_id": destination_graph_mapping.graph_id,
+                        "cctx_graph_id": cctx_graph_mapping.cctx_graph_id,
+                        "bridge": self.bridge.value,
+                        "blockchain": None,
+                        "blockchain_type": BlockchainType.OFFCHAIN.value,
+                        "address": f"validator_{cctx_id}",
+                        "attributes": {
+                            "cctx_id": cctx_id,
+                            "source_chain": cctx.src_blockchain,
+                            "source_tx": cctx.src_transaction_hash,
+                            "source_timestamp": source_graph_mapping.timestamp,
+                            "target_chain": cctx.dst_blockchain,
+                            "destination_tx": cctx.dst_transaction_hash,
+                            "destination_timestamp": destination_graph_mapping.timestamp
+                        },
+                        "attributes_text": f"type = validator; cctx_id = {cctx_id}; src_blockchain = {cctx.src_blockchain}; dst_blockchain = {cctx.dst_blockchain}",
+                    })
 
-                    # Add edges to link the validator node to the respective router nodes 
-                    # on both source and destination graphs
-                    self.graph_edge_repo.create(
-                        {
-                            "edge_type": GraphEdgeType.CROSS_CHAIN_RELATION.value,
-                            "chain_graph_id": source_graph_mapping.graph_id,
-                            "cctx_graph_id": cctx_graph_mapping.cctx_graph_id,
-                            "bridge": self.bridge.value,
-                            "source_id": src_router_node.node_id,
-                            "target_id": validator_node.node_id,
-                            "deposit_id": cctx_id,
-                            "blockchain_type": BlockchainType.OFFCHAIN.value
-                        }
-                    )
-                    self.graph_edge_repo.create(
-                        {
-                            "edge_type": GraphEdgeType.CROSS_CHAIN_RELATION.value,
-                            "chain_graph_id": destination_graph_mapping.graph_id,
-                            "cctx_graph_id": cctx_graph_mapping.cctx_graph_id,
-                            "bridge": self.bridge.value,
-                            "source_id": validator_node.node_id,
-                            "target_id": dst_router_node.node_id,
-                            "deposit_id": cctx_id,
-                            "blockchain_type": BlockchainType.OFFCHAIN.value
-                        }
-                    )
+                    self.graph_edge_repo.create({
+                        "edge_type": GraphEdgeType.CROSS_CHAIN_RELATION.value,
+                        "chain_graph_id": source_graph_mapping.graph_id,
+                        "cctx_graph_id": cctx_graph_mapping.cctx_graph_id,
+                        "bridge": self.bridge.value,
+                        "source_id": src_router_node.node_id,
+                        "target_id": validator_node.node_id,
+                        "deposit_id": cctx_id,
+                        "blockchain_type": BlockchainType.OFFCHAIN.value
+                    })
+                    self.graph_edge_repo.create({
+                        "edge_type": GraphEdgeType.CROSS_CHAIN_RELATION.value,
+                        "chain_graph_id": destination_graph_mapping.graph_id,
+                        "cctx_graph_id": cctx_graph_mapping.cctx_graph_id,
+                        "bridge": self.bridge.value,
+                        "source_id": validator_node.node_id,
+                        "target_id": dst_router_node.node_id,
+                        "deposit_id": cctx_id,
+                        "blockchain_type": BlockchainType.OFFCHAIN.value
+                    })
             else:
-                log_to_cli(f"Could not find router nodes for source graph {source_graph_mapping.graph_id} and destination graph {destination_graph_mapping.graph_id}. Skipping creation of validation node for CCTX {cctx_graph_mapping.cctx_graph_id}...", CliColor.ERROR)
+                log_to_cli(f"Could not find router nodes for source graph {source_graph_mapping.graph_id} and destination graph {destination_graph_mapping.graph_id}. Skipping validation node for CCTX {cctx_graph_mapping.cctx_graph_id}...", CliColor.ERROR)
 
         log_to_cli("Finished linking transactions into CCTXs. Refreshing node degrees in the repository...")
         self.graph_node_repo.refresh_degrees()
@@ -722,68 +466,24 @@ blockchain = {token_node.blockchain}
     def check_offchain_label(self, cctx):
         if (cctx.src_blockchain, cctx.src_transaction_hash, cctx.dst_blockchain, cctx.dst_transaction_hash) in self.offchain_anomaly_transactions:
             return CrossChainGraphLabel.ANOMALY_OFFCHAIN
-        
         return CrossChainGraphLabel.NORMAL
 
-    def backfill_missing_usd_prices(self, blockchain):
-        symbols = list({symbol for _, symbol, _, _ in self.price_nodes_to_query_dune})
-        min_ts = min(ts for _, _, ts, _ in self.price_nodes_to_query_dune)
-        max_ts = max(ts for _, _, ts, _ in self.price_nodes_to_query_dune)
-
-        log_to_cli(
-            f"Querying Dune for prices of {len(symbols)} symbol(s) on {blockchain} "
-            f"to backfill {len(self.price_nodes_to_query_dune)} node(s) missing USD amounts..."
-        )
-        try:
-            token_prices_dune = self.dune_client.fetch_token_prices_through_symbol(symbols, min_ts, max_ts)
-
-            for tp in token_prices_dune["rows"]:
-                date = tp["timestamp"].split(" ")[0]
-                if self.token_price_repo.get_token_price_by_symbol_and_date(
-                    tp["symbol"], date
-                ) is None:
-                    self.token_price_repo.create(
-                        {
-                            "name": "",
-                            "symbol": tp["symbol"],
-                            "price_usd": tp["price"],
-                            "date": date,
-                        }
-                    )
-
-            for node_id, symbol, timestamp, amount in self.price_nodes_to_query_dune:
-                date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
-                token_price = self.token_price_repo.get_token_price_by_symbol_and_date(
-                    symbol, date
-                )
-                if token_price is not None:
-                    amount_usd = int(amount * token_price.price_usd)
-                    self.graph_node_repo.update_amount_usd(node_id, amount_usd)
-        except Exception as e:
-            log_to_cli(
-                f"Error backfilling USD prices from Dune for blockchain {blockchain}: {e}",
-                CliColor.ERROR
-            )
-
     def include_native_dune_transfers(self, blockchain):
-        # For each transaction hash that we couldn't trace through RPC, we can query Dune for native token transfers related to the transaction
-        # and include them in the respective graphs. This way, we can still capture value movements related to the transactions even if the blockchain doesn't support transaction tracing or if the tracing data is incomplete.
         tx_hashes = self.internal_tx_to_query_dune
-        if len(tx_hashes) == 0:
+        if not tx_hashes:
             return
-        
+
         log_to_cli(f"Querying Dune for native token transfers related to {len(tx_hashes)} transaction hashes on {blockchain}...")
         try:
             dune_results = self.dune_client.fetch_native_transactions(blockchain, tx_hashes)
-            # Create a counter to generate unique operation indexes for the internal transactions, starting from the last used index in the respective graph
             op_idx_counters = {}
-            
+
             for transfer in reversed(dune_results["rows"]):
                 tx_hash = transfer["tx_hash"]
                 graph_obj = GraphObject(
-                    self.blockchain_graph_mapping_repo, 
-                    self.graph_node_repo, 
-                    self.graph_edge_repo, 
+                    self.blockchain_graph_mapping_repo,
+                    self.graph_node_repo,
+                    self.graph_edge_repo,
                     self.token_metadata_repo
                 ).load_from_db(self.bridge, blockchain, tx_hash)
                 from_address = transfer["tx_from"]
@@ -793,17 +493,21 @@ blockchain = {token_node.blockchain}
                 if value is not None and value > 10e27:
                     value = 10e27
 
-                log_to_cli(f"Including native token transfer from Dune for transaction {tx_hash} on {blockchain}: from {from_address} to {to_address} amount {value}")
-
-                # We'll be using negative operation indexes for the internal transactions fetched from Dune
-                # the main idea will be to then change the op index numbers to start from 0 
-                # in a post-processing step on the BridgeDefender repository.
+                log_to_cli(f"Including native token transfer from Dune for {tx_hash} on {blockchain}: {from_address} → {to_address} amount {value}")
                 op_idx_counters[tx_hash] = op_idx_counters.get(tx_hash, 0) - 1
                 self.process_internal_token_transfer(graph_obj, blockchain, op_idx_counters[tx_hash], transfer, from_address, to_address, value, graph_obj.tx_timestamp)
 
         except Exception as e:
             log_to_cli(f"Error fetching native token transfers from Dune for blockchain {blockchain}: {e}", CliColor.ERROR)
 
+    @abstractmethod
+    def fetch_transactions_for_blockchain(self, blockchain: str):
+        pass
+
+    @abstractmethod
+    def parse_bridge_router_event(self, tx, event, event_index: int, routing_node, graph_obj: GraphObject):
+        pass
+    
     @abstractmethod
     def fetch_cross_chain_transactions(self):
         pass

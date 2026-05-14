@@ -67,8 +67,6 @@ class GraphObject:
                 return node
         
         token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(address, self.graph_mapping.blockchain)
-        event_list = "event Transfer(address from, address to, uint256 value), " + \
-                     "event Approval(address _owner, address _spender, uint256 _value)"
         new_node_data = {
             "chain_graph_id": self.graph_mapping.graph_id,
             "node_type": GraphNodeType.TOKEN.value,
@@ -80,12 +78,6 @@ class GraphObject:
                 "name": token_metadata.name,
                 "decimals": token_metadata.decimals
             } if token_metadata else None,
-            "attributes_text": f"""type = token;
-blockchain = {self.graph_mapping.blockchain};
-symbol = {token_metadata.symbol};
-name = {token_metadata.name};
-decimals = {token_metadata.decimals};
-event_list = {event_list}""" if token_metadata else None,
             "token_symbol": token_metadata.symbol if token_metadata else None,
             "timestamp": timestamp
         }
