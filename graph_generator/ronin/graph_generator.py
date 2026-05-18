@@ -133,6 +133,8 @@ class RoninGraphGenerator(BaseGraphGenerator):
             token_symbol=input_token_metadata.symbol if input_token_metadata else None,
             timestamp=tx.timestamp
         )
+        if input_token_metadata and amount_usd is None:
+            self.pricing.record_missing_price(log_event_node.node_id, input_token_metadata.symbol, tx.timestamp, int(value))
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
     def parse_token_deposited_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
@@ -185,6 +187,8 @@ class RoninGraphGenerator(BaseGraphGenerator):
             token_symbol=output_token_metadata.symbol if output_token_metadata else None,
             timestamp=tx.timestamp,
         )
+        if output_token_metadata and out_amount_usd is None:
+            self.pricing.record_missing_price(log_event_node.node_id, output_token_metadata.symbol, tx.timestamp, int(value))
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
     def parse_withdraw_requested_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
@@ -245,6 +249,8 @@ class RoninGraphGenerator(BaseGraphGenerator):
             token_symbol=input_token_metadata.symbol if input_token_metadata else None,
             timestamp=tx.timestamp
         )
+        if input_token_metadata and in_amount_usd is None:
+            self.pricing.record_missing_price(log_event_node.node_id, input_token_metadata.symbol, tx.timestamp, int(value))
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
     def parse_token_withdrew_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
@@ -299,4 +305,6 @@ class RoninGraphGenerator(BaseGraphGenerator):
             token_symbol=output_token_metadata.symbol if output_token_metadata else None,
             timestamp=tx.timestamp
         )
+        if output_token_metadata and out_amount_usd is None:
+            self.pricing.record_missing_price(log_event_node.node_id, output_token_metadata.symbol, tx.timestamp, int(value))
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)

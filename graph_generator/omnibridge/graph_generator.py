@@ -188,6 +188,8 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
             token_symbol=token_metadata.symbol if token_metadata else None,
             timestamp=tx.timestamp
         )
+        if token_metadata and amount_usd is None:
+            self.pricing.record_missing_price(log_event_node.node_id, token_metadata.symbol, tx.timestamp, int(value))
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
     def parse_tokens_bridged(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
@@ -231,6 +233,8 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
             token_symbol=token_metadata.symbol if token_metadata else None,
             timestamp=tx.timestamp
         )
+        if token_metadata and amount_usd is None:
+            self.pricing.record_missing_price(log_event_node.node_id, token_metadata.symbol, tx.timestamp, int(value))
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
     def parse_affirmation_completed_recipient(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
@@ -276,6 +280,8 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
             token_symbol=token_metadata.symbol if token_metadata else None,
             timestamp=tx.timestamp
         )
+        if token_metadata and amount_usd is None:
+            self.pricing.record_missing_price(log_event_node.node_id, token_metadata.symbol, tx.timestamp, int(value))
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
     def parse_affirmation_completed(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
@@ -342,6 +348,8 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
             token_symbol=token_metadata.symbol if token_metadata else None,
             timestamp=tx.timestamp
         )
+        if token_metadata and amount_usd is None:
+            self.pricing.record_missing_price(log_event_node.node_id, token_metadata.symbol, tx.timestamp, int(value))
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
     def parse_relayed_message(self, tx, event, event_index, routing_node, graph_obj: GraphObject):

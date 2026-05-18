@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import time
 
@@ -136,6 +137,8 @@ class DuneClient:
         return results
     
     def fetch_token_prices(self, token_metadata_list: list[TokenMetadata], start_ts: int, end_ts: int):
+        start_ts = datetime.fromtimestamp(start_ts).replace(hour=0, minute=0, second=0, microsecond=0).timestamp() # Round down to start of day
+        end_ts = datetime.fromtimestamp(end_ts).replace(hour=23, minute=59, second=59, microsecond=999999).timestamp() # Round up to end of day
         execution_id = self.execute_token_prices_query(token_metadata_list, start_ts, end_ts)
         log_to_cli(f"Created Dune query with execution ID {execution_id} for token prices.")
         total_wait_time = 0
@@ -156,6 +159,8 @@ class DuneClient:
         return results
     
     def fetch_token_prices_through_symbol(self, symbols_list: list[str], start_ts: int, end_ts: int):
+        start_ts = datetime.fromtimestamp(start_ts).replace(hour=0, minute=0, second=0, microsecond=0).timestamp() # Round down to start of day
+        end_ts = datetime.fromtimestamp(end_ts).replace(hour=23, minute=59, second=59, microsecond=999999).timestamp() # Round up to end of day
         execution_id = self.execute_token_prices_by_symbol_query(symbols_list, start_ts, end_ts)
         log_to_cli(f"Created Dune query with execution ID {execution_id} for token prices by symbol.")
         total_wait_time = 0

@@ -4,16 +4,23 @@ from repository.graphs.models import GraphMappingBlockchain
 
 
 class GraphObject:
-    def __init__(self, graph_mapping_repo, node_repo, edge_repo, token_metadata_repo):
+    def __init__(self, graph_mapping_repo, node_repo, edge_repo, token_metadata_repo,
+                 resolve_address=None):
         self.graph_mapping_repo = graph_mapping_repo
         self.node_repo = node_repo
         self.edge_repo = edge_repo
         self.token_metadata_repo = token_metadata_repo
+        self._resolve_address = resolve_address
         self.attacker_addresses = {}
         self.graph_mapping = None
         self.tx_timestamp = None
         self.nodes = []
         self.edges = []
+
+    def _resolved(self, address: str) -> str:
+        if self._resolve_address and self.graph_mapping:
+            return self._resolve_address(address, self.graph_mapping.blockchain)
+        return address
 
     def load_from_db(self, bridge: Bridge, blockchain: str, tx_hash: str):
         self.graph_mapping = self.graph_mapping_repo.graph_exists(bridge.value, blockchain, tx_hash)
@@ -85,6 +92,11 @@ class GraphObject:
         return self.create_node(new_node_data)
 
     def fetch_or_create_node(self, address, timestamp, attributes=None, attributes_text=None, node_type_if_missing=GraphNodeType.OTHER_ACCOUNT.value):
+        # Address resolution is applied in order to handle cases where
+        # we want to treat multiple addresses as the same entity
+        # (e.g., due to multiple routing contracts having split functions that
+        # process a deposit/withdrawal).
+        address = self._resolved(address)
         for node in self.nodes:
             if node.address.lower() == address.lower():
                 return node
@@ -143,6 +155,11 @@ class GraphObject:
         return updated_node
 
     def create_edge(self, source_id, target_id, edge_type, event_index, attributes=None, attributes_text=None):
+        # Avoid creating self-loop edges
+        # (this may happen when events pass information from one routing node to another,
+        # and both addresses are resolved to the same node)
+        if source_id == target_id:
+            return None
         edge_data = {
             "chain_graph_id": self.graph_mapping.graph_id,
             "bridge": self.graph_mapping.bridge,
@@ -174,6 +191,12 @@ class GraphObject:
     
 
     def fetch_node_by_address(self, address, create_if_not_exists=False):
+        # Always resolve the address before fetching to ensure consistency.
+        # Address resolution is applied in order to handle cases where
+        # we want to treat multiple addresses as the same entity
+        # (e.g., due to multiple routing contracts having split functions that
+        # process a deposit/withdrawal).
+        address = self._resolved(address)
         for node in self.nodes:
             if node.address.lower() == address.lower():
                 return node

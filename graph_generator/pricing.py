@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from config.constants import BLOCKCHAIN_IDS
+from config.constants import BLOCKCHAIN_IDS, TOKEN_PRICING_SUPPORTED_BLOCKCHAINS
 from generator.base_generator import PriceGenerator
 from repository.common.models import TokenMetadata
 from utils.utils import CliColor, log_to_cli
@@ -55,6 +55,12 @@ class TokenPricingService:
                 return True
 
             # If symbol-only fetch didn't work, try fetching with blockchain context to disambiguate tokens with same symbol across chains
+            # (Skip if the token's blockchain is not supported for pricing, to avoid unnecessary fetching)
+            if token_metadata.blockchain not in TOKEN_PRICING_SUPPORTED_BLOCKCHAINS:
+                log_to_cli(f"[WARNING] Could not fetch price for {token_metadata.symbol}. Skipping...", CliColor.ERROR)
+                self._unknown_symbols.add((token_metadata.symbol, token_metadata.blockchain))
+                return False
+
             log_to_cli(f"Failed to fetch price for {token_metadata.symbol} using symbol only. Trying {token_metadata.blockchain}...")
             PriceGenerator.fetch_and_store_token_prices(
                 self.bridge, self.token_price_repo, min_ts, max_ts,
@@ -81,6 +87,12 @@ class TokenPricingService:
         if token_metadata.symbol == "APRS":
             # 1000 APEIRON = 1 USD; result encoded as 1e18-integer
             return amount, int(raw_value * 10 ** (18 - token_metadata.decimals)) // 1000
+        elif token_metadata.symbol == "CQT":
+            # 10 CQT = 1 USD; result encoded as 1e18-integer
+            return amount, int(raw_value * 10 ** (18 - token_metadata.decimals)) // 10
+        elif token_metadata.symbol in ("WGLMR", ):
+            # Some wrapped tokens have the same symbol as the native token but need to be unwrapped to get the correct price
+            token_metadata.symbol = token_metadata.symbol[1:]
 
         prices_available = self.maybe_fetch_prices_for_token(token_metadata, timestamp)
         if not prices_available:
@@ -134,7 +146,9 @@ class TokenPricingService:
 
         symbols = list({symbol for _, symbol, _, _ in self._pending})
         min_ts = min(ts for _, _, ts, _ in self._pending)
+        min_ts = datetime.fromtimestamp(min_ts).replace(hour=0, minute=0, second=0, microsecond=0).timestamp()  # Round down to start of day
         max_ts = max(ts for _, _, ts, _ in self._pending)
+        max_ts = datetime.fromtimestamp(max_ts).replace(hour=23, minute=59, second=59, microsecond=999999).timestamp()  # Round up to end of day
 
         log_to_cli(
             f"Querying Dune for prices of {len(symbols)} symbol(s) "
@@ -153,6 +167,7 @@ class TokenPricingService:
                         "date": date,
                     })
 
+            total_updated = 0
             for node_id, symbol, timestamp, amount in self._pending:
                 date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
                 token_price = self.token_price_repo.get_token_price_by_symbol_and_date(symbol, date)
@@ -160,5 +175,7 @@ class TokenPricingService:
                     # amount is human-readable float; encode to 1e18-integer USD
                     amount_usd = int(amount * token_price.price_usd * 1e18)
                     graph_node_repo.update_amount_usd(node_id, amount_usd)
+                    total_updated += 1
+            log_to_cli(f"Backfilled USD prices for {total_updated}/{len(self._pending)} nodes using Dune data.")
         except Exception as e:
             log_to_cli(f"Error backfilling USD prices from Dune: {e}", CliColor.ERROR)

@@ -138,7 +138,11 @@ class BaseGraphGenerator(ABC):
         # before processing events and traces, so that we have a graph context
         # to link events and internal transactions to, and to record missing price info if needed
         log_to_cli(f"Blockchain {tx.blockchain} - Processing transaction {tx.transaction_hash} for graph generation...")
-        graph_obj = GraphObject(self.blockchain_graph_mapping_repo, self.graph_node_repo, self.graph_edge_repo, self.token_metadata_repo)
+        graph_obj = GraphObject(
+            self.blockchain_graph_mapping_repo, self.graph_node_repo,
+            self.graph_edge_repo, self.token_metadata_repo,
+            resolve_address=self.resolve_node_address,
+        )
         graph_obj.create_graph_mapping(
             self.bridge,
             tx.blockchain,
@@ -349,6 +353,12 @@ class BaseGraphGenerator(ABC):
         # Create edges for the token transfer or approval, linking the sender to the recipient address
         from_node = graph_obj.fetch_or_create_node(from_address, timestamp=tx.timestamp)
         to_node = graph_obj.fetch_or_create_node(to_address, timestamp=tx.timestamp)
+        if from_node.address == to_node.address:
+            # If the sender and recipient are the same, the transfer/approval
+            # may not be meaningful for our analysis and could be noise in the graph,
+            # hence we skip creating an edge and log event for it.
+            return
+
         amount, amount_usd = self.pricing.resolve_token_amount(token_metadata, value, tx.timestamp)
         graph_obj.create_edge(from_node.node_id, to_node.node_id, type, op_index)
 
@@ -500,6 +510,13 @@ class BaseGraphGenerator(ABC):
         except Exception as e:
             log_to_cli(f"Error fetching native token transfers from Dune for blockchain {blockchain}: {e}", CliColor.ERROR)
 
+
+    #* Note: This method can be overridden in child classes to implement 
+    #* specific address resolution logic if needed (e.g., to handle cases 
+    #* where multiple addresses should be treated as the same entity in the graph).
+    def resolve_node_address(self, address: str, _blockchain: str) -> str:
+        return address
+    
     @abstractmethod
     def fetch_transactions_for_blockchain(self, blockchain: str):
         pass

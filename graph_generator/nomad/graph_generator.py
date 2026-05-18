@@ -54,6 +54,16 @@ class NomadGraphGenerator(BaseGraphGenerator):
             "event Dispatch(bytes32 messageHash, uint256 leafIndex, uint64 destinationAndNonce, bytes32 committedRoot, bytes message), "
             "event Process(bytes32 indexed messageHash, bool indexed success, bytes indexed returnData)"
         )
+    
+    #override
+    def resolve_node_address(self, address, blockchain):
+        if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
+            self.bridge.value,
+            address,
+            blockchain
+        ):
+            return "__NOMAD_BRIDGE_ROUTER__"
+        return address
 
     def parse_bridge_router_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         topic = event["topics"][0]
@@ -93,20 +103,16 @@ class NomadGraphGenerator(BaseGraphGenerator):
 
         # Ensure the depositor is a user node
         #* Note: The depositor can be the ETHHelper contract in some cases.
-        #* If that is the case, the ETHHelper's Send event will convert the
-        #* user node back into a router node. However, we don't want to 
-        #* create a Transaction edge between the Router and ETHHelper.
-        #* A function call edge will be created between the two routers instead
-        #* when parsing the ETHHelper's Send event.
+        #* This happens when users deposit native token funds.
+        #* If that is the case, the fact that we condensed the two routing addresses into one
+        #* means that there shouldn't be a transaction edge between them, and 
+        #* thus the Transaction edge will only be created on the ETHHelper's Send event.
         depositor_node = graph_obj.fetch_or_create_node(
             event_record.depositor,
             node_type_if_missing=GraphNodeType.USER.value,
             timestamp=tx.timestamp,
         )
-        if event_record.depositor in (
-            "0x2d6775c1673d4ce55e1f827a0d53e62c43d1f304",  # Ethereum ETH Helper
-            "0xb70588b1a51f847d13158ff18e9cac861df5fb00"   # Moonbeam ETH Helper
-        ):
+        if depositor_node.address == routing_node.address:
             graph_obj.update_node_type(depositor_node.node_id, GraphNodeType.ROUTER.value)
         else:
             graph_obj.update_node_type(depositor_node.node_id, GraphNodeType.USER.value)
@@ -147,16 +153,9 @@ class NomadGraphGenerator(BaseGraphGenerator):
             token_symbol=input_token_metadata.symbol if input_token_metadata else None,
             timestamp=tx.timestamp,
         )
+        if input_token_metadata and amount_usd is None:
+            self.pricing.record_missing_price(log_event_node.node_id, input_token_metadata.symbol, tx.timestamp, int(value))
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
-
-        # Link BridgeRouter to Home (Home was created first during Dispatch, so it has a lower node_id)
-        other_routers = sorted(
-            [n for n in graph_obj.nodes if n.node_type == GraphNodeType.ROUTER.value and n.node_id != routing_node.node_id],
-            key=lambda n: n.node_id,
-        )
-        if other_routers:
-            home_node = other_routers[0]
-            graph_obj.create_edge(routing_node.node_id, home_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
 
     def parse_router_receive_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Receive(uint32 originAndNonce, address token, address recipient, address liquidityProvider, uint256 amount)"
@@ -203,6 +202,8 @@ class NomadGraphGenerator(BaseGraphGenerator):
             token_symbol=output_token_metadata.symbol if output_token_metadata else None,
             timestamp=tx.timestamp,
         )
+        if output_token_metadata and amount_usd is None:
+            self.pricing.record_missing_price(log_event_node.node_id, output_token_metadata.symbol, tx.timestamp, int(value))
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
     def parse_eth_helper_send_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
@@ -211,34 +212,24 @@ class NomadGraphGenerator(BaseGraphGenerator):
         if event_record is None:
             return
 
-        # Ensure the sender is a user node
+        # Ensure the sender is a user node and link it to the routing node with a transaction edge
         from_node = graph_obj.fetch_or_create_node(
             event_record.from_address,
             node_type_if_missing=GraphNodeType.USER.value,
             timestamp=tx.timestamp,
         )
         graph_obj.update_node_type(from_node.node_id, GraphNodeType.USER.value)
-
-        # Create and link log event node to the routing node
-        log_event_node = graph_obj.create_log_node(
+        graph_obj.create_edge(
+            from_node.node_id,
+            routing_node.node_id,
+            GraphEdgeType.TRANSACTION.value,
             event_index,
-            event["topics"][0],
-            EventType.DEPOSIT_REQUEST.value,
-            event_signature,
-            {"from": event_record.from_address},
-            None,
-            timestamp=tx.timestamp,
         )
-        graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
-        # Link BridgeRouter to ETHHelper (BridgeRouter is the most recently created router node before ETHHelper)
-        other_routers = sorted(
-            [n for n in graph_obj.nodes if n.node_type == GraphNodeType.ROUTER.value and n.node_id != routing_node.node_id],
-            key=lambda n: n.node_id,
-        )
-        if other_routers:
-            bridge_router_node = other_routers[-1]
-            graph_obj.create_edge(bridge_router_node.node_id, routing_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
+        # Because this helper contract is an assistant to the BridgeRouter's Send event,
+        # there is no need to create a separate log node for it. Doing so would just
+        # duplicate the event already captured by the BridgeRouter's Send event, and
+        # generate unnecessary noise in the graph.
 
     def parse_home_dispatch_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Dispatch(bytes32 messageHash, uint256 leafIndex, uint64 destinationAndNonce, bytes32 committedRoot, bytes message)"
@@ -250,6 +241,15 @@ class NomadGraphGenerator(BaseGraphGenerator):
         value = int(event_record.amount)
         if value is not None and value > 10e27:
             value = 10e27
+
+        # Obtain the token metadata for the dispatched token to resolve its USD value (if possible)
+        token_node = graph_obj.fetch_or_create_token_node(event_record.token_address, timestamp=tx.timestamp)
+        graph_obj.update_node_type(token_node.node_id, GraphNodeType.TOKEN.value)
+        token_metadata = self.inspector.ensure_metadata(event_record.token_address, graph_obj.graph_mapping.blockchain)
+        if token_metadata is not None:
+            _, amount_usd = self.pricing.resolve_token_amount(token_metadata, value, tx.timestamp)
+        else:
+            amount_usd = None
 
         # Create and link log event node to the routing node
         log_event_node = graph_obj.create_log_node(
@@ -263,15 +263,19 @@ class NomadGraphGenerator(BaseGraphGenerator):
                 "nonce": event_record.nonce,
                 "srcBlockchain": event_record.src_blockchain,
                 "dstBlockchain": event_record.dst_blockchain,
+                "tokenAddress": event_record.token_address,
                 "recipient": event_record.recipient,
                 "amount": int(value),
             },
             None,
             amount=int(value),
+            amount_usd=amount_usd,
+            token_symbol=token_metadata.symbol if token_metadata else None,
             timestamp=tx.timestamp,
         )
+        if token_metadata and amount_usd is None:
+            self.pricing.record_missing_price(log_event_node.node_id, token_metadata.symbol, tx.timestamp, int(value))
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
-        # BridgeRouter node does not exist yet (fires after Dispatch), so no inter-router link here.
 
     def parse_replica_process_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Process(bytes32 indexed messageHash, bool indexed success, bytes indexed returnData)"
