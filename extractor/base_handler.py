@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 
 import psycopg2
 from annotated_types import T
+from sqlalchemy.exc import IntegrityError
 
 from config.constants import BLOCKCHAIN_IDS, Bridge
 from repository.common.repository import BridgeRoutingContractMetadataRepository
@@ -33,11 +34,10 @@ class BaseHandler(ABC):
                     "address": contract.lower(),
                     "function_list": function_signatures
                 })
-        except psycopg2.errors.UniqueViolation as _:
-            # This can happen if multiple threads are trying to insert the same contract metadata at the same
+        except IntegrityError as _:
+            # This can happen if multiple threads are trying to insert the same contract metadata at the same time
             pass
         except Exception as e:
-            print(existing_metadata)
             raise CustomException(
                 self.CLASS_NAME,
                 "handle_bridge_routing_contract_metadata",
