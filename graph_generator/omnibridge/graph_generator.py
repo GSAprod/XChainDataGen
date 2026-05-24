@@ -36,8 +36,8 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
         self.affirmation_completed_repo = OmnibridgeAffirmationCompletedRepository(DBSession)
         self.relayed_message_repo = OmnibridgeRelayedMessageRepository(DBSession)
 
-    def fetch_transactions_for_blockchain(self, blockchain: str):
-        return self.blockchain_transactions_repo.get_transactions_from_blockchain(blockchain)
+    def fetch_transactions_for_blockchain(self, blockchain: str, start_ts: int = None, end_ts: int = None):
+        return self.blockchain_transactions_repo.get_transactions_from_blockchain(blockchain, start_ts, end_ts)
 
     def fetch_cross_chain_transactions(self):
         return self.cross_chain_transactions_repo.get_all()

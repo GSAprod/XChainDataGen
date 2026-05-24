@@ -115,11 +115,11 @@ class BaseGraphGenerator(ABC):
                     attackers.setdefault(blockchain, set()).add(address)
         self.attacker_addresses = attackers
 
-    def generate_graph_data(self, blockchain: str) -> None:
+    def generate_graph_data(self, blockchain: str, start_ts: int = None, end_ts: int = None) -> None:
         self.internal_tx_to_query_dune = []
         self.pricing.reset()
 
-        for tx in self.fetch_transactions_for_blockchain(blockchain):
+        for tx in self.fetch_transactions_for_blockchain(blockchain, start_ts, end_ts):
             self.process_partial_transaction(tx)
 
         if blockchain not in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS and self.dune_client is not None:
@@ -518,7 +518,7 @@ class BaseGraphGenerator(ABC):
         return address
     
     @abstractmethod
-    def fetch_transactions_for_blockchain(self, blockchain: str):
+    def fetch_transactions_for_blockchain(self, blockchain: str, start_ts: int = None, end_ts: int = None):
         pass
 
     @abstractmethod

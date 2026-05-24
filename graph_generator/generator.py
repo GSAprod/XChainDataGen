@@ -25,10 +25,10 @@ class GraphGenerator:
                 self.CLASS_NAME, func_name, f"Bridge {bridge_name} not supported"
             ) from e
 
-    def generate_graph_data(self, blockchain: str):
+    def generate_graph_data(self, blockchain: str, start_ts: int = None, end_ts: int = None):
         """Main generation logic."""
 
-        self.generator.generate_graph_data(blockchain)
+        self.generator.generate_graph_data(blockchain, start_ts, end_ts)
 
     def link_transactions_into_cctxs(self):
         """Main generation logic."""

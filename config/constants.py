@@ -99,7 +99,6 @@ TOKEN_PRICING_SUPPORTED_BLOCKCHAINS = {
     "scroll": "scroll",
     "linea": "linea",
     "gnosis": "gnosis",
-    "moonbeam": "moonbeam"
 }
 
 # the list of blockchains with support for fetching transaction traces,

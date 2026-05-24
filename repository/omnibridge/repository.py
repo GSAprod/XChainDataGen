@@ -23,13 +23,14 @@ class OmnibridgeBlockchainTransactionRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(OmnibridgeBlockchainTransaction, session_factory)
 
-    def get_transactions_from_blockchain(self, blockchain: str):
+    def get_transactions_from_blockchain(self, blockchain: str, start_ts: int = None, end_ts: int = None):
         with self.get_session() as session:
-            return (
-                session.query(OmnibridgeBlockchainTransaction)
-                .filter(OmnibridgeBlockchainTransaction.blockchain == blockchain)
-                .all()
-            )
+            query = session.query(OmnibridgeBlockchainTransaction).filter(OmnibridgeBlockchainTransaction.blockchain == blockchain)
+            if start_ts is not None:
+                query = query.filter(OmnibridgeBlockchainTransaction.timestamp >= start_ts)
+            if end_ts is not None:
+                query = query.filter(OmnibridgeBlockchainTransaction.timestamp <= end_ts)
+            return query.all()
         
     def get_transaction_by_hash(self, transaction_hash: str):
         with self.get_session() as session:

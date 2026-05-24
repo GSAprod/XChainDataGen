@@ -131,6 +131,9 @@ class Cli:
 
         blockchains = args.blockchains
 
+        start_ts = args.start_ts
+        end_ts = args.end_ts
+
         Cli.load_db_models(bridge, load_graphs=True)
 
         for blockchain in blockchains:
@@ -140,7 +143,7 @@ class Cli:
             log_to_cli(
                 build_log_message_generator(bridge, f"Generating graph data on {blockchain} chain...")
             )
-            graph_generator.generate_graph_data(blockchain)
+            graph_generator.generate_graph_data(blockchain, start_ts, end_ts)
 
         # Now, link transactions across chains
         graph_generator = GraphGenerator(bridge)
@@ -260,6 +263,16 @@ class Cli:
             required=True,
             nargs="+",
             help="List of blockchains to extract data from",
+        )
+        graphs_parser.add_argument(
+            "--start_ts",
+            type=int,
+            help="Start timestamp for graph data generation (Unix timestamp in seconds)",
+        )
+        graphs_parser.add_argument(
+            "--end_ts",
+            type=int,
+            help="End timestamp for graph data generation (Unix timestamp in seconds)",
         )
         graphs_parser.set_defaults(func=Cli.generate_graph_data)
 
