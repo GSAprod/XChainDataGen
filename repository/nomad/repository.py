@@ -17,11 +17,13 @@ class NomadRouterSendRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(NomadRouterSend, session_factory)
 
-    def event_exists(self, transaction_hash: str):
+    def event_exists(self, blockchain: str, transaction_hash: str, log_index: int):
         with self.get_session() as session:
             return (
                 session.query(NomadRouterSend)
+                .filter(NomadRouterSend.blockchain == blockchain)
                 .filter(NomadRouterSend.transaction_hash == transaction_hash)
+                .filter(NomadRouterSend.log_index == log_index)
                 .first()
             )
 
@@ -37,13 +39,22 @@ class NomadRouterReceiveRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(NomadRouterReceive, session_factory)
 
-    def event_exists(self, nonce: int, blockchain: str, src_blockchain: str):
+    def event_exists(
+            self, 
+            blockchain: str, 
+            transaction_hash: str, 
+            log_index: int,
+            output_token: str,
+            recipient: str
+    ):
         with self.get_session() as session:
             return (
                 session.query(NomadRouterReceive)
-                .filter(NomadRouterReceive.nonce == nonce)
                 .filter(NomadRouterReceive.blockchain == blockchain)
-                .filter(NomadRouterReceive.src_blockchain == src_blockchain)
+                .filter(NomadRouterReceive.transaction_hash == transaction_hash)
+                .filter(NomadRouterReceive.log_index == log_index)
+                .filter(func.lower(NomadRouterReceive.output_token) == output_token.lower())
+                .filter(func.lower(NomadRouterReceive.recipient) == recipient.lower())
                 .first()
             )
 
@@ -59,11 +70,13 @@ class NomadEthHelperSendRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(NomadEthHelperSend, session_factory)
 
-    def event_exists(self, transaction_hash: str):
+    def event_exists(self, blockchain: str, transaction_hash: str, log_index: int):
         with self.get_session() as session:
             return (
                 session.query(NomadEthHelperSend)
+                .filter(NomadEthHelperSend.blockchain == blockchain)
                 .filter(NomadEthHelperSend.transaction_hash == transaction_hash)
+                .filter(NomadEthHelperSend.log_index == log_index)
                 .first()
             )
 
@@ -78,13 +91,21 @@ class NomadEthHelperSendRepository(BaseRepository):
 class NomadReplicaProcessRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(NomadReplicaProcess, session_factory)
-
-    def event_exists(self, message_hash: str, blockchain: str):
+    
+    def event_exists(
+            self, 
+            blockchain: str, 
+            transaction_hash: str, 
+            log_index: int, 
+            message_hash: str
+    ):
         with self.get_session() as session:
             return (
                 session.query(NomadReplicaProcess)
-                .filter(NomadReplicaProcess.message_hash == message_hash)
                 .filter(NomadReplicaProcess.blockchain == blockchain)
+                .filter(NomadReplicaProcess.transaction_hash == transaction_hash)
+                .filter(NomadReplicaProcess.log_index == log_index)
+                .filter(NomadReplicaProcess.message_hash == message_hash)
                 .first()
             )
 
@@ -99,13 +120,14 @@ class NomadReplicaProcessRepository(BaseRepository):
 class NomadHomeDispatchRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(NomadHomeDispatch, session_factory)
-
-    def event_exists(self, message_hash: str, blockchain: str):
+    
+    def event_exists(self, blockchain: str, transaction_hash: str, log_index: int):
         with self.get_session() as session:
             return (
                 session.query(NomadHomeDispatch)
-                .filter(NomadHomeDispatch.message_hash == message_hash)
                 .filter(NomadHomeDispatch.blockchain == blockchain)
+                .filter(NomadHomeDispatch.transaction_hash == transaction_hash)
+                .filter(NomadHomeDispatch.log_index == log_index)
                 .first()
             )
 
