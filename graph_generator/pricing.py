@@ -90,6 +90,9 @@ class TokenPricingService:
         elif token_metadata.symbol == "CQT":
             # 10 CQT = 1 USD; result encoded as 1e18-integer
             return amount, int(raw_value * 10 ** (18 - token_metadata.decimals)) // 10
+        elif token_metadata.symbol == "SDL":
+            # 100 SDL = 1 USD; result encoded as 1e18-integer
+            return amount, int(raw_value * 10 ** (18 - token_metadata.decimals)) // 100
         elif token_metadata.symbol in ("WGLMR", ):
             # Some wrapped tokens have the same symbol as the native token but need to be unwrapped to get the correct price
             token_metadata.symbol = token_metadata.symbol[1:]

@@ -93,7 +93,11 @@ class NomadGraphGenerator(BaseGraphGenerator):
     def parse_router_send_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Send(address token, address from, uint32 toDomain, bytes32 toId, uint256 amount, bool fastLiquidityEnabled)"
         # Fetch the respective metadata from the repository
-        event_record = self.router_send_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
+        event_record = self.router_send_repo.event_exists(
+            graph_obj.graph_mapping.blockchain,
+            graph_obj.graph_mapping.tx_hash,
+            int(event["logIndex"], 16),
+        )
         if event_record is None:
             return
 
@@ -159,7 +163,13 @@ class NomadGraphGenerator(BaseGraphGenerator):
 
     def parse_router_receive_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Receive(uint32 originAndNonce, address token, address recipient, address liquidityProvider, uint256 amount)"
-        event_record = self.router_receive_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
+        event_record = self.router_receive_repo.event_exists(
+            graph_obj.graph_mapping.blockchain,
+            graph_obj.graph_mapping.tx_hash,
+            int(event["logIndex"], 16),
+            event["topics"][2], # token
+            event["topics"][3]  # recipient
+        )
         if event_record is None:
             return
 
@@ -208,7 +218,11 @@ class NomadGraphGenerator(BaseGraphGenerator):
 
     def parse_eth_helper_send_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Send(address indexed from)"
-        event_record = self.eth_helper_send_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
+        event_record = self.eth_helper_send_repo.event_exists(
+            graph_obj.graph_mapping.blockchain,
+            graph_obj.graph_mapping.tx_hash,
+            int(event["logIndex"], 16)
+        )
         if event_record is None:
             return
 
@@ -234,7 +248,11 @@ class NomadGraphGenerator(BaseGraphGenerator):
     def parse_home_dispatch_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Dispatch(bytes32 messageHash, uint256 leafIndex, uint64 destinationAndNonce, bytes32 committedRoot, bytes message)"
         # Fetch the respective metadata from the repository
-        event_record = self.home_dispatch_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
+        event_record = self.home_dispatch_repo.event_exists(
+            graph_obj.graph_mapping.blockchain,
+            graph_obj.graph_mapping.tx_hash,
+            int(event["logIndex"], 16)
+        )
         if event_record is None:
             return
 
@@ -245,7 +263,7 @@ class NomadGraphGenerator(BaseGraphGenerator):
         # Obtain the token metadata for the dispatched token to resolve its USD value (if possible)
         token_node = graph_obj.fetch_or_create_token_node(event_record.token_address, timestamp=tx.timestamp)
         graph_obj.update_node_type(token_node.node_id, GraphNodeType.TOKEN.value)
-        token_metadata = self.inspector.ensure_metadata(event_record.token_address, graph_obj.graph_mapping.blockchain)
+        token_metadata = self.inspector.ensure_metadata(event_record.token_address, event_record.token_blockchain)
         if token_metadata is not None:
             _, amount_usd = self.pricing.resolve_token_amount(token_metadata, value, tx.timestamp)
         else:
@@ -279,7 +297,12 @@ class NomadGraphGenerator(BaseGraphGenerator):
 
     def parse_replica_process_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Process(bytes32 indexed messageHash, bool indexed success, bytes indexed returnData)"
-        event_record = self.replica_process_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
+        event_record = self.replica_process_repo.event_exists(
+            graph_obj.graph_mapping.blockchain,
+            graph_obj.graph_mapping.tx_hash,
+            int(event["logIndex"], 16),
+            event["topics"][1]
+        )
         if event_record is None:
             return
 
