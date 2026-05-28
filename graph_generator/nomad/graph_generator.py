@@ -93,10 +93,14 @@ class NomadGraphGenerator(BaseGraphGenerator):
     def parse_router_send_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Send(address token, address from, uint32 toDomain, bytes32 toId, uint256 amount, bool fastLiquidityEnabled)"
         # Fetch the respective metadata from the repository
-        event_record = self.router_send_repo.event_exists(
+        if len(event["data"]) < 66: # Ensure there is a recipient field in the data
+            return
+        event_record = self.router_send_repo.fetch_by_transaction_hash_token_depositor_recipient(
             graph_obj.graph_mapping.blockchain,
             graph_obj.graph_mapping.tx_hash,
-            int(event["logIndex"], 16),
+            "0x" + event["topics"][1][-40:], # token (use the last 40 characters of the topic to get the address)
+            "0x" + event["topics"][2][-40:], # depositor (use the last 40 characters of the topic to get the address)
+            "0x" + event["data"][26:66], # recipient
         )
         if event_record is None:
             return
@@ -163,12 +167,11 @@ class NomadGraphGenerator(BaseGraphGenerator):
 
     def parse_router_receive_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Receive(uint32 originAndNonce, address token, address recipient, address liquidityProvider, uint256 amount)"
-        event_record = self.router_receive_repo.event_exists(
+        event_record = self.router_receive_repo.fetch_by_transaction_hash_token_recipient(
             graph_obj.graph_mapping.blockchain,
             graph_obj.graph_mapping.tx_hash,
-            int(event["logIndex"], 16),
-            event["topics"][2], # token
-            event["topics"][3]  # recipient
+            "0x" + event["topics"][2][-40:], # token (use the last 40 characters of the topic to get the address)
+            "0x" + event["topics"][3][-40:]  # recipient
         )
         if event_record is None:
             return
@@ -218,10 +221,10 @@ class NomadGraphGenerator(BaseGraphGenerator):
 
     def parse_eth_helper_send_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Send(address indexed from)"
-        event_record = self.eth_helper_send_repo.event_exists(
+        event_record = self.eth_helper_send_repo.fetch_by_transaction_hash_from(
             graph_obj.graph_mapping.blockchain,
             graph_obj.graph_mapping.tx_hash,
-            int(event["logIndex"], 16)
+            "0x" + event["topics"][1][-40:]  # from (use the last 40 characters of the topic to get the address)
         )
         if event_record is None:
             return
@@ -248,10 +251,10 @@ class NomadGraphGenerator(BaseGraphGenerator):
     def parse_home_dispatch_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Dispatch(bytes32 messageHash, uint256 leafIndex, uint64 destinationAndNonce, bytes32 committedRoot, bytes message)"
         # Fetch the respective metadata from the repository
-        event_record = self.home_dispatch_repo.event_exists(
+        event_record = self.home_dispatch_repo.fetch_by_transaction_message(
             graph_obj.graph_mapping.blockchain,
             graph_obj.graph_mapping.tx_hash,
-            int(event["logIndex"], 16)
+            event["topics"][1][2:]  # messageHash (remove the "0x" prefix from the topic)
         )
         if event_record is None:
             return
@@ -297,11 +300,10 @@ class NomadGraphGenerator(BaseGraphGenerator):
 
     def parse_replica_process_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event Process(bytes32 indexed messageHash, bool indexed success, bytes indexed returnData)"
-        event_record = self.replica_process_repo.event_exists(
+        event_record = self.replica_process_repo.fetch_by_transaction_and_message(
             graph_obj.graph_mapping.blockchain,
             graph_obj.graph_mapping.tx_hash,
-            int(event["logIndex"], 16),
-            event["topics"][1]
+            event["topics"][1][2:], # messageHash (remove the "0x" prefix from the topic)
         )
         if event_record is None:
             return

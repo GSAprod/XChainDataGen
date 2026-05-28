@@ -27,11 +27,15 @@ class NomadRouterSendRepository(BaseRepository):
                 .first()
             )
 
-    def fetch_by_transaction_hash(self, transaction_hash: str):
+    def fetch_by_transaction_hash_token_depositor_recipient(self, blockchain: str, transaction_hash: str, input_token: str, depositor: str, recipient: str):
         with self.get_session() as session:
             return (
                 session.query(NomadRouterSend)
+                .filter(NomadRouterSend.blockchain == blockchain)
                 .filter(NomadRouterSend.transaction_hash == transaction_hash)
+                .filter(func.lower(NomadRouterSend.input_token) == input_token.lower())
+                .filter(func.lower(NomadRouterSend.depositor) == depositor.lower())
+                .filter(func.lower(NomadRouterSend.recipient) == recipient.lower())
                 .first()
             )
         
@@ -58,11 +62,14 @@ class NomadRouterReceiveRepository(BaseRepository):
                 .first()
             )
 
-    def fetch_by_transaction_hash(self, transaction_hash: str):
+    def fetch_by_transaction_hash_token_recipient(self, blockchain: str, transaction_hash: str, output_token: str, recipient: str):
         with self.get_session() as session:
             return (
                 session.query(NomadRouterReceive)
+                .filter(NomadRouterReceive.blockchain == blockchain)
                 .filter(NomadRouterReceive.transaction_hash == transaction_hash)
+                .filter(func.lower(NomadRouterReceive.output_token) == output_token.lower())
+                .filter(func.lower(NomadRouterReceive.recipient) == recipient.lower())
                 .first()
             )
         
@@ -80,11 +87,13 @@ class NomadEthHelperSendRepository(BaseRepository):
                 .first()
             )
 
-    def fetch_by_transaction_hash(self, transaction_hash: str):
+    def fetch_by_transaction_hash_from(self, blockchain: str, transaction_hash: str, from_address: str):
         with self.get_session() as session:
             return (
                 session.query(NomadEthHelperSend)
+                .filter(NomadEthHelperSend.blockchain == blockchain)
                 .filter(NomadEthHelperSend.transaction_hash == transaction_hash)
+                .filter(func.lower(NomadEthHelperSend.from_address) == from_address.lower())
                 .first()
             )
         
@@ -109,11 +118,13 @@ class NomadReplicaProcessRepository(BaseRepository):
                 .first()
             )
 
-    def fetch_by_transaction_hash(self, transaction_hash: str):
+    def fetch_by_transaction_and_message(self, blockchain: str, transaction_hash: str, message_hash: str):
         with self.get_session() as session:
             return (
                 session.query(NomadReplicaProcess)
+                .filter(NomadReplicaProcess.blockchain == blockchain)
                 .filter(NomadReplicaProcess.transaction_hash == transaction_hash)
+                .filter(NomadReplicaProcess.message_hash == message_hash)
                 .first()
             )
         
@@ -131,11 +142,13 @@ class NomadHomeDispatchRepository(BaseRepository):
                 .first()
             )
 
-    def fetch_by_transaction_hash(self, transaction_hash: str):
+    def fetch_by_transaction_message(self, blockchain: str, transaction_hash: str, message_hash: str):
         with self.get_session() as session:
             return (
                 session.query(NomadHomeDispatch)
+                .filter(NomadHomeDispatch.blockchain == blockchain)
                 .filter(NomadHomeDispatch.transaction_hash == transaction_hash)
+                .filter(NomadHomeDispatch.message_hash == message_hash)
                 .first()
             )
 
