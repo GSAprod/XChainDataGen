@@ -118,6 +118,11 @@ class PolynetworkLockEvent(Base):
     to_address = Column(String(66), nullable=False)
     amount = Column(Numeric(40, 0), nullable=False)
 
+    # tx_args
+    fee_amount = Column(Numeric(30, 0), nullable=True)
+    fee_address = Column(String(66), nullable=True)
+    nonce = Column(String(100), nullable=True)
+
     def __init__(
         self,
         blockchain,
@@ -127,7 +132,10 @@ class PolynetworkLockEvent(Base):
         to_chain,
         to_asset_hash,
         to_address,
-        amount
+        amount,
+        fee_amount=None,
+        fee_address=None,
+        nonce=None
     ):
         self.blockchain = blockchain
         self.transaction_hash = transaction_hash
@@ -137,6 +145,9 @@ class PolynetworkLockEvent(Base):
         self.to_asset_hash = to_asset_hash
         self.to_address = to_address
         self.amount = amount
+        self.fee_amount = fee_amount
+        self.fee_address = fee_address
+        self.nonce = nonce
 
     def __repr__(self):
         return (
@@ -160,13 +171,36 @@ class PolynetworkUnlockEvent(Base):
     to_address = Column(String(66), nullable=False)
     amount = Column(Numeric(40, 0), nullable=False)
 
-    def __init__(self, blockchain, transaction_hash, to_asset_hash, to_address, amount):
+    # tx_args
+    from_asset_hash = Column(String(66), nullable=True)
+    fee_amount = Column(Numeric(30, 0), nullable=True)
+    fee_address = Column(String(66), nullable=True)
+    from_address = Column(String(66), nullable=True)
+    nonce = Column(String(100), nullable=True)
+
+    def __init__(
+            self,
+            blockchain,
+            transaction_hash,
+            to_asset_hash,
+            to_address,
+            amount,
+            from_asset_hash=None,
+            fee_amount=None,
+            fee_address=None,
+            from_address=None,
+            nonce=None
+    ):
         self.blockchain = blockchain
         self.transaction_hash = transaction_hash
         self.to_asset_hash = to_asset_hash
         self.to_address = to_address
         self.amount = amount
-        self.amount = amount
+        self.from_asset_hash = from_asset_hash
+        self.fee_amount = fee_amount
+        self.fee_address = fee_address
+        self.from_address = from_address
+        self.nonce = nonce
 
     def __repr__(self):
         return (

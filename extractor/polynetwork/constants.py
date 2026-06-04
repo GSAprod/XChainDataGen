@@ -44,12 +44,27 @@ BRIDGE_CONFIG = {
                 "abi": "0x250e76987d838a75310c34bf422ea9f1ac4cc906",
                 "contracts": [
                     "0x250e76987d838a75310c34bf422ea9f1ac4cc906",
+                    "0xf7a9fe22149ad2a077eb40a90f316a8a47525ec3",
                 ],
                 "topics": [
                     # event LockEvent(address fromAssetHash, address fromAddress, uint64 toChainId, bytes toAssetHash, bytes toAddress, uint256 amount)
                     "0x8636abd6d0e464fe725a13346c7ac779b73561c705506044a2e6b2cdb1295ea5",
                     # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount)
                     "0xd90288730b87c2b8e0c45bd82260fd22478aba30ae1c4d578b8daba9261604df",
+                ]
+            },
+            {
+                # Lock Proxy (txArgs version)
+                # Implementation Address: 0x9a016ce184a22dbf6c17daa59eb7d3140dbd1c54
+                "abi": "0x9a016ce184a22dbf6c17daa59eb7d3140dbd1c54",
+                "contracts": [
+                    "0x9a016ce184a22dbf6c17daa59eb7d3140dbd1c54",
+                ],
+                "topics": [
+                    # event LockEvent(address fromAssetHash, address fromAddress, uint64 toChainId, bytes toAssetHash, bytes toAddress, uint256 amount, bytes txArgs)
+                    "0x3aa1a37a3bb16943a2c97dd810c5601a4ce19bb1942a54401f821af5515c5530",
+                    # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount, bytes txArgs)
+                    "0x2d3f6ad356f1c408166244c68a928a722472299760d71a6de97f6057b912972c"
                 ]
             }
         ],
@@ -74,12 +89,30 @@ BRIDGE_CONFIG = {
                 "abi": "0x2f7ac9436ba4b548f9582af91ca1ef02cd2f1f03",
                 "contracts": [
                     "0x2f7ac9436ba4b548f9582af91ca1ef02cd2f1f03",
+                    "0x12682669700109ae1f3b326d74f2a5bdb63549e3",
+                    "0x12bb90a4baa8fd125794e34daffec109ab63dfb4",
+                    "0xfb571d4dd7039f96d34bb41e695adc92df4a332f",
+                    "0x960ff3132b72e3f0b1b9f588e7122d78bb5c4946"
                 ],
                 "topics": [
                     # event LockEvent(address fromAssetHash, address fromAddress, uint64 toChainId, bytes toAssetHash, bytes toAddress, uint256 amount)
                     "0x8636abd6d0e464fe725a13346c7ac779b73561c705506044a2e6b2cdb1295ea5",
                     # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount)
                     "0xd90288730b87c2b8e0c45bd82260fd22478aba30ae1c4d578b8daba9261604df",
+                ]
+            },
+            {
+                # Lock Proxy (txArgs version)
+                # Implementation Address: 0xb5d4f343412dc8efb6ff599d790074d0f1e8d430
+                "abi": "0xb5d4f343412dc8efb6ff599d790074d0f1e8d430",
+                "contracts": [
+                    "0xb5d4f343412dc8efb6ff599d790074d0f1e8d430",
+                ],
+                "topics": [
+                    # event LockEvent(address tokenAddress, address fromAddress, uint64 toChainId, bytes toAssetHash, bytes toAddress, uint256 amount, bytes txArgs)
+                    "0x3aa1a37a3bb16943a2c97dd810c5601a4ce19bb1942a54401f821af5515c5530",
+                    # event UnlockEvent(address tokenAddress, address toAddress, uint256 amount, bytes txArgs)
+                    "0x2d3f6ad356f1c408166244c68a928a722472299760d71a6de97f6057b912972c"
                 ]
             }
         ],
@@ -104,6 +137,7 @@ BRIDGE_CONFIG = {
                 "abi": "0x28ff66a1b95d7cacf8eded2e658f768f44841212",
                 "contracts": [
                     "0x28ff66a1b95d7cacf8eded2e658f768f44841212",
+                    "0x5f8517d606580d30c3bf210fa016b8916c685be8"
                 ],
                 "topics": [
                     # event LockEvent(address fromAssetHash, address fromAddress, uint64 toChainId, bytes toAssetHash, bytes toAddress, uint256 amount)
@@ -134,6 +168,7 @@ BRIDGE_CONFIG = {
                 "abi": "0x2f7ac9436ba4b548f9582af91ca1ef02cd2f1f03",
                 "contracts": [
                     "0x2f7ac9436ba4b548f9582af91ca1ef02cd2f1f03",
+                    "0x30e39786f0dd700da277a54bd9c07f7894cb5aba"
                 ],
                 "topics": [
                     # event LockEvent(address fromAssetHash, address fromAddress, uint64 toChainId, bytes toAssetHash, bytes toAddress, uint256 amount)

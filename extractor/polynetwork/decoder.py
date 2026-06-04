@@ -29,8 +29,17 @@ class PolynetworkDecoder(BaseDecoder):
            # bytes toAssetHash, bytes toAddress, uint256 amount)
             return contract.events.LockEvent().process_log(log)["args"]
         elif (
+            log["topics"][0] == "0x3aa1a37a3bb16943a2c97dd810c5601a4ce19bb1942a54401f821af5515c5530"
+        ): # event LockEvent(address fromAssetHash, address fromAddress, uint64 toChainId, 
+           # bytes toAssetHash, bytes toAddress, uint256 amount, bytes txArgs)
+            return contract.events.LockEvent().process_log(log)["args"]
+        elif (
             log["topics"][0] == "0xd90288730b87c2b8e0c45bd82260fd22478aba30ae1c4d578b8daba9261604df"
         ): # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount)
+            return contract.events.UnlockEvent().process_log(log)["args"]
+        elif (
+            log["topics"][0] == "0x2d3f6ad356f1c408166244c68a928a722472299760d71a6de97f6057b912972c"
+        ): # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount, bytes txArgs)
             return contract.events.UnlockEvent().process_log(log)["args"]
 
         raise CustomException(

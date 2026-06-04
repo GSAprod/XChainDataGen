@@ -137,8 +137,19 @@ class PolynetworkHandler(BaseHandler):
                     event = self.handle_lock_event(blockchain, event)
                 elif (
                     event["topic"]
+                    == "0x3aa1a37a3bb16943a2c97dd810c5601a4ce19bb1942a54401f821af5515c5530"
+                ): # event LockEvent(address fromAssetHash, address fromAddress, uint64 toChainId, 
+                   # bytes toAssetHash, bytes toAddress, uint256 amount, bytes txArgs)
+                    event = self.handle_lock_event(blockchain, event)
+                elif (
+                    event["topic"]
                     == "0xd90288730b87c2b8e0c45bd82260fd22478aba30ae1c4d578b8daba9261604df"
                 ): # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount)
+                    event = self.handle_unlock_event(blockchain, event)
+                elif (
+                    event["topic"]
+                    == "0x2d3f6ad356f1c408166244c68a928a722472299760d71a6de97f6057b912972c"
+                ): # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount, bytes txArgs)
                     event = self.handle_unlock_event(blockchain, event)
 
                 if event:
@@ -276,8 +287,11 @@ class PolynetworkHandler(BaseHandler):
             ):
                 return None
             
-            from_asset_hash = event["fromAssetHash"]
+            from_asset_hash = event["fromAssetHash"] if "fromAssetHash" in event else event["tokenAddress"]
             amount = int(event["amount"])
+
+            if "txArgs" in event:
+                decoded_args = self.decode_tx_args(event["txArgs"])
 
             self.lock_event_repo.create(
                 {
@@ -289,6 +303,9 @@ class PolynetworkHandler(BaseHandler):
                     "to_asset_hash": to_asset_hash,
                     "to_address": to_address,
                     "amount": amount,
+                    "fee_amount": int(decoded_args["fee_amount"]) if "txArgs" in event else None,
+                    "fee_address": decoded_args["fee_address"] if "txArgs" in event else None,
+                    "nonce": decoded_args["nonce"] if "txArgs" in event else None,
                 }
             )
             return event
@@ -305,9 +322,8 @@ class PolynetworkHandler(BaseHandler):
         try:
             transaction_hash = event["transaction_hash"]
 
-            to_asset_hash = event["toAssetHash"]
+            to_asset_hash = event["toAssetHash"] if "toAssetHash" in event else event["tokenAddress"]
             to_address = event["toAddress"]
-            amount = int(event["amount"])
 
             if self.unlock_event_repo.event_exists(
                 transaction_hash, 
@@ -316,6 +332,10 @@ class PolynetworkHandler(BaseHandler):
             ):
                 return None
             
+            amount = int(event["amount"])
+            if "txArgs" in event:
+                decoded_args = self.decode_tx_args(event["txArgs"])
+
             self.unlock_event_repo.create(
                 {
                     "blockchain": blockchain,
@@ -323,6 +343,11 @@ class PolynetworkHandler(BaseHandler):
                     "to_asset_hash": to_asset_hash,
                     "to_address": to_address,
                     "amount": amount,
+                    "from_asset_hash": decoded_args["from_asset_hash"] if "txArgs" in event else None,
+                    "fee_amount": int(decoded_args["fee_amount"]) if "txArgs" in event else None,
+                    "fee_address": decoded_args["fee_address"] if "txArgs" in event else None,
+                    "from_address": decoded_args["from_address"] if "txArgs" in event else None,
+                    "nonce": decoded_args["nonce"] if "txArgs" in event else None,
                 },
             )
             return event
@@ -362,3 +387,26 @@ class PolynetworkHandler(BaseHandler):
         right = offset + (num_bits + 7) // 8
         raw = data[offset: right]
         return right, int.from_bytes(raw, "little")
+    
+    def decode_tx_args(self, data) -> Dict[str, Any]:
+        if isinstance(data, str):
+            if data.startswith("0x"):
+                data = data[2:]
+            data = bytes.fromhex(data)
+        offset, from_asset_hash = self.decode_var_bytes_at(data, 0)
+        offset, to_asset_hash = self.decode_var_bytes_at(data, offset)
+        offset, amount = self.decode_var_uint_at(data, offset, 256)
+        offset, fee_amount = self.decode_var_uint_at(data, offset, 256)
+        offset, fee_address = self.decode_var_bytes_at(data, offset)
+        offset, from_address = self.decode_var_bytes_at(data, offset)
+        offset, nonce = self.decode_var_uint_at(data, offset, 256)
+
+        return {
+            "from_asset_hash": from_asset_hash,
+            "to_asset_hash": to_asset_hash,
+            "amount": amount,
+            "fee_amount": fee_amount,
+            "fee_address": fee_address,
+            "from_address": from_address,
+            "nonce": nonce,
+        }
