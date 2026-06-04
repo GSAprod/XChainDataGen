@@ -53,7 +53,7 @@ BRIDGE_CONFIG = {
                 ]
             }
         ],
-        "bsc": [
+        "bnb": [
             {
                 # Eth Cross Chain Manager
                 # Implementation Address: 0x1c9ca8abb5da65d94dad2e8fb3f45535480d5909
