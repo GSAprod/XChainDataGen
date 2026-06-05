@@ -1,4 +1,4 @@
-from sqlalchemy import func
+from sqlalchemy import Index, func
 
 from repository.base import BaseRepository
 
@@ -145,5 +145,22 @@ class PolynetworkCrossChainTransactionsRepository(BaseRepository):
         with self.get_session() as session:
             return session.query(func.sum(PolynetworkCrossChainTransactions.amount_usd)).scalar()
 
-#! INDEXES???
-#! E.g. Index("ix_polygon_state_synced_state_id", PolygonStateSynced.state_id)
+
+Index("ix_polynetwork_cross_chain_event_tx_hash_cctx",
+      PolynetworkCrossChainEvent.transaction_hash,
+      PolynetworkCrossChainEvent.cross_chain_tx_hash)
+
+Index("ix_polynetwork_verify_header_tx_hash_cctx",
+      PolynetworkVerifyHeaderAndExecuteTxEvent.transaction_hash,
+      PolynetworkVerifyHeaderAndExecuteTxEvent.cross_chain_tx_hash)
+
+Index("ix_polynetwork_lock_event_tx_hash",
+      PolynetworkLockEvent.transaction_hash)
+
+Index("ix_polynetwork_unlock_event_tx_hash_asset_addr",
+      PolynetworkUnlockEvent.transaction_hash,
+      PolynetworkUnlockEvent.to_asset_hash,
+      PolynetworkUnlockEvent.to_address)
+
+Index("ix_polynetwork_cctx_src_tx_hash",
+      PolynetworkCrossChainTransactions.src_transaction_hash)
