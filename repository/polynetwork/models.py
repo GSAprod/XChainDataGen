@@ -11,18 +11,18 @@ class PolynetworkCrossChainEvent(Base):
     blockchain = Column(String(10), nullable=False)
     transaction_hash = Column(String(66), nullable=False)
     sender = Column(String(42), nullable=False)
-    tx_id = Column(String(66), nullable=False) #? BYTES
+    tx_id = Column(String(66), nullable=False)
     proxy_or_contract_address = Column(String(42), nullable=False)
     to_chain = Column(String(10), nullable=False)
-    to_contract = Column(String(66), nullable=False) #? BYTES
+    to_contract = Column(String(66), nullable=False)
 
     # raw_data
     param_tx_hash = Column(String(66), nullable=False) # Same as tx_id
-    cross_chain_tx_hash = Column(String(66), nullable=False) #? BYTES
+    cross_chain_tx_hash = Column(String(66), nullable=False)
     depositor = Column(String(42), nullable=True) # Same as sender
     target_chain = Column(String(10), nullable=True) # Same as to_chain
-    target_contract_method = Column(String(100), nullable=True) # String
-    tx_data = Column(String(5000), nullable=True) #? INCLUDE??? BYTES
+    target_contract_method = Column(String(100), nullable=True)
+    tx_data = Column(String(5000), nullable=True)
 
     def __init__(
             self,
@@ -73,9 +73,9 @@ class PolynetworkVerifyHeaderAndExecuteTxEvent(Base):
     blockchain = Column(String(10), nullable=False)
     transaction_hash = Column(String(66), nullable=False)
     from_chain = Column(String(10), nullable=False)
-    to_contract = Column(String(66), nullable=False) #? BYTES
-    cross_chain_tx_hash = Column(String(66), nullable=False) #? BYTES
-    from_chain_tx_hash = Column(String(66), nullable=False) #? BYTES
+    to_contract = Column(String(66), nullable=False)
+    cross_chain_tx_hash = Column(String(66), nullable=False)
+    from_chain_tx_hash = Column(String(66), nullable=False)
 
     def __init__(
             self,
@@ -228,7 +228,6 @@ class PolynetworkBlockchainTransaction(BlockchainTransaction):
 
 # ######### Processed Data ##########
 
-#! TODO CHECK IF CHANGES NEEDED
 class PolynetworkCrossChainTransactions(Base):
     __tablename__ = "polynetwork_cross_chain_transactions"
 

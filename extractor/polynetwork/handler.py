@@ -149,7 +149,8 @@ class PolynetworkHandler(BaseHandler):
                 elif (
                     event["topic"]
                     == "0x2d3f6ad356f1c408166244c68a928a722472299760d71a6de97f6057b912972c"
-                ): # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount, bytes txArgs)
+                ): # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount, 
+                   # bytes txArgs)
                     event = self.handle_unlock_event(blockchain, event)
 
                 if event:
@@ -287,7 +288,10 @@ class PolynetworkHandler(BaseHandler):
             ):
                 return None
             
-            from_asset_hash = event["fromAssetHash"] if "fromAssetHash" in event else event["tokenAddress"]
+            from_asset_hash = (
+                event["fromAssetHash"] if "fromAssetHash" in event
+                else event["tokenAddress"]
+            )
             amount = int(event["amount"])
 
             if "txArgs" in event:
@@ -322,7 +326,10 @@ class PolynetworkHandler(BaseHandler):
         try:
             transaction_hash = event["transaction_hash"]
 
-            to_asset_hash = event["toAssetHash"] if "toAssetHash" in event else event["tokenAddress"]
+            to_asset_hash = (
+                event["toAssetHash"] if "toAssetHash" in event 
+                else event["tokenAddress"]
+            )
             to_address = event["toAddress"]
 
             if self.unlock_event_repo.event_exists(
@@ -343,7 +350,10 @@ class PolynetworkHandler(BaseHandler):
                     "to_asset_hash": to_asset_hash,
                     "to_address": to_address,
                     "amount": amount,
-                    "from_asset_hash": decoded_args["from_asset_hash"] if "txArgs" in event else None,
+                    "from_asset_hash": (
+                        decoded_args["from_asset_hash"] if "txArgs" in event 
+                        else None
+                    ),
                     "fee_amount": int(decoded_args["fee_amount"]) if "txArgs" in event else None,
                     "fee_address": decoded_args["fee_address"] if "txArgs" in event else None,
                     "from_address": decoded_args["from_address"] if "txArgs" in event else None,
