@@ -247,12 +247,12 @@ class PolynetworkCrossChainTransactions(Base):
     dst_fee = Column(Numeric(30, 0), nullable=False)
     dst_fee_usd = Column(Float, nullable=True)
     dst_timestamp = Column(BigInteger, nullable=False)
-    deposit_id = Column(String(48), nullable=False)
+    deposit_id = Column(String(66), nullable=False)
     depositor = Column(String(42), nullable=False)
     recipient = Column(String(42), nullable=False)
     src_contract_address = Column(String(42), nullable=False)
     dst_contract_address = Column(String(42), nullable=False)
-    amount = Column(Numeric(30, 0), nullable=False)
+    amount = Column(Numeric(40, 0), nullable=False)
     amount_usd = Column(Float, nullable=True)
 
     def __init__(
