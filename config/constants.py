@@ -8,6 +8,7 @@ class Bridge(Enum):
     CCIP = "ccip"
     ACROSS = "across"
     POLYGON = "polygon"
+    POLYNETWORK = "polynetwork"
     RONIN = "ronin"
     OMNIBRIDGE = "omnibridge"
     DEBRIDGE = "debridge"
@@ -137,6 +138,7 @@ BRIDGE_NEEDS_TRANSACTION_BY_HASH_RPC_METHOD = {
     Bridge.CCIP: False,
     Bridge.ACROSS: False,
     Bridge.POLYGON: False,
+    Bridge.POLYNETWORK: False,
     Bridge.RONIN: False,
     Bridge.OMNIBRIDGE: False,
     Bridge.DEBRIDGE: True,
