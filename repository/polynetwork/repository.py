@@ -85,6 +85,15 @@ class PolynetworkBlockchainTransactionRepository(BaseRepository):
     def __init__(self, session_factory):
         super().__init__(PolynetworkBlockchainTransaction, session_factory)
 
+    def get_transactions_from_blockchain(self, blockchain: str, start_ts: int = None, end_ts: int = None):
+        with self.get_session() as session:
+            query = session.query(PolynetworkBlockchainTransaction).filter(PolynetworkBlockchainTransaction.blockchain == blockchain)
+            if start_ts is not None:
+                query = query.filter(PolynetworkBlockchainTransaction.timestamp >= start_ts)
+            if end_ts is not None:
+                query = query.filter(PolynetworkBlockchainTransaction.timestamp <= end_ts)
+            return query.all()
+
     def get_transaction_by_hash(self, transaction_hash: str):
         with self.get_session() as session:
             return session.get(PolynetworkBlockchainTransaction, transaction_hash)

@@ -165,7 +165,7 @@ class PolynetworkHandler(BaseHandler):
 
         return included_events
 
-    def _domain_to_blockchain(self, domain_id: int) -> str | None:
+    def domain_to_blockchain(self, domain_id: int) -> str | None:
         return POLYNETWORK_DOMAIN_IDS.get(domain_id)
 
     def handle_cross_chain_event(self, blockchain, event):
@@ -200,7 +200,7 @@ class PolynetworkHandler(BaseHandler):
             depositor = "0x" + depositor
 
             offset, target_chain_id = self.decode_var_uint_at(data, offset, 64)
-            target_chain = self._domain_to_blockchain(target_chain_id) if target_chain_id else None
+            target_chain = self.domain_to_blockchain(target_chain_id) if target_chain_id else None
             
             offset, target_contract = self.decode_var_bytes_at(data, offset)
             target_contract = "0x" + target_contract
@@ -219,7 +219,7 @@ class PolynetworkHandler(BaseHandler):
                     "sender": event["sender"],
                     "tx_id": event["txId"],
                     "proxy_or_contract_address": event["proxyOrAssetContract"],
-                    "to_chain": self._domain_to_blockchain(int(event["toChainId"])),
+                    "to_chain": self.domain_to_blockchain(int(event["toChainId"])),
                     "to_contract": "0x" + event["toContract"],
                     "param_tx_hash": param_tx_hash,
                     "cross_chain_tx_hash": cross_chain_tx_hash,
@@ -247,7 +247,7 @@ class PolynetworkHandler(BaseHandler):
                 return None
             
             from_chain_id = int(event["fromChainID"])
-            from_chain = self._domain_to_blockchain(from_chain_id)
+            from_chain = self.domain_to_blockchain(from_chain_id)
 
             self.verify_header_repo.create(
                 {
@@ -275,7 +275,7 @@ class PolynetworkHandler(BaseHandler):
 
             from_address = event["fromAddress"]
             to_chain_id = int(event["toChainId"])
-            to_chain = self._domain_to_blockchain(to_chain_id)
+            to_chain = self.domain_to_blockchain(to_chain_id)
             to_asset_hash = "0x" + event["toAssetHash"]
             to_address = "0x" + event["toAddress"]
 
