@@ -56,7 +56,7 @@ class PolynetworkLockEventRepository(BaseRepository):
                 session.query(PolynetworkLockEvent)
                 .filter(
                     PolynetworkLockEvent.transaction_hash == transaction_hash,
-                    PolynetworkLockEvent.from_address == from_address,
+                    func.lower(PolynetworkLockEvent.from_address) == from_address.lower(),
                     PolynetworkLockEvent.to_chain == to_chain,
                     PolynetworkLockEvent.to_asset_hash == to_asset_hash,
                     PolynetworkLockEvent.to_address == to_address,
@@ -74,9 +74,9 @@ class PolynetworkUnlockEventRepository(BaseRepository):
             return (
                 session.query(PolynetworkUnlockEvent)
                 .filter(
-                    PolynetworkUnlockEvent.transaction_hash == transaction_hash,
-                    PolynetworkUnlockEvent.to_asset_hash == to_asset_hash,
-                    PolynetworkUnlockEvent.to_address == to_address,
+                    PolynetworkUnlockEvent.transaction_hash == transaction_hash.lower(),
+                    func.lower(PolynetworkUnlockEvent.to_asset_hash) == to_asset_hash.lower(),
+                    func.lower(PolynetworkUnlockEvent.to_address) == to_address.lower(),
                 )
                 .first()
             )

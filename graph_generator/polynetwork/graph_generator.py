@@ -179,10 +179,41 @@ class PolynetworkGraphGenerator(BaseGraphGenerator):
             )
             log_error(self.bridge, request_desc)
             return
-        
-        # TODO Create nodes and edges
-        pass
-        
+
+        sender_node = graph_obj.fetch_or_create_node(
+            event_record.sender,
+            node_type_if_missing=GraphNodeType.USER.value,
+            timestamp=tx.timestamp,
+        )
+        graph_obj.update_node_type(sender_node.node_id, GraphNodeType.USER.value)
+        graph_obj.create_edge(
+            sender_node.node_id,
+            routing_node.node_id,
+            GraphEdgeType.TRANSACTION.value,
+            event_index,
+        )
+
+        log_event_node = graph_obj.create_log_node(
+            event_index,
+            event["topics"][0],
+            EventType.DEPOSIT_REQUEST.value,
+            event_signature,
+            {
+                "sender": event_record.sender,
+                "tx_id": event_record.tx_id,
+                "proxy_or_asset_contract": event_record.proxy_or_contract_address,
+                "to_chain": event_record.to_chain,
+                "to_contract": event_record.to_contract,
+                "cross_chain_tx_hash": event_record.cross_chain_tx_hash,
+            },
+            event["data"],
+            timestamp=tx.timestamp,
+        )
+        graph_obj.create_edge(
+            routing_node.node_id, log_event_node.node_id,
+            GraphEdgeType.LOG_RELATION.value, event_index
+        )
+
     def parse_verify_header_and_execute_tx_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event VerifyHeaderAndExecuteTxEvent(uint64 fromChainID, bytes toContract, bytes crossChainTxHash, bytes fromChainTxHash)"
         event_data = event["data"]
@@ -204,9 +235,25 @@ class PolynetworkGraphGenerator(BaseGraphGenerator):
             )
             log_error(self.bridge, request_desc)
             return
-        
-        # TODO Create nodes and edges
-        pass
+
+        log_event_node = graph_obj.create_log_node(
+            event_index,
+            event["topics"][0],
+            EventType.OPERATION_FINALIZED.value,
+            event_signature,
+            {
+                "from_chain": event_record.from_chain,
+                "to_contract": event_record.to_contract,
+                "cross_chain_tx_hash": event_record.cross_chain_tx_hash,
+                "from_chain_tx_hash": event_record.from_chain_tx_hash,
+            },
+            event["data"],
+            timestamp=tx.timestamp,
+        )
+        graph_obj.create_edge(
+            routing_node.node_id, log_event_node.node_id,
+            GraphEdgeType.LOG_RELATION.value, event_index
+        )
 
     def parse_lock_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event LockEvent(address fromAssetHash, address fromAddress, uint64 toChainId, bytes toAssetHash, bytes toAddress, uint256 amount)"
@@ -214,21 +261,74 @@ class PolynetworkGraphGenerator(BaseGraphGenerator):
         if event_data.startswith("0x"):
             event_data = event_data[2:]
         from_address = "0x" + event_data[88:88+40]
-        to_chain_id = int.from_bytes(bytes.fromhex(event_data[176:176+16]))
+        to_chain_id = int(event_data[176:176+16], 16)
         to_chain = self.domain_to_blockchain(to_chain_id)
         to_asset_hash = "0x" + event_data[448:448+40]
-        to_address = "0x" + event_data[512:512+40]
+        to_address = "0x" + event_data[576:576+40]
         
         event_record = self.lock_event_repo.event_exists(graph_obj.graph_mapping.tx_hash, from_address, to_chain, to_asset_hash, to_address)
         if event_record is None:
             request_desc = (
-                f"LockEvent record not found for tx_hash:{graph_obj.graph_mapping.tx_hash}."
+                f"LockEvent record not found for tx_hash:{graph_obj.graph_mapping.tx_hash}.\n"
+                f"Args: from_address={from_address}, to_chain={to_chain}, to_asset_hash={to_asset_hash}, to_address={to_address}"
             )
             log_error(self.bridge, request_desc)
             return
-        
-        # TODO Create nodes and edges
-        pass
+
+        value = int(event_record.amount)
+        if value > 10e27:
+            value = 10e27
+
+        token_node = graph_obj.fetch_or_create_token_node(
+            event_record.from_asset_hash, timestamp=tx.timestamp
+        )
+        graph_obj.create_edge(
+            routing_node.node_id, token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index
+        )
+
+        token_metadata = self.inspector.ensure_metadata(
+            event_record.from_asset_hash, graph_obj.graph_mapping.blockchain
+        )
+        if token_metadata is not None:
+            _, amount_usd = self.pricing.resolve_token_amount(token_metadata, value, tx.timestamp)
+        else:
+            amount_usd = None
+
+        event_args = {
+            "from_asset_hash": event_record.from_asset_hash,
+            "from_address": event_record.from_address,
+            "to_chain": event_record.to_chain,
+            "to_asset_hash": event_record.to_asset_hash,
+            "to_address": event_record.to_address,
+            "amount": value,
+        }
+        if event_record.fee_amount is not None:
+            event_args["fee_amount"] = int(event_record.fee_amount)
+        if event_record.fee_address is not None:
+            event_args["fee_address"] = event_record.fee_address
+        if event_record.nonce is not None:
+            event_args["nonce"] = event_record.nonce
+
+        log_event_node = graph_obj.create_log_node(
+            event_index,
+            event["topics"][0],
+            EventType.OPERATION_REQUEST_SIGNING.value,
+            event_signature,
+            event_args,
+            event["data"],
+            amount=value,
+            amount_usd=amount_usd,
+            token_symbol=token_metadata.symbol if token_metadata else None,
+            timestamp=tx.timestamp,
+        )
+        if token_metadata and amount_usd is None:
+            self.pricing.record_missing_price(
+                log_event_node.node_id, token_metadata.symbol, tx.timestamp, value
+            )
+        graph_obj.create_edge(
+            routing_node.node_id, log_event_node.node_id,
+            GraphEdgeType.LOG_RELATION.value, event_index
+        )
 
     def parse_unlock_event(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event UnlockEvent(address toAssetHash, address toAddress, uint256 amount)"
@@ -241,13 +341,74 @@ class PolynetworkGraphGenerator(BaseGraphGenerator):
         event_record = self.unlock_event_repo.event_exists(graph_obj.graph_mapping.tx_hash, to_asset_hash, to_address)
         if event_record is None:
             request_desc = (
-                f"UnlockEvent record not found for tx_hash:{graph_obj.graph_mapping.tx_hash}."
+                f"UnlockEvent record not found for tx_hash:{graph_obj.graph_mapping.tx_hash}.\n"
+                f"Args: to_asset_hash={to_asset_hash}, to_address={to_address}"
             )
             log_error(self.bridge, request_desc)
             return
         
-        # TODO Create nodes and edges
-        pass
+        receiver_node = graph_obj.fetch_or_create_node(
+            event_record.to_address,
+            node_type_if_missing=GraphNodeType.USER.value,
+            timestamp=tx.timestamp,
+        )
+        graph_obj.update_node_type(receiver_node.node_id, GraphNodeType.USER.value)
+
+        value = int(event_record.amount)
+        if value > 10e27:
+            value = 10e27
+
+        token_node = graph_obj.fetch_or_create_token_node(
+            event_record.to_asset_hash, timestamp=tx.timestamp
+        )
+        graph_obj.create_edge(
+            routing_node.node_id, token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index
+        )
+
+        token_metadata = self.inspector.ensure_metadata(
+            event_record.to_asset_hash, graph_obj.graph_mapping.blockchain
+        )
+        if token_metadata is not None:
+            _, amount_usd = self.pricing.resolve_token_amount(token_metadata, value, tx.timestamp)
+        else:
+            amount_usd = None
+
+        event_args = {
+            "to_asset_hash": event_record.to_asset_hash,
+            "to_address": event_record.to_address,
+            "amount": value,
+        }
+        if event_record.from_asset_hash is not None:
+            event_args["from_asset_hash"] = event_record.from_asset_hash
+        if event_record.from_address is not None:
+            event_args["from_address"] = event_record.from_address
+        if event_record.fee_amount is not None:
+            event_args["fee_amount"] = int(event_record.fee_amount)
+        if event_record.fee_address is not None:
+            event_args["fee_address"] = event_record.fee_address
+        if event_record.nonce is not None:
+            event_args["nonce"] = event_record.nonce
+
+        log_event_node = graph_obj.create_log_node(
+            event_index,
+            event["topics"][0],
+            EventType.DEPOSIT_CONFIRMATION.value,
+            event_signature,
+            event_args,
+            event["data"],
+            amount=value,
+            amount_usd=amount_usd,
+            token_symbol=token_metadata.symbol if token_metadata else None,
+            timestamp=tx.timestamp,
+        )
+        if token_metadata and amount_usd is None:
+            self.pricing.record_missing_price(
+                log_event_node.node_id, token_metadata.symbol, tx.timestamp, value
+            )
+        graph_obj.create_edge(
+            routing_node.node_id, log_event_node.node_id,
+            GraphEdgeType.LOG_RELATION.value, event_index
+        )
 
     # =================
     # Helper functions for decoding data from events.

@@ -106,8 +106,14 @@ class DuneClient:
         }
         return self.make_request(endpoint, payload)["execution_id"]
 
+
     def get_execution_status(self, execution_id: str) -> str:
         endpoint = f"v1/execution/{execution_id}/status"
+        payload = None
+        return self.make_request(endpoint, payload)
+
+    def execute_cancel_query(self, execution_id: str):
+        endpoint = f"v1/execution/{execution_id}/cancel"
         payload = None
         return self.make_request(endpoint, payload)
 
@@ -151,8 +157,9 @@ class DuneClient:
                 raise CustomException(f"Dune query execution failed for execution ID {execution_id}.")
             time.sleep(5)  # Poll every 5 seconds
             total_wait_time += 5
-            if total_wait_time > 300:  # Timeout after 5 minutes
-                raise CustomException(f"Dune query execution timed out after 5 minutes for execution ID {execution_id}.")
+            if total_wait_time > 600:  # Timeout after 10 minutes
+                self.execute_cancel_query(execution_id) # Cancel the query execution so the next requests don't have to wait for it to finish
+                raise CustomException(f"Dune query execution timed out after 10 minutes for execution ID {execution_id}.")
 
         results = self.get_execution_results(execution_id)
         log_to_cli(f"Fetched Dune query results for execution ID {execution_id}. Number of token prices found: {len(results['rows'])}")
@@ -173,8 +180,9 @@ class DuneClient:
                 raise CustomException(f"Dune query execution failed for execution ID {execution_id}.")
             time.sleep(5)  # Poll every 5 seconds
             total_wait_time += 5
-            if total_wait_time > 300:  # Timeout after 5 minutes
-                raise CustomException(f"Dune query execution timed out after 5 minutes for execution ID {execution_id}.")
+            if total_wait_time > 600:  # Timeout after 10 minutes
+                self.execute_cancel_query(execution_id) # Cancel the query execution so the next requests don't have to wait for it to finish
+                raise CustomException(f"Dune query execution timed out after 10 minutes for execution ID {execution_id}.")
             
         results = self.get_execution_results(execution_id)
         log_to_cli(f"Fetched Dune query results for execution ID {execution_id}. Number of token prices found: {len(results['rows'])}")

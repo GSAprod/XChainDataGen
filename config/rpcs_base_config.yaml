@@ -39,6 +39,14 @@ blockchains:
   - "https://endpoints.omniatech.io/v1/arbitrum/one/public"
   - "https://arb-pokt.nodies.app"
   - "https://arbitrum.meowrpc.com"
+  - "https://1rpc.io/arb"
+  - "https://arbitrum.public.blockpi.network/v1/rpc/public"
+  - "https://arbitrum-one-public.nodies.app"
+  - "https://arbitrum-one.public.blastapi.io"
+  - "https://api.zan.top/arb-one"
+  - "https://arb1.lava.build"
+  - "https://arb-one.api.pocket.network"
+  - "https://arbitrum-one.rpc.sentio.xyz"
 
 - name: ethereum
   contract: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
