@@ -66,7 +66,7 @@ class BridgeRoutingContractMetadata(Base):
     __tablename__ = "bridge_routing_metadata"
     
     bridge = Column(String(50), nullable=False)
-    blockchain = Column(String(10), nullable=False)
+    blockchain = Column(String(10), nullable=False, primary_key=True)
     address = Column(String(44), nullable=False, primary_key=True)
     function_list = Column(String(65000), nullable=True)
 

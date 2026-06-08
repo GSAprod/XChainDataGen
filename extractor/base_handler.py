@@ -3,7 +3,6 @@ from typing import Any, Dict, List
 
 import psycopg2
 from annotated_types import T
-from sqlalchemy.exc import IntegrityError
 
 from config.constants import BLOCKCHAIN_IDS, Bridge
 from repository.common.repository import BridgeRoutingContractMetadataRepository
@@ -26,17 +25,12 @@ class BaseHandler(ABC):
 
     def handle_bridge_routing_contract_metadata(self, bridge: Bridge, blockchain: str, contract: str, function_signatures: str) -> None:
         try:
-            existing_metadata = self.bridge_routing_contract_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(bridge.value, contract.lower(), blockchain)
-            if existing_metadata is None:
-                self.bridge_routing_contract_metadata_repo.create({
-                    "bridge": bridge.value,
-                    "blockchain": blockchain,
-                    "address": contract.lower(),
-                    "function_list": function_signatures
-                })
-        except IntegrityError as _:
-            # This can happen if multiple threads are trying to insert the same contract metadata at the same time
-            pass
+            self.bridge_routing_contract_metadata_repo.insert_if_not_exists({
+                "bridge": bridge.value,
+                "blockchain": blockchain,
+                "address": contract.lower(),
+                "function_list": function_signatures
+            })
         except Exception as e:
             raise CustomException(
                 self.CLASS_NAME,

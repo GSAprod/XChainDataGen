@@ -131,6 +131,13 @@ class BridgeRoutingContractMetadataRepository(BaseRepository):
                 .first()
             )
 
+    def insert_if_not_exists(self, data: dict):
+        from sqlalchemy.dialects.postgresql import insert
+        with self.get_session() as session:
+            stmt = insert(BridgeRoutingContractMetadata).values(**data)
+            stmt = stmt.on_conflict_do_nothing(index_elements=["blockchain", "address"])
+            session.execute(stmt)
+
 
 Index("ix_token_price_symbol", TokenPrice.symbol)
 Index("ix_token_price_symbol_date", TokenPrice.symbol, TokenPrice.date)

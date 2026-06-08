@@ -84,6 +84,8 @@ class TokenPricingService:
     def resolve_token_amount(self, token_metadata: TokenMetadata, raw_value: int, timestamp: int) -> tuple[float, int | None]:
         amount = float(raw_value) / (10 ** token_metadata.decimals)
 
+        # Some tokens cannot be reliably identified wither by alchemy or by DUNE.
+        # Hence, as a workaround, we hardcode the price conversion for these tokens here.
         if token_metadata.symbol == "APRS":
             # 1000 APEIRON = 1 USD; result encoded as 1e18-integer
             return amount, int(raw_value * 10 ** (18 - token_metadata.decimals)) // 1000
@@ -93,7 +95,7 @@ class TokenPricingService:
         elif token_metadata.symbol == "SDL":
             # 100 SDL = 1 USD; result encoded as 1e18-integer
             return amount, int(raw_value * 10 ** (18 - token_metadata.decimals)) // 100
-        elif token_metadata.symbol in ("WGLMR", ):
+        elif token_metadata.symbol in ("WGLMR", "PWETH", ):
             # Some wrapped tokens have the same symbol as the native token but need to be unwrapped to get the correct price
             token_metadata.symbol = token_metadata.symbol[1:]
 

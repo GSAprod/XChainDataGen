@@ -485,7 +485,8 @@ class BaseGraphGenerator(ABC):
 
         log_to_cli(f"Querying Dune for native token transfers related to {len(tx_hashes)} transaction hashes on {blockchain}...")
         try:
-            dune_results = self.dune_client.fetch_native_transactions(blockchain, tx_hashes)
+            min_ts, max_ts = self.fetch_transactions_timestamp_interval()
+            dune_results = self.dune_client.fetch_native_transactions(blockchain, tx_hashes, min_ts, max_ts)
             op_idx_counters = {}
 
             for transfer in reversed(dune_results["rows"]):

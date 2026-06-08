@@ -55,11 +55,13 @@ class DuneClient:
 
         raise CustomException(f"Failed to create Dune query after multiple retries.")
     
-    def execute_transfers_query(self, blockchain: str, tx_hashes: list[str]) -> str:
+    def execute_transfers_query(self, blockchain: str, tx_hashes: list[str], start_ts: int, end_ts: int) -> str:
         endpoint = "v1/sql/execute"
         payload = {
             "sql": "SELECT * FROM tokens.transfers " +
                 f"WHERE blockchain = '{blockchain}' " +
+                f"AND block_time >= from_unixtime({start_ts}) " +
+                f"AND block_time <= from_unixtime({end_ts}) " +
                 "AND token_standard = 'native' " +
                 f"AND tx_hash in ({','.join(tx_hashes)})" + 
                 "ORDER BY tx_hash",
@@ -122,8 +124,8 @@ class DuneClient:
         payload = None
         return self.make_request(endpoint, payload)["result"]
     
-    def fetch_native_transactions(self, blockchain: str, tx_hashes: list[str]) -> list[dict]:
-        execution_id = self.execute_transfers_query(blockchain, tx_hashes)
+    def fetch_native_transactions(self, blockchain: str, tx_hashes: list[str], start_ts: int, end_ts: int) -> list[dict]:
+        execution_id = self.execute_transfers_query(blockchain, tx_hashes, start_ts, end_ts)
         log_to_cli(f"Created Dune query with execution ID {execution_id} for {len(tx_hashes)} transaction hashes.")
         total_wait_time = 0
         while True:
