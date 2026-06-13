@@ -1,0 +1,555 @@
+bridge: harmony
+replace_router_address_with: "__HARMONY_BRIDGE_ROUTER__"
+blockchains:
+  - blockchain: ethereum
+    txs:
+      - tx_hash: "0x27981c7289c372e601c9475e5b5466310be18ed10b59d1ac840145f6e7804c97"
+        cctx_id: 21106
+        block_number: 15012646
+        timestamp: 1655982406
+        attack: True # if the transaction is part of an attack, activate this flag.
+        internal_txs:
+          - from: "0xF9Fb1c508Ff49F78b60d3A96dea99Fa5d7F3A8A6"
+            from_type: router
+            to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
+            to_type: user
+            value: 13100000000000000000000
+            input: ""
+        events:
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Confirmation (index_topic_1 address sender, index_topic_2 uint256 transactionId)"
+            num_args: 2
+            input: ""
+          - emmitted_by: "0xf9fb1c508ff49f78b60d3a96dea99fa5d7f3a8a6"
+            emitter_type: router
+            event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
+            num_args: 4
+            input: "0x000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0000000000000000000000000000000000000000000002c627053139b13000000000000000000000000000000d043128146654c7683fbf30ac98d7b2285ded0031caec811fc87db2ebc8210b44a8f27c300a35490b6f160e7470b45adaf24cb2"
+            relations:
+              - to: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+                to_type: token
+                relation_type: function_call
+            amount: 13100000000000000000000
+            token_symbol: "ETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Execution (index_topic_1 uint256 transactionId)"
+            num_args: 1
+            input: ""
+
+      - tx_hash: "0x6e5251068aa99613366fd707f3ed99ce1cb7ffdea05b94568e6af4f460cecd65"
+        cctx_id: 21107
+        block_number: 15012652
+        timestamp: 1655982481
+        attack: True # if the transaction is part of an attack, activate this flag.
+        internal_txs:
+        events:
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Confirmation (index_topic_1 address sender, index_topic_2 uint256 transactionId)"
+            num_args: 2
+            input: ""
+          - emmitted_by: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000000000025789f5d6000"
+            relations:
+              - from: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+                from_type: router
+                to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
+                to_type: user
+                relation_type: token_transfer
+            amount: 41200000000000
+            token_symbol: "USDC"
+          - emmitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+            emitter_type: router
+            event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
+            num_args: 4
+            input: "0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48000000000000000000000000000000000000000000000000000025789f5d60000000000000000000000000000d043128146654c7683fbf30ac98d7b2285ded008684fac3b752c92c6b39f46fb5a178ca75a0f10c879274a151b21701551e42e9"
+            relations:
+              - to: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+                to_type: token
+                relation_type: function_call
+            amount: 41200000000000
+            token_symbol: "USDC"
+            token_address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Execution (index_topic_1 uint256 transactionId)"
+            num_args: 1
+            input: ""
+
+      - tx_hash: "0x4b17ab45ce183acb08dc2ac745b2224407b65446f7ebb55c114d4bae34539586"
+        cctx_id: 21108
+        block_number: 15012654
+        timestamp: 1655982556
+        attack: True
+        internal_txs:
+        events:
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Confirmation (index_topic_1 address sender, index_topic_2 uint256 transactionId)"
+            num_args: 2
+            input: ""
+          - emmitted_by: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            num_args: 3
+            input: "0x0000000000000000000000000000000000000000000000000000000dc8985000"
+            relations:
+              - from: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+                from_type: router
+                to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
+                to_type: user
+                relation_type: token_transfer
+            amount: 59200000000
+            token_symbol: "WBTC"
+          - emmitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+            emitter_type: router
+            event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
+            num_args: 4
+            input: "0x0000000000000000000000002260fac5e5542a773aa44fbcfedf7c193bc2c5990000000000000000000000000000000000000000000000000000000dc89850000000000000000000000000000d043128146654c7683fbf30ac98d7b2285ded009f23eccec3a1cd306d649292c8b82a5770da6a7431cc3884e2d9ea17a82517d7"
+            relations:
+              - to: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+                to_type: token
+                relation_type: function_call
+            amount: 59200000000
+            token_symbol: "WBTC"
+            token_address: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Execution (index_topic_1 uint256 transactionId)"
+            num_args: 1
+            input: ""
+
+      - tx_hash: "0x6487952d46b5265f56ec914fcff1a3d45d76f77e2407f840bdf264a5a7459100"
+        cctx_id: 21109
+        block_number: 15012671
+        timestamp: 1655982821
+        attack: True
+        internal_txs:
+        events:
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Confirmation (index_topic_1 address sender, index_topic_2 uint256 transactionId)"
+            num_args: 2
+            input: ""
+          - emmitted_by: "0xdac17f958d2ee523a2206206994597c13d831ec7"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000000000913e1f5a200"
+            relations:
+              - from: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+                from_type: router
+                to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
+                to_type: user
+                relation_type: token_transfer
+            amount: 9981000000000
+            token_symbol: "USDT"
+          - emmitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+            emitter_type: router
+            event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
+            num_args: 4
+            input: "0x000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec700000000000000000000000000000000000000000000000000000913e1f5a2000000000000000000000000000d043128146654c7683fbf30ac98d7b2285ded00d48d952695ede26c0ac11a6028ab1be6059e9d104b55208931a84e99ef5479b6"
+            relations:
+              - to: "0xdac17f958d2ee523a2206206994597c13d831ec7"
+                to_type: token
+                relation_type: function_call
+            amount: 9981000000000
+            token_symbol: "USDT"
+            token_address: "0xdac17f958d2ee523a2206206994597c13d831ec7"
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Execution (index_topic_1 uint256 transactionId)"
+            num_args: 1
+            input: ""
+
+      - tx_hash: "0xb51368d8c2b857c5f7de44c57ff32077881df9ecb60f0450ee1226e1a7b8a0dd"
+        cctx_id: 21110
+        block_number: 15012677
+        timestamp: 1655982875
+        attack: True
+        internal_txs:
+        events:
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Confirmation (index_topic_1 address sender, index_topic_2 uint256 transactionId)"
+            num_args: 2
+            input: ""
+          - emmitted_by: "0x6b175474e89094c44da98b954eedeac495271d0f"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000005055f5bfe51aca5c00000"
+            relations:
+              - from: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+                from_type: router
+                to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
+                to_type: user
+                relation_type: token_transfer
+            amount: 6070000000000000000000000
+            token_symbol: "DAI"
+          - emmitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+            emitter_type: router
+            event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
+            num_args: 4
+            input: "0x0000000000000000000000006b175474e89094c44da98b954eedeac495271d0f00000000000000000000000000000000000000000005055f5bfe51aca5c000000000000000000000000000000d043128146654c7683fbf30ac98d7b2285ded00c625971377e92682288a938ddb99d1d42dd53a5702fc29e6ce096d3e0f070894"
+            relations:
+              - to: "0x6b175474e89094c44da98b954eedeac495271d0f"
+                to_type: token
+                relation_type: function_call
+            amount: 6070000000000000000000000
+            token_symbol: "DAI"
+            token_address: "0x6b175474e89094c44da98b954eedeac495271d0f"
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Execution (index_topic_1 uint256 transactionId)"
+            num_args: 1
+            input: ""
+
+      - tx_hash: "0x44256bb81181bcaf7b5662614c7ee5f6c30d14e1c8239f006f84864a9cda9f77"
+        cctx_id: 21111
+        block_number: 15012687
+        timestamp: 1655982962
+        attack: True
+        internal_txs:
+        events:
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Confirmation (index_topic_1 address sender, index_topic_2 uint256 transactionId)"
+            num_args: 2
+            input: ""
+          - emmitted_by: "0x4fabb145d64652a948d72533023f6e7a623c7c53"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000049305e693c44b0c400000"
+            relations:
+              - from: "0xfd53b1b4af84d59b20bf2c20ca89a6beeaa2c628"
+                from_type: router
+                to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
+                to_type: user
+                relation_type: token_transfer
+            amount: 5530000000000000000000000
+            token_symbol: "BUSD"
+          - emmitted_by: "0xfd53b1b4af84d59b20bf2c20ca89a6beeaa2c628"
+            emitter_type: router
+            event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
+            num_args: 4
+            input: "0x0000000000000000000000004fabb145d64652a948d72533023f6e7a623c7c53000000000000000000000000000000000000000000049305e693c44b0c4000000000000000000000000000000d043128146654c7683fbf30ac98d7b2285ded00baf022cb7e9651056fa5f9e4dfd46bfb461e6ac511a8f4f5131429fc12e984d6"
+            relations:
+              - to: "0x4fabb145d64652a948d72533023f6e7a623c7c53"
+                to_type: token
+                relation_type: function_call
+            amount: 5530000000000000000000000
+            token_symbol: "BUSD"
+            token_address: "0x4fabb145d64652a948d72533023f6e7a623c7c53"
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Execution (index_topic_1 uint256 transactionId)"
+            num_args: 1
+            input: ""
+
+      - tx_hash: "0x8ecac8544898d2b2d0941b8e39458bf4c8ccda1b668db8f18e947dfc433d6908"
+        cctx_id: 21113
+        block_number: 15012696
+        timestamp: 1655983058
+        attack: True
+        internal_txs:
+        events:
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Confirmation (index_topic_1 address sender, index_topic_2 uint256 transactionId)"
+            num_args: 2
+            input: ""
+          - emmitted_by: "0x5ba19d656b65f1684cfea4af428c23b9f3628f97"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000045fefb644c192fff800000"
+            relations:
+              - from: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+                from_type: router
+                to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
+                to_type: user
+                relation_type: token_transfer
+            amount: 84620000000000000000000000
+            token_symbol: "AAG"
+          - emmitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+            emitter_type: router
+            event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
+            num_args: 4
+            input: "0x0000000000000000000000005ba19d656b65f1684cfea4af428c23b9f3628f9700000000000000000000000000000000000000000045fefb644c192fff8000000000000000000000000000000d043128146654c7683fbf30ac98d7b2285ded0007e10225a024bddc2e8edb239e3f5721e18df9dff42bcfbf1653819b251ff853"
+            relations:
+              - to: "0x5ba19d656b65f1684cfea4af428c23b9f3628f97"
+                to_type: token
+                relation_type: function_call
+            amount: 84620000000000000000000000
+            token_symbol: "AAG"
+            token_address: "0x5ba19d656b65f1684cfea4af428c23b9f3628f97"
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Execution (index_topic_1 uint256 transactionId)"
+            num_args: 1
+            input: ""
+      - tx_hash: "0x4a59c3e5c48ae796fe4482681c3da00c15b816d1af9d74210cca5e6ea9ced191"
+        cctx_id: 21114
+        block_number: 15012699
+        timestamp: 1655983134
+        attack: True # if the transaction is part of an attack, activate this flag.
+        #tx_chain_type: source / destination / offchain # if the transaction is part of a cctx
+        internal_txs:
+        events:
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Confirmation (index_topic_1 address sender, index_topic_2 uint256 transactionId)"
+            num_args: 2
+            input: ""
+          - emmitted_by: "0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0"
+            emmitter_type: other_account
+            event_signature: ""
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000176de4b8c0edc5b31000000000000000000000000000000000000000000000000022c81015e81cf31000"
+          - emmitted_by: "0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0"
+            emmitter_type: other_account
+            event_signature: ""
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000174b1ca8ab05a8c00000"
+            relations:
+          - emmitted_by: "0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000174b1ca8ab05a8c00000"
+            relations:
+              - from: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+                from_type: router
+                to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
+                to_type: user
+                relation_type: token_transfer
+            amount: 110000000000000000000000
+            token_symbol: "FRAX"
+          - emmitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+            emitter_type: router
+            event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
+            num_args: 4
+            input: "0x0000000000000000000000003432b6a60d23ca0dfca7761b7ab56459d9c964d000000000000000000000000000000000000000000000174b1ca8ab05a8c000000000000000000000000000000d043128146654c7683fbf30ac98d7b2285ded00bc5540e86e23c77d9c38ccd0835863d5bde7b360eed237d61431e6782118b8d5"
+            relations:
+              - to: "0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0"
+                to_type: token
+                relation_type: function_call
+            amount: 110000000000000000000000
+            token_symbol: "FRAX"
+            token_address: "0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0"
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Execution (index_topic_1 uint256 transactionId)"
+            num_args: 1
+            input: ""
+      - tx_hash: "0x75eeae4776e453d2b43ce130007820d70898bcd4bd6f2216643bc90847a41f9c"
+        cctx_id: 21115
+        block_number: 15012701
+        timestamp: 1655983153
+        attack: True
+        internal_txs:
+        events:
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Confirmation (index_topic_1 address sender, index_topic_2 uint256 transactionId)"
+            num_args: 2
+            input: ""
+          - emmitted_by: "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2"
+            emmitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            num_args: 3
+            input: "0x0000000000000000000000000000000000000000000057e131f0b3c3e5600000"
+            relations:
+              - from: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+                from_type: router
+                to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
+                to_type: user
+                relation_type: token_transfer
+            amount: 415000000000000000000000
+            token_symbol: "SUSHI"
+          - emmitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+            emitter_type: router
+            event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
+            num_args: 4
+            input: "0x0000000000000000000000006b3595068778dd592e39a122f4f5a5cf09c90fe20000000000000000000000000000000000000000000057e131f0b3c3e56000000000000000000000000000000d043128146654c7683fbf30ac98d7b2285ded00149362d9bfe49834732ecf9b7b2d36794c893da3b1f39ec05d8326dc6909deb4"
+            relations:
+              - to: "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2"
+                to_type: token
+                relation_type: function_call
+            amount: 415000000000000000000000
+            token_symbol: "SUSHI"
+            token_address: "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2"
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Execution (index_topic_1 uint256 transactionId)"
+            num_args: 1
+            input: ""
+      - tx_hash: "0xc1c554988aab1ea3bc74f8b87fb2c256ffd9e3bcadaade60cf23ab258c53e6f1"
+        cctx_id: 21116
+        block_number: 15012703
+        timestamp: 1655983214
+        attack: True
+        internal_txs:
+        events:
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Confirmation (index_topic_1 address sender, index_topic_2 uint256 transactionId)"
+            num_args: 2
+            input: ""
+          - emmitted_by: "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
+            emmitter_type: token
+            event_signature: ""
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000035e3110110eb60000000000000000000000000000000000000000000000000000000000000000000"
+          - emmitted_by: "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
+            emmitter_type: token
+            event_signature: ""
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000035ab028ac154b800000000000000000000000000000000000000000000000000000000000000000000"
+          - emmitted_by: "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
+            emmitter_type: token
+            event_signature: ""
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000035e3110110eb60000000000000000000000000000000000000000000000000000000000000000001"
+          - emmitted_by: "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
+            emmitter_type: token
+            event_signature: ""
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000035ab028ac154b800000000000000000000000000000000000000000000000000000000000000000001"
+          - emmitted_by: "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
+            emmitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000035ab028ac154b80000"
+            relations:
+              - from: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+                from_type: router
+                to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
+                to_type: user
+                relation_type: token_transfer
+            amount: 990000000000000000000
+            token_symbol: "AAVE"
+          - emmitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+            emitter_type: router
+            event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
+            num_args: 4
+            input: "0x0000000000000000000000007fc66500c84a76ad7e9c93437bfc5ac33e2ddae9000000000000000000000000000000000000000000000035ab028ac154b800000000000000000000000000000d043128146654c7683fbf30ac98d7b2285ded002c7a4a8b815988595897b701731c2e5d06c38ed1b74142877ddbe6666bace2a8"
+            relations:
+              - to: "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
+                to_type: token
+                relation_type: function_call
+            amount: 990000000000000000000
+            token_symbol: "AAVE"
+            token_address: "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Execution (index_topic_1 uint256 transactionId)"
+            num_args: 1
+            input: ""
+
+      - tx_hash: "0x698b6a4da3defaed0b7936e0e90d7bc94df6529f5ec8f4cd47d48f7f73729915"
+        cctx_id: 21117
+        block_number: 15012706
+        timestamp: 1655983252
+        attack: True
+        internal_txs:
+        events:
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Confirmation (index_topic_1 address sender, index_topic_2 uint256 transactionId)"
+            num_args: 2
+            input: ""
+          - emmitted_by: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000254beb02d1dcc0000"
+            relations:
+              - from: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+                from_type: router
+                to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
+                to_type: user
+                relation_type: token_transfer
+            amount: 43000000000000000000
+            token_symbol: "WETH"
+          - emmitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+            emitter_type: router
+            event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
+            num_args: 4
+            input: "0x000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000254beb02d1dcc00000000000000000000000000000d043128146654c7683fbf30ac98d7b2285ded007605501779951be669cb2d799c7f0731740ee037bbc8ea735f91859be290ceb1"
+            relations:
+              - to: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+                to_type: token
+                relation_type: function_call
+            amount: 43000000000000000000
+            token_symbol: "WETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Execution (index_topic_1 uint256 transactionId)"
+            num_args: 1
+            input: ""
+      - tx_hash: "0x4ffe23abc37fcdb32e65af09117b9e44ecae82979d8df93884a5d3b5f698983e"
+        cctx_id: 21118
+        block_number: 15012721
+        timestamp: 1655983567
+        attack: True
+        internal_txs:
+        events:
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Confirmation (index_topic_1 address sender, index_topic_2 uint256 transactionId)"
+            num_args: 2
+            input: ""
+          - emmitted_by: "0x853d955acef822db058eb8505911ed77f175b99e"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000004a614cf7adbdb50800000"
+            relations:
+              - from: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+                from_type: router
+                to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
+                to_type: user
+                relation_type: token_transfer
+            amount: 5620000000000000000000000
+            token_symbol: "FRAX"
+          - emmitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
+            emitter_type: router
+            event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
+            num_args: 4
+            input: "0x000000000000000000000000853d955acef822db058eb8505911ed77f175b99e00000000000000000000000000000000000000000004a614cf7adbdb508000000000000000000000000000000d043128146654c7683fbf30ac98d7b2285ded00241a1ff1dbba0cee3fb9fd99b37d93d8005a0725fe4fa3d7ca79d39ba14022d5"
+            relations:
+              - to: "0x853d955acef822db058eb8505911ed77f175b99e"
+                to_type: token
+                relation_type: function_call
+            amount: 5620000000000000000000000
+            token_symbol: "FRAX"
+            token_address: "0x853d955acef822db058eb8505911ed77f175b99e"
+          - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            emmitter_type: router
+            event_signature: "event Execution (index_topic_1 uint256 transactionId)"
+            num_args: 1
+            input: ""
+
+  -  #! TODO: Add transactions from other chains that are part of the attack, to be linked
+  #! TODO Add 5 normal transactions from the same period, some not linked
+
+cctx_linking:
+  - source_blockchain: ethereum
+    source_tx_hash: "0x4a59c3e5c48ae796fe4482681c3da00c15b816d1af9d74210cca5e6ea9ced191"
+    source_timestamp: 1655983134
+    source_cctx_from: "" # router address to create edge from
+    target_blockchain: harmony
+    target_tx_hash: "0x123456789abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    target_timestamp: 1655983200
+    source_cctx_to: "" # router address to create edge to
+    cctx_id: "kdjkdsf"

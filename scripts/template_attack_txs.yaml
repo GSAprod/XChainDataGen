@@ -1,0 +1,37 @@
+bridge: harmony
+blockchains:
+  - blockchain: ethereum
+    txs:
+      - tx_hash: "0x4a59c3e5c48ae796fe4482681c3da00c15b816d1af9d74210cca5e6ea9ced191"
+        block_number: 15012699
+        timestamp: 1655983134
+        attack: True # if the transaction is part of an attack, activate this flag.
+        tx_chain_type: source / destination / offchain # if the transaction is part of a cctx
+        nodes:
+          - address: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
+            type: user / token / router / log_event / other_account / validator
+            attributes: # used in log_event and token
+              event_signature: "event Receive(kjfksdjf)"
+              event_type: transfer / ...
+              event_args:
+                - ""
+              event_input: ""
+            amount: 1500000000000000 #only in log_event
+            token_symbol: "USDC" # only in log_event and token
+            token_address: "" # specify in case the address field is not a token contract (e.g. bridge contract)
+            event_order: 0 # specify in case of log_nodes
+        edges:
+          - source: ""
+            target: ""
+            type: transaction / token_transfer / function_call / log_relation / token_auth / cross_chain_relation
+            attributes: # optional (only for token transfer edges)
+              native: True # if specifying "amount"
+              amount: 1500000000000000
+cctx_linking:
+  - source_blockchain: ethereum
+    source_tx_hash: "0x4a59c3e5c48ae796fe4482681c3da00c15b816d1af9d74210cca5e6ea9ced191"
+    source_timestamp: 1655983134
+    target_blockchain: harmony
+    target_tx_hash: "0x123456789abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    target_timestamp: 1655983200
+    cctx_id: "kdjkdsf"
