@@ -14,6 +14,8 @@ blockchains:
             to_type: user / token / router / log_event / other_account / validator
             value: 1500000000000000 # int
             input: "0x" #hex
+            token_symbol: "ETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
         events:
           - emmitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
             emmitter_type: user / token / router / log_event / other_account / validator
