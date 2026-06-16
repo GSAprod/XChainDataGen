@@ -1,0 +1,281 @@
+{
+  "name": "CoinGecko",
+  "logoURI": "https://static.coingecko.com/gecko-new.svg",
+  "keywords": ["defi"],
+  "timestamp": "2026-05-14T10:00:43.995+00:00",
+  "tokens": [
+    {
+      "chainId": 2020,
+      "address": "0xb1ec71be31da4ff603970c0d88584ef2af102f38",
+      "name": "Apeiron",
+      "symbol": "APRS",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/36449/thumb/apeironnft.png?1711448136"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x9049ca10dd4cba0248226b4581443201f8f225c6",
+      "name": "RICE",
+      "symbol": "RICE",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/67566/thumb/rice.png?1755836842"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x40633d8a33dcf144eea5780bd9e203aeae4b8f5d",
+      "name": "RCAR",
+      "symbol": "RCAR",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/66511/thumb/ox2mmiwsui3qz8uno90qpj4rkj3i.?1749595469"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x7dc167e270d5ef683ceaf4afcdf2efbdd667a9a7",
+      "name": "COIN",
+      "symbol": "COIN",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/102172344/thumb/DynoCoin_%281%29.png?1772992309"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x6a1d85c9876ea93ee460ca1d36ae7d95d0cd8f05",
+      "name": "MGold",
+      "symbol": "MGT",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/50911/thumb/mgold.jpg?1729565611"
+    },
+    {
+      "chainId": 2020,
+      "address": "0xa8754b9fa15fc18bb59458815510e40a12cd2014",
+      "name": "Smooth Love Potion",
+      "symbol": "SLP",
+      "decimals": 0,
+      "logoURI": "https://assets.coingecko.com/coins/images/10366/thumb/SLP.png?1696510368"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x03affae7e23fd11c85d0c90cc40510994d49e175",
+      "name": "Wild Forest Token",
+      "symbol": "WF",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/52928/thumb/WF_512.png?1734707503"
+    },
+    {
+      "chainId": 2020,
+      "address": "0xb4562fdefd5ed58f7705ce9386d54ee9b53831d1",
+      "name": "Puffverse",
+      "symbol": "PFVS",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/56067/thumb/logo.png?1748355229"
+    },
+    {
+      "chainId": 2020,
+      "address": "0xc6046fa4b8961b0e9d823bb3f2dde8fe161d547d",
+      "name": "KDR",
+      "symbol": "KDR",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/52853/thumb/-KDR.png?1734496996"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x06f7481d937eb637d7d9deedf175957d5d881397",
+      "name": "Cute Asian Girl",
+      "symbol": "CAG",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/53898/thumb/_CAGPNG_%28512_x_512_px%29.png?1737695369"
+    },
+    {
+      "chainId": 2020,
+      "address": "0xcad9e7aa2c3ef07bad0a7b69f97d059d8f36edd2",
+      "name": "Liquid RON",
+      "symbol": "LRON",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/55145/thumb/Logomark_Main.png?1744130587"
+    },
+    {
+      "chainId": 2020,
+      "address": "0xe514d9deb7966c8be0ca922de8a064264ea6bcd4",
+      "name": "Wrapped Ronin",
+      "symbol": "WRON",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/102172394/thumb/ronin.jpg?1773284723"
+    },
+    {
+      "chainId": 2020,
+      "address": "0xf80132fc0a86add011bffce3aedd60a86e3d704d",
+      "name": "Anima",
+      "symbol": "ANIMA",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/39092/thumb/ANIMA.png?1720487600"
+    },
+    {
+      "chainId": 2020,
+      "address": "0xf988f63bf26c3ed3fbf39922149e3e7b1e5c27cb",
+      "name": "RONKE",
+      "symbol": "RONKE",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/54533/thumb/originalk.png?1740211011"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x0176eea5ec1bf7420617a80a046547793ad4c147",
+      "name": "KANSTAR",
+      "symbol": "$KANSTAR",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/53999/thumb/KANSTAR_ICON.PNG?1737889150"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x5f3262ede02ca4a31bda6683124539c87cc73138",
+      "name": "Fishing Frenzy",
+      "symbol": "FISH",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/70780/thumb/fish200x200.png?1763708762"
+    },
+    {
+      "chainId": 2020,
+      "address": "0xc99a6a985ed2cac1ef41640596c5a5f9f4e19ef5",
+      "name": "Ronin Bridged WETH (Ronin)",
+      "symbol": "WETH",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/39716/thumb/WETH.PNG?1723731945"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x361d8623dc1d91e04ebc148687719aace282249a",
+      "name": "Koku The Shikoku",
+      "symbol": "$KOKU",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/53989/thumb/KOKU_cg.png?1737877808"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x0b7007c13325c48911f73a2dad5fa5dcbf808adc",
+      "name": "CCIP Bridged USDC (Ronin)",
+      "symbol": "USDC",
+      "decimals": 6,
+      "logoURI": "https://assets.coingecko.com/coins/images/69754/thumb/usdc.jpg?1759487585"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x1467c159680db9255cc07fea22e1718fee896aae",
+      "name": "Rough Love Potion",
+      "symbol": "RLP",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/53901/thumb/slp-1024-border2.png?1737704905"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x60b65d6f275ce54a34a5bacad7a170fee55e8577",
+      "name": "Commander",
+      "symbol": "CMDR",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/55933/thumb/logo-300x300.png?1747819109"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x18d2bdef572c67127e218c425f546fe64430a92c",
+      "name": "Lumi Finance LUAUSD",
+      "symbol": "LUAUSD",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/33503/thumb/LUAUSD.png?1702038709"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x3902228d6a3d2dc44731fd9d45fee6a61c722d0b",
+      "name": "Chainlink",
+      "symbol": "LINK",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/877/thumb/Chainlink_Logo_500.png?1760023405"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x86d4b36f073746eeddda6e3ce1bcfa5e18a12714",
+      "name": "Kogin by Virtuals",
+      "symbol": "KOGIN",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/52787/thumb/OIG4.png?1734291387"
+    },
+    {
+      "chainId": 2020,
+      "address": "0xd61bbbb8369c46c15868ad9263a2710aced156c4",
+      "name": "Lumi Finance",
+      "symbol": "LUA",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/33502/thumb/LUA.png?1702038548"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x9f28c9c2da4a833cbfaaacbf7eb62267334d7149",
+      "name": "Zentry",
+      "symbol": "ZENT",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/36979/thumb/Zentry-rebrand-Primary_200px.png?1713743277"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x3e12b9d6a4d12cd9b4a6d613872d0eb32f68b380",
+      "name": "Flower",
+      "symbol": "FLOWER",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/55689/thumb/flower_200.png?1747034605"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x29c46e6f2a67872ad6b1dc04e1591934a96af62e",
+      "name": "Rocket Pool ETH",
+      "symbol": "RETH",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/20764/thumb/reth.png?1696520159"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x97a9107c1793bc407d6f527b77e7fff4d812bece",
+      "name": "Axie Infinity",
+      "symbol": "AXS",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/13029/thumb/axie_infinity_logo.png?1696512817"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x1a89ecd466a23e98f07111b0510a2d6c1cd5e400",
+      "name": "Banana",
+      "symbol": "BANANA",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/17521/thumb/banana-token-cg.png?1696517059"
+    },
+    {
+      "chainId": 2020,
+      "address": "0xf299c912186195d02111d22c3ab863650256e05f",
+      "name": "Jaihoz by Virtuals",
+      "symbol": "JAIHOZ",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/53495/thumb/jaihoz.jpg?1736508283"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x1c306872bc82525d72bf3562e8f0aa3f8f26e857",
+      "name": "Yield Guild Games",
+      "symbol": "YGG",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/17358/thumb/Shield_Mark_-_Colored_-_Iridescent.png?1696516909"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x7eae20d11ef8c779433eb24503def900b9d28ad7",
+      "name": "Pixels",
+      "symbol": "PIXEL",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/35100/thumb/pixel-icon.png?1708339519"
+    },
+    {
+      "chainId": 2020,
+      "address": "0x394cef8bdd737ee24dbc9f43d0d5d2ab83136054",
+      "name": "Power Protocol",
+      "symbol": "POWER",
+      "decimals": 18,
+      "logoURI": "https://assets.coingecko.com/coins/images/70944/thumb/power.png?1764744522"
+    }
+  ],
+  "version": { "major": 14, "minor": 0, "patch": 0 }
+}
