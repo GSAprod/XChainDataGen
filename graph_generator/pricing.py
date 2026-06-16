@@ -41,6 +41,8 @@ class TokenPricingService:
             return True
 
         min_ts, max_ts = self._fetch_timestamp_interval()
+        min_ts = min_ts - (min_ts % 86400)  # Round down to start of day
+        max_ts = max_ts - (max_ts % 86400) + 86399  # Round up to end of day
 
         if (token_metadata.symbol, token_metadata.blockchain) not in self._unknown_symbols:
             # First try fetching price by symbol only, as it's faster and often sufficient
@@ -86,15 +88,17 @@ class TokenPricingService:
 
         # Some tokens cannot be reliably identified wither by alchemy or by DUNE.
         # Hence, as a workaround, we hardcode the price conversion for these tokens here.
-        if token_metadata.symbol == "APRS":
-            # 1000 APEIRON = 1 USD; result encoded as 1e18-integer
-            return amount, int(raw_value * 10 ** (18 - token_metadata.decimals)) // 1000
-        elif token_metadata.symbol == "CQT":
+        if token_metadata.symbol == "CQT":
             # 10 CQT = 1 USD; result encoded as 1e18-integer
+            # Price derived and used only around Nomad bridge incident
             return amount, int(raw_value * 10 ** (18 - token_metadata.decimals)) // 10
         elif token_metadata.symbol == "SDL":
             # 100 SDL = 1 USD; result encoded as 1e18-integer
+            # Price derived and used only around PolyNetwork bridge incident
             return amount, int(raw_value * 10 ** (18 - token_metadata.decimals)) // 100
+        elif token_metadata.symbol == "BUSD":
+            # BUSD is a stablecoin that should be very close to 1 USD; result encoded as 1e18-integer
+            return amount, int(raw_value * 10 ** (18 - token_metadata.decimals))
         elif token_metadata.symbol in ("WGLMR", "PWETH", ):
             # Some wrapped tokens have the same symbol as the native token but need to be unwrapped to get the correct price
             token_metadata.symbol = token_metadata.symbol[1:]
@@ -151,9 +155,9 @@ class TokenPricingService:
 
         symbols = list({symbol for _, symbol, _, _ in self._pending})
         min_ts = min(ts for _, _, ts, _ in self._pending)
-        min_ts = datetime.fromtimestamp(min_ts).replace(hour=0, minute=0, second=0, microsecond=0).timestamp()  # Round down to start of day
+        min_ts = min_ts - (min_ts % 86400)  # Round down to start of day
         max_ts = max(ts for _, _, ts, _ in self._pending)
-        max_ts = datetime.fromtimestamp(max_ts).replace(hour=23, minute=59, second=59, microsecond=999999).timestamp()  # Round up to end of day
+        max_ts = max_ts - (max_ts % 86400) + 86399  # Round up to end of day
 
         log_to_cli(
             f"Querying Dune for prices of {len(symbols)} symbol(s) "
