@@ -5,6 +5,7 @@ from extractor.evm_extractor import EvmExtractor
 from extractor.solana_extractor import SolanaExtractor
 from generator.generator import Generator
 from graph_generator.generator import GraphGenerator
+from graph_generator.graph_utils import confirm_clean_graph_data
 from repository.database import create_tables
 from rpcs import generate_rpc_configs
 from utils.utils import (
@@ -152,6 +153,13 @@ class Cli:
         )
         graph_generator.link_transactions_into_cctxs()
 
+    def clean_graph_data(args):
+        bridge = get_enum_instance(Bridge, args.bridge) if args.bridge else None
+
+        Cli.load_db_models(bridge, load_graphs=True)
+
+        confirm_clean_graph_data(bridge)
+
     def cli():
         parser = argparse.ArgumentParser(description="Cross-chain Data Extraction Tool")
         subparsers = parser.add_subparsers(
@@ -276,20 +284,33 @@ class Cli:
         )
         graphs_parser.set_defaults(func=Cli.generate_graph_data)
 
+        # Clean graph data
+        clean_graph_parser = subparsers.add_parser(
+            "clean_graph_data", help="Clean graph data from the database"
+        )
+        clean_graph_parser.add_argument(
+            "--bridge",
+            choices=[bridge.value for bridge in Bridge],
+            required=False,
+            help="Name of the bridge (optional)",
+        )
+        clean_graph_parser.set_defaults(func=Cli.clean_graph_data)
+
         args = parser.parse_args()
         if args.action:
             args.func(args)
         else:
             parser.print_help()
 
-    def load_db_models(bridge: Bridge, load_graphs: bool = False):
+    def load_db_models(bridge: Bridge = None, load_graphs: bool = False):
         """Dynamically loads the database models for the specified bridge."""
         func_name = "load_db_models"
-        bridge_name = bridge.value
+        bridge_name = bridge.value if bridge else None
 
         try:
             load_module("repository.common")
-            load_module(f"repository.{bridge_name}")
+            if bridge_name:
+                load_module(f"repository.{bridge_name}")
             if load_graphs:
                 load_module("repository.graphs")
 

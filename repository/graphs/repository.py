@@ -141,6 +141,40 @@ class GraphNodeRepository(BaseRepository):
             )
             session.commit()
             return updated_rows
+    
+    def get_nonconverted_amount_graphs(self, bridge: str = None):
+        with self.get_session() as session:
+            graph_ids_subquery = (
+                select(GraphNode.chain_graph_id)
+                .where(GraphNode.amount_usd.is_(None), GraphNode.amount.isnot(None))
+            )
+            if bridge is not None:
+                graph_ids_subquery = graph_ids_subquery.where(GraphNode.bridge == bridge)
+            graph_ids_subquery = graph_ids_subquery.distinct()
+            return len([row[0] for row in session.execute(graph_ids_subquery).fetchall()])
+    
+    def clean_nonconverted_amount_nodes(self, bridge: str = None):
+        with self.get_session() as session:
+            # First, obtain all chain graph IDs associated with nodes that have non-null amounts but null USD values
+            graph_ids_subquery = (
+                select(GraphNode.chain_graph_id)
+                .where(GraphNode.amount_usd.is_(None), GraphNode.amount.isnot(None))
+            )
+            if bridge is not None:
+                graph_ids_subquery = graph_ids_subquery.where(GraphNode.bridge == bridge)
+            graph_ids_subquery = graph_ids_subquery.distinct()
+            
+            graph_ids = [row[0] for row in session.execute(graph_ids_subquery).fetchall()]
+
+            # Then, delete all nodes and edges associated with those graph IDs
+            session.query(GraphNode).filter(GraphNode.chain_graph_id.in_(graph_ids)).delete(synchronize_session=False)
+            session.query(GraphEdge).filter(GraphEdge.chain_graph_id.in_(graph_ids)).delete(synchronize_session=False)
+            # Also delete the corresponding graph mappings
+            session.query(GraphMappingBlockchain).filter(GraphMappingBlockchain.graph_id.in_(graph_ids)).delete(synchronize_session=False)
+            session.query(GraphMappingCrossChain).filter(GraphMappingCrossChain.cctx_graph_id.in_(graph_ids)).delete(synchronize_session=False)
+
+            session.commit()
+            return graph_ids
 
 class GraphEdgeRepository(BaseRepository):
     def __init__(self, session_factory):
