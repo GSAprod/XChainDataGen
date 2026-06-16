@@ -32,6 +32,7 @@ blockchains:
             amount: 1500000000000000 #only in token transfers or router events specifying amounts
             token_symbol: "USDC" # only in token transfers or router events specifying amounts
             token_address: "" # specify in case the address field is not a token contract
+            token_decimals: 18 # only in token transfers or router events specifying amounts
 cctx_linking:
   - source_blockchain: ethereum
     source_tx_hash: "0x4a59c3e5c48ae796fe4482681c3da00c15b816d1af9d74210cca5e6ea9ced191"

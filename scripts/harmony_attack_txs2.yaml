@@ -253,6 +253,7 @@ blockchains:
                 relation_type: token_transfer
             amount: 5530000000000000000000000
             token_symbol: "BUSD"
+            token_decimals: 18
           - emitted_by: "0xfd53b1b4af84d59b20bf2c20ca89a6beeaa2c628"
             emitter_type: router
             event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
@@ -266,6 +267,7 @@ blockchains:
             amount: 5530000000000000000000000
             token_symbol: "BUSD"
             token_address: "0x4fabb145d64652a948d72533023f6e7a623c7c53"
+            token_decimals: 18
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
             emitter_type: router
             event_signature: "event Execution (index_topic_1 uint256 transactionId)"
@@ -299,6 +301,7 @@ blockchains:
                 relation_type: token_transfer
             amount: 84620000000000000000000000
             token_symbol: "AAG"
+            token_decimals: 18
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
             emitter_type: router
             event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
@@ -312,6 +315,7 @@ blockchains:
             amount: 84620000000000000000000000
             token_symbol: "AAG"
             token_address: "0x5ba19d656b65f1684cfea4af428c23b9f3628f97"
+            token_decimals: 18
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
             emitter_type: router
             event_signature: "event Execution (index_topic_1 uint256 transactionId)"
@@ -401,6 +405,7 @@ blockchains:
                 relation_type: token_transfer
             amount: 415000000000000000000000
             token_symbol: "SUSHI"
+            token_decimals: 18
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
             emitter_type: router
             event_signature: "event Unlocked (address ethToken, uint256 amount, address recipient, bytes32 receiptId)"
@@ -414,6 +419,7 @@ blockchains:
             amount: 415000000000000000000000
             token_symbol: "SUSHI"
             token_address: "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2"
+            token_decimals: 18
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
             emitter_type: router
             event_signature: "event Execution (index_topic_1 uint256 transactionId)"
