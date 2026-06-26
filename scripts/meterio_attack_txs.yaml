@@ -1,0 +1,277 @@
+bridge: meterio
+replace_router_address_with: "__METERIO_BRIDGE_ROUTER__"
+blockchains:
+  - blockchain: bnb
+    txs:
+      - tx_hash: "0xc7eb98e00d21ec2025fd97b8a84af141325531c0b54aacc37633514f2fd8ffdc"
+        cctx_id: "255950000000000000000000000BB4CDB9CBD36B01BD1CBAEBF2DE08D9173BC095C01"
+        block_number: 14992320 # int
+        timestamp: 1644071350 # int
+        attack: True # if the transaction is part of an attack, activate this flag.
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0xfd55ebc7bbde603a048648c6eab8775c997c1001"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 uint8 destinationChainID, index_topic_2 bytes32 resourceID, index_topic_3 uint64 depositNonce)"
+            event_type: deposit_request
+            num_args: 3
+            input: ""
+            relations:
+              - to: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+                to_type: token
+                relation_type: function_call
+      - tx_hash: "0x5d7cd17bfeb944390667c76f4fc2786f748dc3eb363c01c24b92becaaf5690b4"
+        cctx_id: "256150000000000000000000000BB4CDB9CBD36B01BD1CBAEBF2DE08D9173BC095C01"
+        block_number: 14992642
+        timestamp: 1644072316
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0xfd55ebc7bbde603a048648c6eab8775c997c1001"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 uint8 destinationChainID, index_topic_2 bytes32 resourceID, index_topic_3 uint64 depositNonce)"
+            event_type: deposit_request
+            num_args: 3
+            input: ""
+            relations:
+              - to: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+                to_type: token
+                relation_type: function_call
+      - tx_hash: "0x63f37aff7e40b85b0a6b3fd414389f6011cc09b276dc8e13b6afa19061f7ed8e"
+        cctx_id: "140000000000000000000000BB4CDB9CBD36B01BD1CBAEBF2DE08D9173BC095C01"
+        block_number: 14992190
+        timestamp: 1644070960
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0xfd55ebc7bbde603a048648c6eab8775c997c1001"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 uint8 destinationChainID, index_topic_2 bytes32 resourceID, index_topic_3 uint64 depositNonce)"
+            event_type: deposit_request
+            num_args: 3
+            input: ""
+            relations:
+              - to: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+                to_type: token
+                relation_type: function_call
+      - tx_hash: "0xf70b4aa715c0a04079c56cd9036cc63cdb6101e400520a8f2c019ad2ced5358e"
+        cctx_id: "140000000000000000000000BB4CDB9CBD36B01BD1CBAEBF2DE08D9173BC095C01"
+        block_number: 14992203
+        timestamp: 1644070999
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+            from_type: token
+            to: "0x5945241bbb68b4454bb67bd2b069e74c09ac3d51"
+            to_type: other_account
+            value: 3632795971816270126503
+            input: "0x"
+            token_symbol: "BNB"
+            token_address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+            token_decimals: 18
+          - from: "0x5945241bbb68b4454bb67bd2b069e74c09ac3d51"
+            from_type: other_account
+            to: "0x8d3d13cac607b7297ff61a5e1e71072758af4d01"
+            to_type: user
+            value: 3632795971816270126503
+            input: "0x"
+            token_symbol: "BNB"
+            token_address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+            token_decimals: 18
+        events:
+          - emitted_by: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+            emitter_type: token
+            event_signature: "event Withdrawal (index_topic_1 address src, uint256 wad)"
+            num_args: 2
+            input: "0x0000000000000000000000000000000000000000000000c4ef2bf0fd2ac0dda7"
+          - emitted_by: "0xfd55ebc7bbde603a048648c6eab8775c997c1001"
+            emitter_type: router
+            event_signature: "event ProposalEvent (index_topic_1 uint8 originChainID, index_topic_2 uint64 depositNonce, index_topic_3 uint8 status, bytes32 resourceID, bytes32 dataHash)"
+            event_type: deposit_confirmation
+            num_args: 5
+            input: "0x0000000000000000000000bb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c012f2a977cca4fd1e6f8b8861228e6e3581ef5bc22abee28be98f6840cf93d9648"
+      - tx_hash: "0xc4d7e160c7652f2db22681aa2777c5b37937bf30375c5b2c6b2bd172ae984950"
+        cctx_id: "348430000000000000000000000BD2949F67DCDC549C6EBE98696449FA79D988A9F01"
+        block_number: 14990769
+        timestamp: 1644066697
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0xbd2949f67dcdc549c6ebe98696449fa79d988a9f"
+            emitter_type: token
+            event_signature: "event Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xfffffffffffffffffffffffffffffffffffffffffffffff89f3e490f99411bd9"
+            relations:
+              - from: "0x8d3d13cac607B7297Ff61A5E1E71072758AF4D01"
+                from_type: user
+                to: "0x5945241BBB68B4454bB67Bd2B069e74C09AC3D51"
+                to_type: other_account
+                relation_type: token_auth
+            value: 115792089237316195423570985008687907853269984665640564039321484744555384347609
+            token_symbol: "MTRG"
+            token_address: "0xbd2949f67dcdc549c6ebe98696449fa79d988a9f"
+            token_decimals: 18
+          - emitted_by: "0xbd2949f67dcdc549c6ebe98696449fa79d988a9f"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000760c1b6f066bee426"
+            relations:
+              - from: "0x8d3d13cac607B7297Ff61A5E1E71072758AF4D01"
+                from_type: user
+                to: "0x0000000000000000000000000000000000000000"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 136099263357745292326
+            token_symbol: "MTRG"
+            token_address: "0xbd2949f67dcdc549c6ebe98696449fa79d988a9f"
+            token_decimals: 18
+          - emitted_by: "0xfd55ebc7bbde603a048648c6eab8775c997c1001"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 uint8 destinationChainID, index_topic_2 bytes32 resourceID, index_topic_3 uint64 depositNonce)"
+            event_type: deposit_request
+            num_args: 3
+            input: ""
+            relations:
+              - to: "0xbd2949f67dcdc549c6ebe98696449fa79d988a9f"
+                to_type: token
+                relation_type: function_call
+  - blockchain: moonriver
+    txs:
+      - tx_hash: "0x689ff22ebf7f7aa6ecf0d60345979855442a09dfb7439c8553b2369e6e130409"
+        cctx_id: "255950000000000000000000000BB4CDB9CBD36B01BD1CBAEBF2DE08D9173BC095C01"
+        block_number: 1442439
+        timestamp: 1644071526
+        tx_chain_type: destination
+        internal_txs:
+        events:
+          - emitted_by: "0x868892CCcEdbfF0B028F3b3595205Ea91b99376B"
+            emitter_type: router
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000032d26d12e980b600000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0x8d3d13cac607B7297Ff61A5E1E71072758AF4D01"
+                to_type: user
+                relation_type: token_transfer
+            amount: 15000000000000000000000
+            token_symbol: "BNB"
+            token_address: "0x868892CCcEdbfF0B028F3b3595205Ea91b99376B"
+            token_decimals: 18
+          - emitted_by: "0xf41e7fc4ec990298d36f667b93951c9dba65224e"
+            emitter_type: router
+            event_signature: "event ProposalEvent (index_topic_1 uint8 originChainID, index_topic_2 uint64 depositNonce, index_topic_3 uint8 status, bytes32 resourceID, bytes32 dataHash)"
+            event_type: deposit_confirmation
+            num_args: 5
+            input: "0x0000000000000000000000bb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c01534c799930f183e6c6c82f109e7274bbc7160d831ceb4a634ff6b5b03780ee73"
+      - tx_hash: "0xc7f764644e9af42714d98763b7e8dcf5e1de6b855b63e2c6ff2438e09b61ccc7"
+        cctx_id: "256150000000000000000000000BB4CDB9CBD36B01BD1CBAEBF2DE08D9173BC095C01"
+        block_number: 1442487
+        timestamp: 1644072468
+        tx_chain_type: destination
+        internal_txs:
+        events:
+          - emitted_by: "0x868892cccedbff0b028f3b3595205ea91b99376b"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: token_transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000032d26d12e980b600000"
+            relations:
+              - from: "0x00000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0x8d3d13cac607b7297ff61a5e1e71072758af4d01"
+                to_type: user
+                relation_type: token_transfer
+            amount: 15000000000000000000000
+            token_symbol: "BNB"
+            token_address: "0x868892cccedbff0b028f3b3595205ea91b99376b"
+            token_decimals: 18
+          - emitted_by: "0xf41e7fc4ec990298d36f667b93951c9dba65224e"
+            emitter_type: router
+            event_signature: "event ProposalEvent (index_topic_1 uint8 originChainID, index_topic_2 uint64 depositNonce, index_topic_3 uint8 status, bytes32 resourceID, bytes32 dataHash)"
+            event_type: deposit_confirmation
+            num_args: 5
+            input: "0x0000000000000000000000bb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c01534c799930f183e6c6c82f109e7274bbc7160d831ceb4a634ff6b5b03780ee73"
+  - blockchain: ethereum
+    txs:
+      - tx_hash: "0x2d3987963b77159cfe4f820532d729b0364c7f05511f23547765c75b110b629c"
+        cctx_id: "110000000000000000000000C02AAA39B223FE8D0A0E5C4F27EAD9083C756CC201"
+        block_number: 14146530
+        timestamp: 1644071232
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0xa2a22b46b8df38cd7c55e6bf32ea5a32637cf2b1"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 uint8 destinationChainID, index_topic_2 bytes32 resourceID, index_topic_3 uint64 depositNonce)"
+            event_type: deposit_request
+            num_args: 3
+            input: ""
+            relations:
+              - to: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+                to_type: token
+                relation_type: function_call
+      - tx_hash: "0xd619ace8a8cca2f7eb72dbc0a896fc2d4d8b20aa11f4d747f1a5333305bbb875"
+        cctx_id: "110000000000000000000000C02AAA39B223FE8D0A0E5C4F27EAD9083C756CC201"
+        block_number: 14146583
+        timestamp: 1644071846
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            from_type: token
+            to: "0xde4fc7c3c5e7be3f16506fcc790a8d93f8ca0b40"
+            to_type: other_account
+            value: 422508708639363167140
+            input: "0x"
+            token_symbol: "WETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            token_decimals: 18
+          - from: "0xde4fc7c3c5e7be3f16506fcc790a8d93f8ca0b40"
+            from_type: other_account
+            to: "0x8d3d13cac607b7297ff61a5e1e71072758af4d01"
+            to_type: user
+            value: 422508708639363167140
+            input: "0x"
+            token_symbol: "WETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            token_decimals: 18
+        events:
+          - emitted_by: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            emitter_type: token
+            event_signature: "event Withdrawal (index_topic_1 address src, uint256 wad)"
+            num_args: 2
+            input: "0x000000000000000000000000000000000000000000000016e77c77f5de41f3a4"
+          - emitted_by: "0xa2a22b46b8df38cd7c55e6bf32ea5a32637cf2b1"
+            emitter_type: router
+            event_signature: "event ProposalEvent (index_topic_1 uint8 originChainID, index_topic_2 uint64 depositNonce, index_topic_3 uint8 status, bytes32 resourceID, bytes32 dataHash)"
+            event_type: deposit_confirmation
+            num_args: 5
+            input: "0x0000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc201e209211b6cf5092dbfedb14f57e2d038719ad5e67da6089cb2ed8d2828132489"
+      - tx_hash: "0xdfea6413c7eb3068093dcbbe65bcc9ba635e227c35e57fe482bb5923c89e31f7"
+        cctx_id: "54630000000000000000000000C02AAA39B223FE8D0A0E5C4F27EAD9083C756CC201"
+        block_number: 14146589
+        timestamp: 1644071981
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0xa2a22b46b8df38cd7c55e6bf32ea5a32637cf2b1"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 uint8 destinationChainID, index_topic_2 bytes32 resourceID, index_topic_3 uint64 depositNonce)"
+            event_type: deposit_request
+            num_args: 3
+            input: ""
+            relations:
+              - to: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+                to_type: token
+                relation_type: function_call

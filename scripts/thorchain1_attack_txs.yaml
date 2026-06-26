@@ -1,0 +1,119 @@
+bridge: thorchain
+replace_router_address_with: "__THORCHAIN_BRIDGE_ROUTER__"
+blockchains:
+  - blockchain: ethereum
+    txs:
+      - tx_hash: "0x966cb083d116da2e0d1d115a99381db2200bd39ff75d38cfacdc17b1368f1159"
+        block_number: 12723674
+        timestamp: 1624899151
+        attack: True
+        internal_txs:
+        events:
+          - emitted_by: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000ced144ff8f5a92c300000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000063535741503a4554482e504552502d3058424333393636383938393344303635463431424332433645434245453545303038353233333434373a3078303662643331393664326334323663353939326566383135316330303565613462396165333266610000000000000000000000000000000000000000000000000000000000"
+            relations:
+              - to: "0xD68A13e2Fa52Dfc6688c308E89065CB804FE145A" # NOTE: Maliciously-crafted "ETH" contract
+                to_type: token
+                relation_type: function_call
+            amount: 14902768506358108867
+            token_symbol: "ETH"
+            token_decimals: 18
+      - tx_hash: "0xb74f4860e24f04e9e32ace36735285d518a8a36bf8e8dcc868d7508bb60947c9"
+        block_number: 12723740
+        timestamp: 1624900051
+        attack: True
+        internal_txs:
+        events:
+          - emitted_by: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000c3ebeda89c237acf00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000063535741503a4554482e504552502d3058424333393636383938393344303635463431424332433645434245453545303038353233333434373a3078303662643331393664326334323663353939326566383135316330303565613462396165333266610000000000000000000000000000000000000000000000000000000000"
+            relations:
+              - to: "0xD68A13e2Fa52Dfc6688c308E89065CB804FE145A" # NOTE: Maliciously-crafted "ETH" contract
+                to_type: token
+                relation_type: function_call
+            amount: 14117638765352811215
+            token_symbol: "ETH"
+            token_decimals: 18
+      - tx_hash: "0xb56df76d4bf1384dc2744692d744de44efadcec7226c6255532a0d1ebdb5abcc"
+        block_number: 12723744
+        timestamp: 1624900097
+        attack: True
+        internal_txs:
+        events:
+          - emitted_by: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000007f01f18ee846765d00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000064535741503a4554482e53555348492d3058364233353935303638373738444435393245333941313232463446354135434630394339304645323a30786366386563663236636138386533653230656165653432313130366235376262633536316564353600000000000000000000000000000000000000000000000000000000"
+            relations:
+              - to: "0xD68A13e2Fa52Dfc6688c308E89065CB804FE145A" # NOTE: Maliciously-crafted "ETH" contract
+                to_type: token
+                relation_type: function_call
+            amount: 9151861513878140509
+            token_symbol: "ETH"
+            token_decimals: 18
+      - tx_hash: "0x92b466c1908571c45b1a4e751550877a46c5f2ecbc308e01242ec6d2013ad88c"
+        block_number: 12723756
+        timestamp: 1624900214
+        attack: True
+        internal_txs:
+        events:
+          - emitted_by: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000008625427a4bd15d2500000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000062535741503a4554482e5946492d3058304243353239433030433634303141454636443232304245384336454131363637463641443933453a307863663865636632366361383865336532306561656534323131303662353762626335363165643536000000000000000000000000000000000000000000000000000000000000"
+            relations:
+              - to: "0xD68A13e2Fa52Dfc6688c308E89065CB804FE145A" # NOTE: Maliciously-crafted "ETH" contract
+                to_type: token
+                relation_type: function_call
+            amount: 9666205268246093093
+            token_symbol: "ETH"
+            token_decimals: 18
+      - tx_hash: "0x0d8d8194e7fb0853261d7bd2bae3eed2849f94ccf821547d50d5c535a0367ff7"
+        block_number: 12724115
+        timestamp: 1624904951
+        attack: True
+        internal_txs:
+        events:
+          - emitted_by: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000008625427a4bd15d2500000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000062535741503a4554482e5946492d3058304243353239433030433634303141454636443232304245384336454131363637463641443933453a307863663865636632366361383865336532306561656534323131303662353762626335363165643536000000000000000000000000000000000000000000000000000000000000"
+            relations:
+              - to: "0xD68A13e2Fa52Dfc6688c308E89065CB804FE145A" # NOTE: Maliciously-crafted "ETH" contract
+                to_type: token
+                relation_type: function_call
+            amount: 14995688494938979878
+            token_symbol: "ETH"
+            token_decimals: 18
+      - tx_hash: "0x7cf72852118597e6ff65226a17eae5a078b6de7af791a6324906d9d456f2b1b6"
+        block_number: 12724131
+        timestamp: 1624905165
+        attack: True
+        internal_txs:
+        events:
+          - emitted_by: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000a6bcd3bf3744eac900000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000062535741503a4554482e5946492d3058304243353239433030433634303141454636443232304245384336454131363637463641443933453a307830366264333139366432633432366335393932656638313531633030356561346239616533326661000000000000000000000000000000000000000000000000000000000000"
+            relations:
+              - to: "0xD68A13e2Fa52Dfc6688c308E89065CB804FE145A" # NOTE: Maliciously-crafted "ETH" contract
+                to_type: token
+                relation_type: function_call
+            amount: 12014710724137118409
+            token_symbol: "ETH"
+            token_decimals: 18

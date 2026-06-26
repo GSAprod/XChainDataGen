@@ -1,0 +1,152 @@
+cctxs:
+  - attack: False
+    nonce: 73
+    #src_chain: ethereum
+    src_hash: 0x60227798c91b76cca3ce5b21ebcbb89cf8da341a77d7b2938e1a913e996f0bd8
+    #dst_chain: bnb
+    dst_hash: 0x4e2d8f3f8d519dec01b9a7c36cf220441b6756cd605af3cd481048da9b1a6cfe
+    amount: 1000000000000000
+
+  - attack: False
+    nonce: 84
+    #src_chain: ethereum
+    src_hash: 0x7f537463d055f32b49050a7e2179461666a9494deb7045d7825d72c210168298
+    #dst_chain: bnb
+    dst_hash: 0x8c5877d1b618f29f6a3622cb610ace08ca96e04d8218f587072a3f91e8545bdc
+    amount: 100000000000000000
+
+  - attack: False
+    nonce: 85
+    #src_chain: ethereum
+    src_hash: 0xff6fa990d4f6cf85592f7fb32840539e6dad20fda4e547acb1a4bbb969d99ba9
+    #dst_chain: bnb
+    dst_hash: 0x881a68c9c9aa36590e41dc65ca260decdce7d18dff365067cb592d3a8d0733ef
+    amount: 100000000000000000
+
+  - attack: True
+    nonce: 86
+    #src_chain: ethereum
+    src_hash: 0xac7292e7d0ec8ebe1c94203d190874b2aab30592327b6cc875d00f18de6f3133
+    #dst_chain: bnb
+    dst_hash: 0x61ca8bc28f5b2ee87f9a10c3d8fff790658e345a1e407f9e5c3f22b48106ccff
+    amount: 190000000000000000000
+
+  - attack: True
+    nonce: 87
+    #src_chain: ethereum
+    src_hash: 0xc7e964fa3b0e8d2df6d92d96e57d7eb6cebf7ca581807cab96d4f3aafa98ba12
+    #dst_chain: bnb
+    dst_hash: 0xf6008ab482538669f9a8431bfd42e0b45c7253797425707f0edeef57690a4dbe
+    amount: 499000000000000000000
+
+  - attack: True
+    nonce: 88
+    #src_chain: ethereum
+    src_hash: 0x006a8a6e58e26384aa7dd7951d57f51136049601a772a40fcde34722191ed3f8
+    #dst_chain: bnb
+    dst_hash: 0xd8bba1555568280325ef6c9552fb5c7646692c17a42f7ff69b5f82bbd78d2d86
+    amount: 999000000000000000000
+
+  - attack: True
+    nonce: 89
+    #src_chain: ethereum
+    src_hash: 0x6f24d176e178f80e15daa4a2c03106404584be6469a29077defd2c9e788e58c4
+    #dst_chain: bnb
+    dst_hash: 0xa961a639fc91f7d8d0ffc2bc6f05d3cee292e4249e8a1539bd84785763b930a8
+    amount: 999000000000000000000
+
+  - attack: True
+    nonce: 90
+    #src_chain: ethereum
+    src_hash: 0xf56fe06b0e7af7ef393fe0fa15aa173891940f800c3ac14db7a81c62ebad9663
+    #dst_chain: bnb
+    dst_hash: 0xa32713ffc0337b59ff0bb0e342336ddc1d447ca8c3ff508cbebbd7271d7a3410
+    amount: 999000000000000000000
+
+  - attack: True
+    nonce: 91
+    #src_chain: ethereum
+    src_hash: 0xb9c5e0ed27bbb5237a6fa4549784ba740059253f57453a8c4cf1f80f71b09cf5
+    #dst_chain: bnb
+    dst_hash: 0xdc4206b67c5b6fb501b1727741bf67acd033030d022fe20eb5614bf38da48207
+    amount: 999000000000000000000
+
+  - attack: True
+    nonce: 92
+    #src_chain: ethereum
+    src_hash: 0x478d83f2ad909c64a9a3d807b3d8399bb67a997f9721fc5580ae2c51fab92acf
+    #dst_chain: bnb
+    dst_hash: 0x38692d17fdc9c3da9c1cb234108d78011b086235ce5da2220675a2cf05393cc8
+    amount: 199000000000000000000
+
+  - attack: True
+    nonce: 93
+    #src_chain: ethereum
+    src_hash: 0xd0d86c51770877c80edb018d2c69ed23ca834694e3ca43159a9b9b889ac4ad4d
+    #dst_chain: bnb
+    dst_hash: 0x63ed93293f85a11a00e16e29a55e41631e8da8d0f638c185eda48a9606f836c5
+    amount: 199000000000000000000
+
+  - attack: True
+    nonce: 94
+    #src_chain: ethereum
+    src_hash: 0xeb9f622e54253b3fa14dcee243bc9345a8fbc562168e973093ffc86d7f8a5829
+    #dst_chain: bnb
+    dst_hash: 0x67337d605bb144ec8acab51e7fc1f3c75927e1e1bedc01addb118fb11fbefb36
+    amount: 199000000000000000000
+
+  - attack: True
+    nonce: 95
+    #src_chain: ethereum
+    src_hash: 0xbdedb13d78bcb2f4eb48241c0ed0b299264458021d6e8f331e08a1c9bd96f943
+    #dst_chain: bnb
+    dst_hash: 0xea23aed9096b6e6248d3c55b822b0b30c25efa3f984a2c36c6e30b36a2e45d4f
+    amount: 5990000000000000000000
+
+  - attack: True
+    nonce: 96
+    #src_chain: ethereum
+    src_hash: 0x940315691510a8f6b2690d3df4608ae1dd710c665bc76e40954fa8092a5fc541
+    #dst_chain: bnb
+    dst_hash: 0x2ce666d0ec8c976f6895b1ac52f648b5f5e025c42a956c767bf4fbae0982819e
+    amount: 5990000000000000000000
+
+  - attack: True
+    nonce: 97
+    #src_chain: ethereum
+    src_hash: 0xa6282e604eab18390be3abf2f4f0039dbdbcc3f4cf15e4d3ade296b8684a0486
+    #dst_chain: bnb
+    dst_hash: 0x50946e3e4ccb7d39f3512b7ecb75df66e6868b9af0eee8a7e4b61ef8a459518e
+    amount: 59900000000000000000000
+
+  - attack: True
+    nonce: 98
+    #src_chain: ethereum
+    src_hash: 0x501f8541dc7cc594cd0ee245c8710ca12084529b596a3fc0d702f4a77f70b848
+    #dst_chain: bnb
+    dst_hash: 0x8f5bdea436d944432fcc11dab2ad43dc600d6a9f7083e56af17bcea8b2a2dde2
+    amount: 59900000000000000000000
+
+  - attack: True
+    nonce: 99
+    #src_chain: ethereum
+    src_hash: 0x580206541ab2916d2ef9b89e5bf6e833031700d01f2ea372ec0bec331f38225b
+    #dst_chain: bnb
+    dst_hash: 0xff162a19a69614a8dc1630ed437a974725c3a40e6b6ed3f626663c051c946753
+    amount: 59900000000000000000000
+
+  - attack: True
+    nonce: 100
+    #src_chain: ethereum
+    src_hash: 0x3dfa33b5c6150bf3d64f49cb97eba351f99e4dff7119ef458e40f51160bf77ec
+    #dst_chain: bnb
+    dst_hash: 0x33628dcc2ca6cd89a96d241bdf17cdc8785cf4322dcaf2c79766c990579aea02
+    amount: 9999000000000000000000
+
+  - attack: True
+    nonce: 101
+    #src_chain: ethereum
+    src_hash: 0x9cf9e457aade4a0421eb188cfb5d17694c614c139b1fa0122930d5df27228349
+    #dst_chain: bnb
+    dst_hash: 0x490336f417c9569843d74363ca8d943d1d2674325a43560408d728638d7bcdb5
+    amount: 9999000000000000000000

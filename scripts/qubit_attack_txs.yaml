@@ -1,0 +1,2611 @@
+bridge: qubit
+replace_router_address_with: "__QUBIT_BRIDGE_ROUTER__"
+blockchains:
+  - blockchain: ethereum
+    txs:
+      - tx_hash: "0x60227798c91b76cca3ce5b21ebcbb89cf8da341a77d7b2938e1a913e996f0bd8"
+        cctx_id: 73
+        block_number: 13840636
+        timestamp: 1639984426
+        attack: False
+        tx_chain_type: source
+        internal_txs:
+          - from: "0xa1Eb8C3Ab52582957f949E5eaA824485d0DCFe10"
+            from_type: user
+            to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6" # optional, if not the emmitter
+            to_type: router
+            value: 1000000000000000 # int
+            input: "0x"
+            token_symbol: "ETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            token_decimals: 18 # only in token transfers or router events specifying amounts
+          - from: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+            from_type: router
+            to: "0x17b7163cf1dbd286e262ddc68b553d899b93f526" # optional, if not the emmitter
+            to_type: router
+            value: 1000000000000000 # int
+            input: "0x" #hex
+            token_symbol: "ETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            token_decimals: 18 # only in token transfers or router events specifying amounts
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000004900000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000a1eb8c3ab52582957f949e5eaa824485d0dcfe10"
+            relations:
+              - from: "0xa1Eb8C3Ab52582957f949E5eaA824485d0DCFe10"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+              - to: "token_native"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0x7f537463d055f32b49050a7e2179461666a9494deb7045d7825d72c210168298"
+        cctx_id: 84
+        block_number: 14090105
+        timestamp: 1643318381
+        attack: False
+        tx_chain_type: source
+        internal_txs:
+          - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            from_type: user
+            to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6" # optional, if not the emmitter
+            to_type: router
+            value: 100000000000000000 # int
+            input: "0x"
+            token_symbol: "ETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            token_decimals: 18 # only in token transfers or router events specifying amounts
+          - from: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+            from_type: router
+            to: "0x17b7163cf1dbd286e262ddc68b553d899b93f526" # optional, if not the emmitter
+            to_type: router
+            value: 100000000000000000 # int
+            input: "0x" #hex
+            token_symbol: "ETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            token_decimals: 18 # only in token transfers or router events specifying amounts
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f010000000000000000000000000000000000000000000000000000000000000054000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000000016345785d8a0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+              - to: "token_native"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0xff6fa990d4f6cf85592f7fb32840539e6dad20fda4e547acb1a4bbb969d99ba9"
+        cctx_id: 85
+        block_number: 14090126
+        timestamp: 1643318632
+        attack: False
+        tx_chain_type: source
+        internal_txs:
+          - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            from_type: user
+            to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6" # optional, if not the emmitter
+            to_type: router
+            value: 100000000000000000 # int
+            input: "0x"
+            token_symbol: "ETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            token_decimals: 18 # only in token transfers or router events specifying amounts
+          - from: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+            from_type: router
+            to: "0x17b7163cf1dbd286e262ddc68b553d899b93f526" # optional, if not the emmitter
+            to_type: router
+            value: 100000000000000000 # int
+            input: "0x" #hex
+            token_symbol: "ETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            token_decimals: 18 # only in token transfers or router events specifying amounts
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f010000000000000000000000000000000000000000000000000000000000000055000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000000016345785d8a0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+              - to: "token_native"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0xac7292e7d0ec8ebe1c94203d190874b2aab30592327b6cc875d00f18de6f3133"
+        cctx_id: 86
+        block_number: 14090170
+        timestamp: 1643319241
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000005600000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000a4cc799563c380000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0xc7e964fa3b0e8d2df6d92d96e57d7eb6cebf7ca581807cab96d4f3aafa98ba12"
+        cctx_id: 87
+        block_number: 14090187
+        timestamp: 1643319489
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000005700000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000001b0d04202f47ec0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0x006a8a6e58e26384aa7dd7951d57f51136049601a772a40fcde34722191ed3f8"
+        cctx_id: 88
+        block_number: 14090190
+        timestamp: 1643319547
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000005700000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000001b0d04202f47ec0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0x6f24d176e178f80e15daa4a2c03106404584be6469a29077defd2c9e788e58c4"
+        cctx_id: 89
+        block_number: 14090195
+        timestamp: 1643319678
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000005900000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0xf56fe06b0e7af7ef393fe0fa15aa173891940f800c3ac14db7a81c62ebad9663"
+        cctx_id: 90
+        block_number: 14090195
+        timestamp: 1643319678
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000005a00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0xb9c5e0ed27bbb5237a6fa4549784ba740059253f57453a8c4cf1f80f71b09cf5"
+        cctx_id: 91
+        block_number: 14090195
+        timestamp: 1643319678
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000005b00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0x478d83f2ad909c64a9a3d807b3d8399bb67a997f9721fc5580ae2c51fab92acf"
+        cctx_id: 92
+        block_number: 14090197
+        timestamp: 1643319691
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000005c00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000ac9ae05a71ebc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0xd0d86c51770877c80edb018d2c69ed23ca834694e3ca43159a9b9b889ac4ad4d"
+        cctx_id: 93
+        block_number: 14090198
+        timestamp: 1643319699
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000005d00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000ac9ae05a71ebc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0xeb9f622e54253b3fa14dcee243bc9345a8fbc562168e973093ffc86d7f8a5829"
+        cctx_id: 94
+        block_number: 14090201
+        timestamp: 1643319716
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000005e00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000ac9ae05a71ebc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0xbdedb13d78bcb2f4eb48241c0ed0b299264458021d6e8f331e08a1c9bd96f943"
+        cctx_id: 95
+        block_number: 14090210
+        timestamp: 1643319860
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000005f000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000144b7f2ef9eadd80000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0x940315691510a8f6b2690d3df4608ae1dd710c665bc76e40954fa8092a5fc541"
+        cctx_id: 96
+        block_number: 14090216
+        timestamp: 1643319932
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f010000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000144b7f2ef9eadd80000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0xa6282e604eab18390be3abf2f4f0039dbdbcc3f4cf15e4d3ade296b8684a0486"
+        cctx_id: 97
+        block_number: 14090223
+        timestamp: 1643320073
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f010000000000000000000000000000000000000000000000000000000000000061000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000caf2f7d5c32ca700000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0x501f8541dc7cc594cd0ee245c8710ca12084529b596a3fc0d702f4a77f70b848"
+        cctx_id: 98
+        block_number: 14090230
+        timestamp: 1643320175
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f010000000000000000000000000000000000000000000000000000000000000062000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000caf2f7d5c32ca700000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0x580206541ab2916d2ef9b89e5bf6e833031700d01f2ea372ec0bec331f38225b"
+        cctx_id: 99
+        block_number: 14090230
+        timestamp: 1643320175
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f010000000000000000000000000000000000000000000000000000000000000063000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000caf2f7d5c32ca700000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0x3dfa33b5c6150bf3d64f49cb97eba351f99e4dff7119ef458e40f51160bf77ec"
+        cctx_id: 100
+        block_number: 14090234
+        timestamp: 1643320241
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000021e0c0013070adc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+      - tx_hash: "0x9cf9e457aade4a0421eb188cfb5d17694c614c139b1fa0122930d5df27228349"
+        cctx_id: 101
+        block_number: 14090234
+        timestamp: 1643320241
+        attack: True
+        tx_chain_type: source
+        internal_txs:
+        events:
+          - emitted_by: "0x20E5E35ba29dC3B540a1aee781D0814D5c77Bce6"
+            emitter_type: router
+            event_signature: "event Deposit (uint8 destinationDomainID, bytes32 resourceID, uint64 depositNonce, index_topic_1 address user, bytes data)"
+            event_type: deposit_request
+            num_args: 6
+            input: "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000002f422fe9ea622049d6f73f81a906b9b8cff03b7f01000000000000000000000000000000000000000000000000000000000000006500000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000021e0c0013070adc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - from: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                from_type: user
+                to: "0x20e5e35ba29dc3b540a1aee781d0814d5c77bce6"
+                to_type: router
+                relation_type: transaction
+
+  - blockchain: bnb
+    txs:
+      - tx_hash: "0x4e2d8f3f8d519dec01b9a7c36cf220441b6756cd605af3cd481048da9b1a6cfe"
+        cctx_id: 73
+        block_number: 13633900
+        timestamp: 1639984595
+        tx_chain_type: destination
+        internal_txs:
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000049000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000a1eb8c3ab52582957f949e5eaa824485d0dcfe10"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004900000000000000000000000000000000000000000000000000000000000000012a430133e20ee45d567cee96a5f74bb16f9ea4e1f88292661f802e4e90fc22a4"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000049000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000a1eb8c3ab52582957f949e5eaa824485d0dcfe10"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000000038d7ea4c68000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 1000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000000038d7ea4c68000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 1000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xffffffffffffffffffffffffffffffffffffffffffffffffdeb1585601457fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564039455183967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000a1eb8c3ab52582957f949e5eaa824485d0dcfe1000000000000000000000000000000000000000000000000000038d7ea4c68000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000000038d7ea4c68000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xa1eb8c3ab52582957f949e5eaa824485d0dcfe10"
+                to_type: user
+                relation_type: token_transfer
+            amount: 1000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000a1eb8c3ab52582957f949e5eaa824485d0dcfe1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000049000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000a1eb8c3ab52582957f949e5eaa824485d0dcfe10"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0x8c5877d1b618f29f6a3622cb610ace08ca96e04d8218f587072a3f91e8545bdc"
+        cctx_id: 84
+        block_number: 14741733
+        timestamp: 1643318520
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000540000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000000016345785d8a0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000540000000000000000000000000000000000000000000000000000000000000001675e3b7a3c41f8eb4b676ae98d1a1b3268881288f75ca6294ed6c77c049ae95f"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000540000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000000016345785d8a0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000000016345785d8a0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 100000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000000016345785d8a0000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 100000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xfffffffffffffffffffffffffffffffffffffffffffffff1a68c8c0f984f7fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564039192883967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7000000000000000000000000000000000000000000000000016345785d8a0000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000000016345785d8a0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 100000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xf70314eb9c7fe7d88e6af5aa7f898b3a162dcd48"
+            emitter_type: router
+            event_signature: "event MarketEntered (address qToken, address account)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000fd7a5506f434f5334c100efb765025243c39137c000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: function_call
+          - emitted_by: "0xf70314eb9c7fe7d88e6af5aa7f898b3a162dcd48"
+            emitter_type: router
+            event_signature: "event MarketEntered (address qToken, address account)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000be1b5d17777565d67a5d2793f879abf59ae5d351000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+                to_type: token
+                relation_type: function_call
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec5000000000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000540000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000000016345785d8a0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0x881a68c9c9aa36590e41dc65ca260decdce7d18dff365067cb592d3a8d0733ef"
+        cctx_id: 85
+        block_number: 14741827
+        timestamp: 1643318802
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000550000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000000016345785d8a0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000550000000000000000000000000000000000000000000000000000000000000001675e3b7a3c41f8eb4b676ae98d1a1b3268881288f75ca6294ed6c77c049ae95f"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000550000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000000016345785d8a0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000000016345785d8a0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 100000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000000016345785d8a0000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 100000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xfffffffffffffffffffffffffffffffffffffffffffffff1a68c8c0f984f7fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564039192783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7000000000000000000000000000000000000000000000000016345785d8a0000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000000016345785d8a0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 100000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec500000000000000000000000000000000000000000000000000000163457ec9fe6685"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000550000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000000016345785d8a0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0x61ca8bc28f5b2ee87f9a10c3d8fff790658e345a1e407f9e5c3f22b48106ccff"
+        cctx_id: 86
+        block_number: 14742022
+        timestamp: 1643319392
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000056000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000a4cc799563c380000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000560000000000000000000000000000000000000000000000000000000000000001c440b1133d80713fe8d885b61aa487bd31e3c8b393c520d99e71a670a32decac"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000056000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000a4cc799563c380000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000a4cc799563c380000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 190000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000a4cc799563c380000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 190000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xffffffffffffffffffffffffffffffffffffffffffffffe75861ad40fe8d7fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564039002783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000a4cc799563c380000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000a4cc799563c380000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 190000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec5000000000000000000000000000000000000000000000000000003782dd0ad2aa0f4"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000056000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000a4cc799563c380000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0xf6008ab482538669f9a8431bfd42e0b45c7253797425707f0edeef57690a4dbe"
+        cctx_id: 87
+        block_number: 14742132
+        timestamp: 1643319722
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000057000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000001b0d04202f47ec0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000570000000000000000000000000000000000000000000000000000000000000001cfe68b22ed393062f538c92b30a7697def43011f9b0de5a46b1480b4505d0b71"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000057000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000001b0d04202f47ec0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000001b0d04202f47ec0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 499000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000001b0d04202f47ec0000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 499000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xffffffffffffffffffffffffffffffffffffffffffffffcc4b5d8d11b6a17fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564038503783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000001b0d04202f47ec0000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000001b0d04202f47ec0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 499000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec500000000000000000000000000000000000000000000000000000429d0b271d55e1d"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000057000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000001b0d04202f47ec0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0xd8bba1555568280325ef6c9552fb5c7646692c17a42f7ff69b5f82bbd78d2d86"
+        cctx_id: 88
+        block_number: 14742148
+        timestamp: 1643319770
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000058000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000580000000000000000000000000000000000000000000000000000000000000001cef13e176e43570cc455cddba5c559149896bc74ca5491032ed70c133ff6cde8"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000058000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000003627e8f712373c0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 999000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000003627e8f712373c0000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 999000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xffffffffffffffffffffffffffffffffffffffffffffff96237495ff7f657fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564037504783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000003627e8f712373c0000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000003627e8f712373c0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 999000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec5000000000000000000000000000000000000000000000000000004db73753010c761"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000058000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0xa961a639fc91f7d8d0ffc2bc6f05d3cee292e4249e8a1539bd84785763b930a8"
+        cctx_id: 89
+        block_number: 14742171
+        timestamp: 1643319839
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000059000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000590000000000000000000000000000000000000000000000000000000000000001cef13e176e43570cc455cddba5c559149896bc74ca5491032ed70c133ff6cde8"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000059000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000003627e8f712373c0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 999000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000003627e8f712373c0000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 999000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xffffffffffffffffffffffffffffffffffffffffffffff5ffb8b9eed48297fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564036505783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000003627e8f712373c0000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000003627e8f712373c0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 999000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec50000000000000000000000000000000000000000000000000000058d163c5f703004"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000059000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0xa32713ffc0337b59ff0bb0e342336ddc1d447ca8c3ff508cbebbd7271d7a3410"
+        cctx_id: 90
+        block_number: 14742187
+        timestamp: 1643319887
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005a000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005a0000000000000000000000000000000000000000000000000000000000000001cef13e176e43570cc455cddba5c559149896bc74ca5491032ed70c133ff6cde8"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000003627e8f712373c0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 999000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000003627e8f712373c0000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 999000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xffffffffffffffffffffffffffffffffffffffffffffff29d3a2a7db10ed7fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564035506783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000003627e8f712373c0000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000003627e8f712373c0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 999000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec50000000000000000000000000000000000000000000000000000063eb9014d7f8be4"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005a000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0xdc4206b67c5b6fb501b1727741bf67acd033030d022fe20eb5614bf38da48207"
+        cctx_id: 91
+        block_number: 14742202
+        timestamp: 1643319932
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005b000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005b0000000000000000000000000000000000000000000000000000000000000001cef13e176e43570cc455cddba5c559149896bc74ca5491032ed70c133ff6cde8"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005b000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000003627e8f712373c0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 999000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000003627e8f712373c0000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 999000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xfffffffffffffffffffffffffffffffffffffffffffffef3abb9b0c8d9b17fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564034507783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000003627e8f712373c0000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000003627e8f712373c0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 999000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec5000000000000000000000000000000000000000000000000000006f05bc6b605f275"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005b000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000003627e8f712373c0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0x38692d17fdc9c3da9c1cb234108d78011b086235ce5da2220675a2cf05393cc8"
+        cctx_id: 92
+        block_number: 14742218
+        timestamp: 1643319980
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005c000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000ac9ae05a71ebc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005c00000000000000000000000000000000000000000000000000000000000000016a5004ddf0f05ee7c61b6412c82c7b4b23f301653224bf29a2df3f44c9da61df"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005c000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000ac9ae05a71ebc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000ac9ae05a71ebc0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 199000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000ac9ae05a71ebc0000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 199000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xfffffffffffffffffffffffffffffffffffffffffffffee8e20bab21baf57fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564034308783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000ac9ae05a71ebc0000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000ac9ae05a71ebc0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 199000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec5000000000000000000000000000000000000000000000000000007a1fe8dd3ea3073"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005c000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000ac9ae05a71ebc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0x63ed93293f85a11a00e16e29a55e41631e8da8d0f638c185eda48a9606f836c5"
+        cctx_id: 93
+        block_number: 14742234
+        timestamp: 1643320028
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000ac9ae05a71ebc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d00000000000000000000000000000000000000000000000000000000000000016a5004ddf0f05ee7c61b6412c82c7b4b23f301653224bf29a2df3f44c9da61df"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000ac9ae05a71ebc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000ac9ae05a71ebc0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 199000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000ac9ae05a71ebc0000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 199000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xfffffffffffffffffffffffffffffffffffffffffffffede185da57a9c397fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564034109783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000ac9ae05a71ebc0000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000ac9ae05a71ebc0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 199000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec500000000000000000000000000000000000000000000000000000853a15609b93635"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005d000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000ac9ae05a71ebc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0x67337d605bb144ec8acab51e7fc1f3c75927e1e1bedc01addb118fb11fbefb36"
+        cctx_id: 94
+        block_number: 14742250
+        timestamp: 1643320076
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005e000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000ac9ae05a71ebc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005e00000000000000000000000000000000000000000000000000000000000000016a5004ddf0f05ee7c61b6412c82c7b4b23f301653224bf29a2df3f44c9da61df"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005e000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000ac9ae05a71ebc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000ac9ae05a71ebc0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 199000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000ac9ae05a71ebc0000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 199000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xfffffffffffffffffffffffffffffffffffffffffffffed34eaf9fd37d7d7fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564033910783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000ac9ae05a71ebc0000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000000ac9ae05a71ebc0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 199000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec500000000000000000000000000000000000000000000000000000905441f57733dad"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005e000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000000ac9ae05a71ebc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0xea23aed9096b6e6248d3c55b822b0b30c25efa3f984a2c36c6e30b36a2e45d4f"
+        cctx_id: 95
+        block_number: 14742267
+        timestamp: 1643320127
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005f0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000144b7f2ef9eadd80000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005f0000000000000000000000000000000000000000000000000000000000000001f65b3c7c289979e6fc69421edc262e5ce6c3d95c3114a0034c5cbb1bf05f9503"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005f0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000144b7f2ef9eadd80000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000144b7f2ef9eadd80000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 5990000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000144b7f2ef9eadd80000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 5990000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xfffffffffffffffffffffffffffffffffffffffffffffd8e96bcb034cfa57fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564027920783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7000000000000000000000000000000000000000000000144b7f2ef9eadd80000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000144b7f2ef9eadd80000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 5990000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec5000000000000000000000000000000000000000000000000000009b6e6eaa0868c73"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005f0000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000144b7f2ef9eadd80000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0x2ce666d0ec8c976f6895b1ac52f648b5f5e025c42a956c767bf4fbae0982819e"
+        cctx_id: 96
+        block_number: 14742285
+        timestamp: 1643320181
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000144b7f2ef9eadd80000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000001f65b3c7c289979e6fc69421edc262e5ce6c3d95c3114a0034c5cbb1bf05f9503"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000144b7f2ef9eadd80000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000144b7f2ef9eadd80000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 5990000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000144b7f2ef9eadd80000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 5990000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xfffffffffffffffffffffffffffffffffffffffffffffc49dec9c09621cd7fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640564021930783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7000000000000000000000000000000000000000000000144b7f2ef9eadd80000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000144b7f2ef9eadd80000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 5990000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec500000000000000000000000000000000000000000000000000000a6889b807f0df22"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000144b7f2ef9eadd80000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0x50946e3e4ccb7d39f3512b7ecb75df66e6868b9af0eee8a7e4b61ef8a459518e"
+        cctx_id: 97
+        block_number: 14742312
+        timestamp: 1643320262
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000610000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000caf2f7d5c32ca700000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000610000000000000000000000000000000000000000000000000000000000000001bbfaabfe37517b83e299eb8190b501ba4f7f011fb83910258936e55244cbf6b0"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000610000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000caf2f7d5c32ca700000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000021e0c0013070adc0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 59900000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000caf2f7d5c32ca700000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 59900000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xffffffffffffffffffffffffffffffffffffffffffffef9aaf4c6463575d7fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640563962030783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7000000000000000000000000000000000000000000000caf2f7d5c32ca700000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000caf2f7d5c32ca700000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 59900000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec500000000000000000000000000000000000000000000000000000b1a2c8fe40b9c7b"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000610000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000caf2f7d5c32ca700000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0x8f5bdea436d944432fcc11dab2ad43dc600d6a9f7083e56af17bcea8b2a2dde2"
+        cctx_id: 98
+        block_number: 14742505
+        timestamp: 1643320844
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000caf2f7d5c32ca700000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 59900000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000caf2f7d5c32ca700000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 59900000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xffffffffffffffffffffffffffffffffffffffffffffe2eb7fcf08308ced7fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640563902130783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7000000000000000000000000000000000000000000000caf2f7d5c32ca700000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000caf2f7d5c32ca700000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 59900000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec500000000000000000000000000000000000000000000000006e9966c1417791f43e8"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000620000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000caf2f7d5c32ca700000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0xff162a19a69614a8dc1630ed437a974725c3a40e6b6ed3f626663c051c946753"
+        cctx_id: 99
+        block_number: 14742511
+        timestamp: 1643320862
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000630000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000caf2f7d5c32ca700000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000630000000000000000000000000000000000000000000000000000000000000001bbfaabfe37517b83e299eb8190b501ba4f7f011fb83910258936e55244cbf6b0"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000630000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000caf2f7d5c32ca700000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000caf2f7d5c32ca700000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 59900000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000caf2f7d5c32ca700000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 59900000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xffffffffffffffffffffffffffffffffffffffffffffd63c5051abfdc27d7fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640563842230783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7000000000000000000000000000000000000000000000caf2f7d5c32ca700000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000caf2f7d5c32ca700000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 59900000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec500000000000000000000000000000000000000000000000006e997670f5e50a6926a"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000630000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000069000000000000000000000000000000000000000000000caf2f7d5c32ca700000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0x33628dcc2ca6cd89a96d241bdf17cdc8785cf4322dcaf2c79766c990579aea02"
+        cctx_id: 100
+        block_number: 14742533
+        timestamp: 1643320928
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000021e0c0013070adc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000110393a8dba5e637f29b3a61dcf7efe8bf9fef427d4e0c8f340a38769a84e163f"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000021e0c0013070adc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000021e0c0013070adc0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 9999000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000021e0c0013070adc0000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 9999000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xffffffffffffffffffffffffffffffffffffffffffffd41e445198f6b7a17fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640563832231783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000021e0c0013070adc0000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000021e0c0013070adc0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 9999000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec500000000000000000000000000000000000000000000000006e99925a1b86f97206b"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000021e0c0013070adc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
+
+      - tx_hash: "0x490336f417c9569843d74363ca8d943d1d2674325a43560408d728638d7bcdb5"
+        cctx_id: 101
+        block_number: 14742619
+        timestamp: 1643321192
+        tx_chain_type: destination
+        internal_txs:
+          - from: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            from_type: token
+            to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+            to_type: user
+            value: 50000000000000000
+            token_symbol: "BNB"
+            token_decimals: 18
+        events:
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000065000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000021e0c0013070adc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalVote (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes32 dataHash)"
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000065000000000000000000000000000000000000000000000000000000000000000110393a8dba5e637f29b3a61dcf7efe8bf9fef427d4e0c8f340a38769a84e163f"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: operation_request_signing
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000065000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000021e0c0013070adc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000021e0c0013070adc0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                to_type: other_account
+                relation_type: token_transfer
+            amount: 9999000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000021e0c0013070adc0000"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_transfer
+            amount: 9999000000000000000000
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+            emitter_type: token
+            event_signature: "Approval (index_topic_1 address owner, index_topic_2 address spender, uint256 value)"
+            event_type: approval
+            num_args: 3
+            input: "0xffffffffffffffffffffffffffffffffffffffffffffd200385185efacc57fff"
+            relations:
+              - from: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
+                from_type: other_account
+                to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+                to_type: token
+                relation_type: token_auth
+            amount: 115792089237316195423570985008687907853269984665640563822232783967913129639935
+            token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
+            token_decimals: 18
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Mint (address minter, uint256 mintAmount)"
+            event_type: mint
+            num_args: 2
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000021e0c0013070adc0000"
+          - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x00000000000000000000000000000000000000000000021e0c0013070adc0000"
+            relations:
+              - from: "0x0000000000000000000000000000000000000000"
+                from_type: other_account
+                to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
+                to_type: user
+                relation_type: token_transfer
+            amount: 9999000000000000000000
+            token_symbol: "WETH"
+            token_decimals: 18
+          - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
+            emitter_type: token
+            event_signature: "event Borrow (address account, uint256 ammount, uint256 accountBorrow)"
+            num_args: 3
+            input: "0x000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c700000000000000000000000000000000000000000000000000b1a2bc2ec500000000000000000000000000000000000000000000000006e99e0b04b03fa9596b"
+          - emitted_by: "0x4d8aE68fCAe98Bf93299548545933c0D273BA23a"
+            emitter_type: router
+            event_signature: "event ProposalEvent (uint8 originDomainID, uint64 depositNonce, uint8 status, bytes data)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000065000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000006900000000000000000000000000000000000000000000021e0c0013070adc0000000000000000000000000000d01ae1a708614948b2b5e0b7ab5be6afa01325c7"
+            relations:
+              - to: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
+                to_type: token
+                relation_type: function_call
