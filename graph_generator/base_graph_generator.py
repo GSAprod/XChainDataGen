@@ -153,8 +153,14 @@ class BaseGraphGenerator(ABC):
             self.attacker_addresses.get(tx.blockchain, set())
         )
 
-        # First check for internal transactions (if supported) to capture token transfers that may not emit events.
-        op_index = self._process_traces(graph_obj, tx)
+        # First, check if there is a value transfer in the transaction itself
+        op_index = 0
+        if tx.value is not None and tx.value > 0:
+            self.process_internal_token_transfer(graph_obj, tx.blockchain, 0, None, tx.from_address, tx.to_address, tx.value, tx.timestamp)
+            op_index += 1
+
+        # Then check for internal transactions (if supported) to capture token transfers that may not emit events.
+        op_index = self._process_traces(graph_obj, tx, op_index)
 
         # Then process log events to capture token transfers and approvals, as well as router events. 
         # For tokens, also attempt to resolve price info and record any missing prices for later resolution.
@@ -163,8 +169,7 @@ class BaseGraphGenerator(ABC):
             self._dispatch_log_event(graph_obj, tx, event, op_index)
             op_index += 1
 
-    def _process_traces(self, graph_obj: GraphObject, tx: BlockchainTransaction) -> int:
-        op_index = 0
+    def _process_traces(self, graph_obj: GraphObject, tx: BlockchainTransaction, op_index: int) -> int:
         if tx.blockchain in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS:
             internal_txs = self.rpc_client.get_transaction_trace(tx.blockchain, tx.transaction_hash)
             internal_inputs = set()

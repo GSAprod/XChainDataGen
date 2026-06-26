@@ -44,6 +44,7 @@ _NODE_TYPE_MAP = {
 }
 
 _EDGE_TYPE_MAP = {
+    "transaction": GraphEdgeType.TRANSACTION.value,
     "token_transfer": GraphEdgeType.TOKEN_TRANSFER.value,
     "token_auth": GraphEdgeType.TOKEN_AUTH.value,
     "function_call": GraphEdgeType.FUNCTION_CALL.value,
@@ -138,9 +139,9 @@ class AddNewAttacksScript:
 
         # Backfill any USD amounts that couldn't be resolved during processing
         self.pricing.batch_resolve_pending(self.graph_nodes_repo)
-        self.graph_nodes_repo.refresh_degrees()
 
         self.link_cross_chain_txs()
+        self.graph_nodes_repo.refresh_degrees()
 
     def add_attack_to_db(
         self, bridge_name: str, chain_name: str, router_address_replace: str, tx: dict
@@ -176,6 +177,8 @@ class AddNewAttacksScript:
         op_index = 0
 
         # Internal transactions represent native-token transfers not captured by log events
+        # NOTE: When writing the YAML, include also the top-level tx value transfer 
+        # as an internal transaction for consistency
         for internal_tx in tx.get("internal_txs") or []:
             from_addr = internal_tx.get("from")
             to_addr = internal_tx.get("to")
@@ -193,6 +196,9 @@ class AddNewAttacksScript:
                 _resolve_address(to_addr, to_type, router_address_replace),
                 timestamp, node_type_if_missing=_map_node_type(to_type),
             )
+            if from_node.node_id == to_node.node_id:  # Avoid self-loop for missing/invalid addresses
+                continue
+
             graph_obj.create_edge(
                 from_node.node_id, to_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, op_index
             )
@@ -272,7 +278,7 @@ class AddNewAttacksScript:
             event_type = _resolve_event_type(yaml_event_type, emitter_type)
             log_node = graph_obj.create_log_node(
                 op_index,
-                topic=event_signature or emitted_by,
+                topic=f"{emitted_by}_{op_index}_{event_type}",
                 event_type=event_type,
                 event_signature=event_signature,
                 event_args=[None] * num_args,
