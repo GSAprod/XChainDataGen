@@ -96,17 +96,23 @@ class GraphObject:
         # we want to treat multiple addresses as the same entity
         # (e.g., due to multiple routing contracts having split functions that
         # process a deposit/withdrawal).
-        address = self._resolved(address)
+        resolved_address = self._resolved(address)
         for node in self.nodes:
-            if node.address.lower() == address.lower():
+            if node.address.lower() == resolved_address.lower():
                 return node
-        # If not found, create a new node with the provided type
+        
+        # If not found, create a new node with the provided type, unless
+        # the address was resolved to a different address, 
+        # in which case we assume it's a router address.
+        if resolved_address != address:
+            node_type_if_missing = GraphNodeType.ROUTER.value
+
         new_node_data = {
             "chain_graph_id": self.graph_mapping.graph_id,
             "node_type": node_type_if_missing,
             "bridge": self.graph_mapping.bridge,
             "blockchain": self.graph_mapping.blockchain,
-            "address": address,
+            "address": resolved_address,
         }
         if attributes is not None:
             new_node_data["attributes"] = attributes

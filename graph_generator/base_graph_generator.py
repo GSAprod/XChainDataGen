@@ -153,13 +153,8 @@ class BaseGraphGenerator(ABC):
             self.attacker_addresses.get(tx.blockchain, set())
         )
 
-        # First, check if there is a value transfer in the transaction itself
+        # First, check for internal transactions (if supported) to capture token transfers that may not emit events.
         op_index = 0
-        if tx.value is not None and tx.value > 0:
-            self.process_internal_token_transfer(graph_obj, tx.blockchain, 0, None, tx.from_address, tx.to_address, tx.value, tx.timestamp)
-            op_index += 1
-
-        # Then check for internal transactions (if supported) to capture token transfers that may not emit events.
         op_index = self._process_traces(graph_obj, tx, op_index)
 
         # Then process log events to capture token transfers and approvals, as well as router events. 
@@ -173,21 +168,45 @@ class BaseGraphGenerator(ABC):
         if tx.blockchain in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS:
             internal_txs = self.rpc_client.get_transaction_trace(tx.blockchain, tx.transaction_hash)
             internal_inputs = set()
+
+            staticcall_depth = None
             for internal_tx in internal_txs:
                 if (
-                    internal_tx["type"] == "delegatecall"
-                    and internal_tx["action"]["input"] in internal_inputs
-                ): # Skip delegatecalls with duplicate input data to avoid processing the same token transfer multiple times
+                    staticcall_depth is not None
+                    and len(internal_tx["traceAddress"]) > staticcall_depth
+                ):
+                    # Skip processing nested calls under a staticcall (read-only)
+                    continue
+                else:
+                    staticcall_depth = None
+
+                if (
+                    internal_tx["action"]["callType"] == "staticcall"
+                ):
+                    # Ignore staticcalls and ALL their nested calls
+                    staticcall_depth = len(internal_tx["traceAddress"])
                     continue
                 elif (
-                    internal_tx["type"] == "call"
-                    and internal_tx["action"]["callType"] in ["call", "callcode", "delegatecall"]
+                    internal_tx["action"]["callType"] in ["call", "callcode", "delegatecall"]
                     and internal_tx["action"]["value"] != "0x0"
+                    and internal_tx["action"]["input"] not in internal_inputs
                 ): # Process internal transactions that transfer native tokens (value > 0)
                     from_address = internal_tx["action"]["from"]
                     to_address = internal_tx["action"]["to"]
                     value = int(internal_tx["action"]["value"], 16)
                     self.process_internal_token_transfer(graph_obj, tx.blockchain, op_index, internal_tx, from_address, to_address, value, tx.timestamp)
+                    op_index += 1
+                    internal_inputs.add(internal_tx["action"]["input"])
+                elif (
+                    internal_tx["type"] in ("call", "create", "create2")
+                    and internal_tx["action"]["callType"] in ["call", "delegatecall"]
+                ): # Process other internal transactions to ensure we capture all relevant interactions
+                    # as function_calls
+                    from_address = internal_tx["action"]["from"]
+                    to_address = internal_tx["action"]["to"]
+                    if from_address == to_address:
+                        continue
+                    self.process_internal_function_call(graph_obj, tx, op_index, internal_tx, tx.timestamp)
                     op_index += 1
                     internal_inputs.add(internal_tx["action"]["input"])
         else:
@@ -241,6 +260,35 @@ class BaseGraphGenerator(ABC):
         )
         graph_obj.create_edge(address_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
 
+    def _fetch_or_create_typed_node(
+        self, graph_obj: GraphObject, address: str, blockchain: str, timestamp: int
+    ):
+        existing = graph_obj.fetch_node_by_address(address)
+        if existing:
+            return existing
+
+        # Free fast-path: if address resolution returns a different address,
+        # this is a router that gets collapsed to a canonical address.
+        if self.resolve_node_address(address, blockchain) != address:
+            return graph_obj.fetch_or_create_node(address, timestamp=timestamp)
+
+        # DB check for routers that don't require address collapsing.
+        if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
+            self.bridge.value, address.lower(), blockchain
+        ):
+            node = graph_obj.fetch_or_create_node(
+                address, timestamp=timestamp, node_type_if_missing=GraphNodeType.ROUTER.value
+            )
+            graph_obj.update_node_type(node.node_id, GraphNodeType.ROUTER.value)
+            return node
+
+        # Token detection (DB lookup; RPC fallback cached in inspector._unknown_contracts).
+        token_metadata = self.inspector.ensure_metadata(address, blockchain)
+        if token_metadata is not None:
+            return graph_obj.fetch_or_create_token_node(address, timestamp=timestamp)
+
+        return graph_obj.fetch_or_create_node(address, timestamp=timestamp)
+
     def process_internal_token_transfer(self, graph_obj: GraphObject, blockchain, op_index, internal_tx, from_address, to_address, value, timestamp):
         # Cap value to avoid overflow issues in the graph dataset
         if value is not None and value > 10e27:
@@ -248,8 +296,8 @@ class BaseGraphGenerator(ABC):
 
         # Create a token transfer edge for the internal transaction,
         # linking the sender and recipient addresses for the transfer.
-        from_node = graph_obj.fetch_or_create_node(from_address, timestamp=timestamp)
-        to_node = graph_obj.fetch_or_create_node(to_address, timestamp=timestamp)
+        from_node = self._fetch_or_create_typed_node(graph_obj, from_address, blockchain, timestamp)
+        to_node = self._fetch_or_create_typed_node(graph_obj, to_address, blockchain, timestamp)
         graph_obj.create_edge(from_node.node_id, to_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, op_index, attributes={
             "currency": "native",
             "amount": value
@@ -297,6 +345,27 @@ class BaseGraphGenerator(ABC):
         if amount_usd is None:
             self.pricing.record_missing_price(log_event_node.node_id, native_token_symbol, timestamp, amount)
         graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
+
+    def process_internal_function_call(self, graph_obj: GraphObject, tx: BlockchainTransaction, op_index: int, internal_tx, timestamp):
+        from_address = internal_tx["action"]["from"]
+        to_address = internal_tx["action"]["to"]
+        callType = internal_tx["action"]["callType"]
+
+        from_node = self._fetch_or_create_typed_node(graph_obj, from_address, tx.blockchain, timestamp)
+        to_node = self._fetch_or_create_typed_node(
+            graph_obj, to_address, tx.blockchain, timestamp
+        )
+        if from_node.address == to_node.address:
+            return
+        
+        graph_obj.create_edge(
+            from_node.node_id, 
+            to_node.node_id, 
+            GraphEdgeType.TRANSACTION.value if internal_tx["traceAddress"] == [] 
+                else GraphEdgeType.FUNCTION_CALL.value if callType == "call" 
+                else GraphEdgeType.DELEGATE_CALL.value, 
+            op_index
+        )
 
     def create_unknown_router_event_node(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         """

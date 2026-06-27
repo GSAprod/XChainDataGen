@@ -132,10 +132,6 @@ class NomadGraphGenerator(BaseGraphGenerator):
                 attributes={"amount": int(value)},
             )
 
-        # Link the routing node and the token node with a function call edge
-        token_node = graph_obj.fetch_or_create_token_node(event_record.input_token, timestamp=tx.timestamp)
-        graph_obj.create_edge(routing_node.node_id, token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
-
         input_token_metadata = self.inspector.ensure_metadata(event_record.input_token, graph_obj.graph_mapping.blockchain)
         if input_token_metadata is not None:
             _, amount_usd = self.pricing.resolve_token_amount(input_token_metadata, value, tx.timestamp)
@@ -186,10 +182,6 @@ class NomadGraphGenerator(BaseGraphGenerator):
             timestamp=tx.timestamp,
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
-
-        # Link the routing node and the token node with a function call edge
-        token_node = graph_obj.fetch_or_create_token_node(event_record.output_token, timestamp=tx.timestamp)
-        graph_obj.create_edge(routing_node.node_id, token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
 
         output_token_metadata = self.inspector.ensure_metadata(event_record.output_token, graph_obj.graph_mapping.blockchain)
         if output_token_metadata is not None:
@@ -320,11 +312,3 @@ class NomadGraphGenerator(BaseGraphGenerator):
         )
         graph_obj.create_edge(routing_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, event_index)
 
-        # Link Replica to BridgeRouter (BridgeRouter was created first during Receive)
-        other_routers = sorted(
-            [n for n in graph_obj.nodes if n.node_type == GraphNodeType.ROUTER.value and n.node_id != routing_node.node_id],
-            key=lambda n: n.node_id,
-        )
-        if other_routers:
-            bridge_router_node = other_routers[0]
-            graph_obj.create_edge(routing_node.node_id, bridge_router_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)

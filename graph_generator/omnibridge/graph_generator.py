@@ -143,19 +143,6 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
         if value is not None and value > 10e27:
             value = 10e27
 
-        # Get the other routing node responsible for the signature request / affirmation request and 
-        # link a function call edge from that node to this routing node
-        other_routing_address = (
-            "0x4c36d2919e407f0cc2ee3c993ccf8ac26d9ce64e" if graph_obj.graph_mapping.blockchain == "ethereum"
-            else "0x75df5af045d91108662d8080fd1fefad6aa0bb59"  # gnosis
-        )
-        other_routing_node = graph_obj.fetch_or_create_node(
-            other_routing_address,
-            node_type_if_missing=GraphNodeType.ROUTER.value,
-            timestamp=tx.timestamp
-        )
-        graph_obj.create_edge(other_routing_node.node_id, routing_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
-
         # Ensure the sender is a user node
         sender_node = graph_obj.fetch_or_create_node(
             event_record.sender,
@@ -164,10 +151,6 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
         )
         graph_obj.update_node_type(sender_node.node_id, GraphNodeType.USER.value)
         graph_obj.create_edge(sender_node.node_id, routing_node.node_id, GraphEdgeType.TRANSACTION.value, event_index, attributes={"amount": int(event_record.value)})
-
-        # Link the routing node and the token node with a function call edge
-        token_node = graph_obj.fetch_or_create_token_node(event_record.token, timestamp=tx.timestamp)
-        graph_obj.create_edge(routing_node.node_id, token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
 
         token_metadata = self.inspector.ensure_metadata(event_record.token, graph_obj.graph_mapping.blockchain)
         if token_metadata is not None:
@@ -210,10 +193,6 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
 
-        # Link the routing node and the token node with a function call edge
-        token_node = graph_obj.fetch_or_create_token_node(event_record.token, timestamp=tx.timestamp)
-        graph_obj.create_edge(routing_node.node_id, token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
-
         token_metadata = self.inspector.ensure_metadata(event_record.token, graph_obj.graph_mapping.blockchain)
         if token_metadata is not None:
             _, amount_usd = self.pricing.resolve_token_amount(token_metadata, value, tx.timestamp)
@@ -252,15 +231,7 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
             timestamp=tx.timestamp
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
-        # Ensure there is a token DAO node and link it to the routing node with a function call edge
         token_dao_address = "0x97630e2ae609d4104abda91f3066c556403182dd"
-        token_dao_node = graph_obj.fetch_or_create_node(
-            token_dao_address,
-            node_type_if_missing=GraphNodeType.TOKEN.value,
-            timestamp=tx.timestamp
-        )
-        graph_obj.create_edge(routing_node.node_id, token_dao_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
-
         token_metadata = self.inspector.ensure_metadata(token_dao_address, graph_obj.graph_mapping.blockchain)
         if token_metadata is not None:
             _, amount_usd = self.pricing.resolve_token_amount(token_metadata, value, tx.timestamp)
@@ -287,14 +258,6 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
     def parse_affirmation_completed(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event AffirmationCompleted(address sender, address executor, bytes32 messageId, bool status)"
         event_record = self.affirmation_completed_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
-
-        # Link the executor node to this routing node with a function call edge
-        executor_node = graph_obj.fetch_or_create_node(
-            event_record.executor,
-            node_type_if_missing=GraphNodeType.OTHER_ACCOUNT.value,
-            timestamp=tx.timestamp
-        )
-        graph_obj.create_edge(executor_node.node_id, routing_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
 
         # Create and link log event node to the routing node
         log_event_node = graph_obj.create_log_node(
@@ -324,11 +287,7 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
 
-        # Ensure there is a DAI stablecoin node and link it to the routing node with a function call edge
         dai_token_address = "0x6b175474e89094c44da98b954eedeac495271d0f"
-        dai_token_node = graph_obj.fetch_or_create_token_node(dai_token_address, timestamp=tx.timestamp)
-        graph_obj.create_edge(routing_node.node_id, dai_token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
-
         token_metadata = self.inspector.ensure_metadata(dai_token_address, graph_obj.graph_mapping.blockchain)
         if token_metadata is not None:
             _, amount_usd = self.pricing.resolve_token_amount(token_metadata, value, tx.timestamp)
@@ -355,14 +314,6 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
     def parse_relayed_message(self, tx, event, event_index, routing_node, graph_obj: GraphObject):
         event_signature = "event RelayedMessage(address sender, address executor, bytes32 messageId, bool status)"
         event_record = self.relayed_message_repo.fetch_by_transaction_hash(graph_obj.graph_mapping.tx_hash)
-
-        # Link the executor node to this routing node with a function call edge
-        executor_node = graph_obj.fetch_or_create_node(
-            event_record.executor,
-            node_type_if_missing=GraphNodeType.OTHER_ACCOUNT.value,
-            timestamp=tx.timestamp
-        )
-        graph_obj.create_edge(executor_node.node_id, routing_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
 
         # Create and link log event node to the routing node
         log_event_node = graph_obj.create_log_node(

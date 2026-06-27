@@ -279,13 +279,6 @@ class PolynetworkGraphGenerator(BaseGraphGenerator):
         if value > 10e27:
             value = 10e27
 
-        token_node = graph_obj.fetch_or_create_token_node(
-            event_record.from_asset_hash, timestamp=tx.timestamp
-        )
-        graph_obj.create_edge(
-            routing_node.node_id, token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index
-        )
-
         token_metadata = self.inspector.ensure_metadata(
             event_record.from_asset_hash, graph_obj.graph_mapping.blockchain
         )
@@ -357,13 +350,6 @@ class PolynetworkGraphGenerator(BaseGraphGenerator):
         value = int(event_record.amount)
         if value > 10e27:
             value = 10e27
-
-        token_node = graph_obj.fetch_or_create_token_node(
-            event_record.to_asset_hash, timestamp=tx.timestamp
-        )
-        graph_obj.create_edge(
-            routing_node.node_id, token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index
-        )
 
         token_metadata = self.inspector.ensure_metadata(
             event_record.to_asset_hash, graph_obj.graph_mapping.blockchain

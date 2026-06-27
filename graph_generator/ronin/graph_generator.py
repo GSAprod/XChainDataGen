@@ -53,6 +53,18 @@ class RoninGraphGenerator(BaseGraphGenerator):
                 "event WithdrawRequested(bytes32 receiptHash, tuple receipt), "
             )
 
+    #override
+    def resolve_node_address(self, address, blockchain):
+        if address in ( # Implementation contracts
+            '0x72e28a9009ad12de019bff418cd210d4bbc3d403'
+        ) or self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
+            self.bridge.value,
+            address,
+            blockchain
+        ):
+            return "__RONIN_BRIDGE_ROUTER__"
+        return address
+
     def fetch_cctx_id(self, cctx: RoninCrossChainTransaction):
         return str(cctx.deposit_id)
 
@@ -93,17 +105,6 @@ class RoninGraphGenerator(BaseGraphGenerator):
             timestamp=tx.timestamp
         )
         graph_obj.update_node_type(depositor_node.node_id, GraphNodeType.USER.value)
-        graph_obj.create_edge(
-            depositor_node.node_id,
-            routing_node.node_id,
-            GraphEdgeType.TRANSACTION.value,
-            event_index,
-            attributes={"amount": int(value)}
-        )
-
-        # Link the routing node and the token node with a function call edge
-        token_node = graph_obj.fetch_or_create_token_node(event_record.input_token, timestamp=tx.timestamp)
-        graph_obj.create_edge(routing_node.node_id, token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
 
         input_token_metadata = self.inspector.ensure_metadata(event_record.input_token, graph_obj.graph_mapping.blockchain)
         if input_token_metadata is not None:
@@ -146,10 +147,6 @@ class RoninGraphGenerator(BaseGraphGenerator):
         value = int(event_record.amount)
         if value is not None and value > 10e27:
             value = 10e27
-
-        # Link the routing node and the token node with a function call edge
-        token_node = graph_obj.fetch_or_create_token_node(event_record.output_token, timestamp=tx.timestamp)
-        graph_obj.create_edge(routing_node.node_id, token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
 
         # Ensure the recipient is a user node
         recipient_node = graph_obj.fetch_or_create_node(
@@ -207,17 +204,6 @@ class RoninGraphGenerator(BaseGraphGenerator):
             timestamp=tx.timestamp
         )
         graph_obj.update_node_type(withdrawer_node.node_id, GraphNodeType.USER.value)
-        graph_obj.create_edge(
-            withdrawer_node.node_id,
-            routing_node.node_id,
-            GraphEdgeType.TRANSACTION.value,
-            event_index,
-            attributes={"amount": int(value)}
-        )
-
-        # Link the routing node and the token node with a function call edge
-        token_node = graph_obj.fetch_or_create_token_node(event_record.input_token, timestamp=tx.timestamp)
-        graph_obj.create_edge(routing_node.node_id, token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
 
         input_token_metadata = self.inspector.ensure_metadata(event_record.input_token, graph_obj.graph_mapping.blockchain)
         if input_token_metadata is not None:
@@ -262,10 +248,6 @@ class RoninGraphGenerator(BaseGraphGenerator):
         value = int(event_record.amount)
         if value is not None and value > 10e27:
             value = 10e27
-
-        # Link the routing node and the token node with a function call edge
-        token_node = graph_obj.fetch_or_create_token_node(event_record.output_token, timestamp=tx.timestamp)
-        graph_obj.create_edge(routing_node.node_id, token_node.node_id, GraphEdgeType.FUNCTION_CALL.value, event_index)
 
         # Ensure the recipient is a user node
         recipient_node = graph_obj.fetch_or_create_node(

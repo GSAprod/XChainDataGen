@@ -33,6 +33,7 @@ class GraphEdgeType(Enum):
     TOKEN_TRANSFER = "token_transfer"
     TOKEN_AUTH = "token_auth"
     FUNCTION_CALL = "function_call"
+    DELEGATE_CALL = "delegate_call"
     LOG_RELATION = "log_relation"
     CROSS_CHAIN_RELATION = "cross_chain_relation"
 
