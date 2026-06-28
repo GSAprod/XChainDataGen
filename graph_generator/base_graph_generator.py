@@ -44,6 +44,7 @@ class BaseGraphGenerator(ABC):
         self.chain_anomaly_transactions = {}
         self.offchain_anomaly_transactions = set()
         self.attacker_addresses = {}
+        self._resolve_address_cache: dict[tuple, str] = {}
         self.load_anomaly_data()
 
         try:
@@ -296,8 +297,14 @@ class BaseGraphGenerator(ABC):
 
         # Create a token transfer edge for the internal transaction,
         # linking the sender and recipient addresses for the transfer.
-        from_node = self._fetch_or_create_typed_node(graph_obj, from_address, blockchain, timestamp)
-        to_node = self._fetch_or_create_typed_node(graph_obj, to_address, blockchain, timestamp)
+        from_node = graph_obj.fetch_or_create_node(from_address, timestamp=timestamp)
+        if from_node.address != from_address:
+            # Address resolution has collapsed the sender address to a canonical address
+            graph_obj.update_node_type(from_node.node_id, GraphNodeType.ROUTER.value)
+        to_node = graph_obj.fetch_or_create_node(to_address, timestamp=timestamp)
+        if to_node.address != to_address:
+            # Address resolution has collapsed the recipient address to a canonical address
+            graph_obj.update_node_type(to_node.node_id, GraphNodeType.ROUTER.value)
         graph_obj.create_edge(from_node.node_id, to_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, op_index, attributes={
             "currency": "native",
             "amount": value
@@ -326,6 +333,7 @@ class BaseGraphGenerator(ABC):
             },
             timestamp=timestamp
         )
+        graph_obj.update_node_type(native_token_node.node_id, GraphNodeType.TOKEN.value)
 
         # Resolve price for the native token transfer and 
         # create a log node for the transfer, linking it to the native token node for context.
@@ -351,12 +359,15 @@ class BaseGraphGenerator(ABC):
         to_address = internal_tx["action"]["to"]
         callType = internal_tx["action"]["callType"]
 
-        from_node = self._fetch_or_create_typed_node(graph_obj, from_address, tx.blockchain, timestamp)
-        to_node = self._fetch_or_create_typed_node(
-            graph_obj, to_address, tx.blockchain, timestamp
-        )
+        from_node = graph_obj.fetch_or_create_node(from_address, timestamp=timestamp)
+        to_node = graph_obj.fetch_or_create_node(to_address, timestamp=timestamp)
         if from_node.address == to_node.address:
             return
+
+        if from_node.address != from_address:  # Address resolution has collapsed the sender address to a canonical address
+            graph_obj.update_node_type(from_node.node_id, GraphNodeType.ROUTER.value)
+        if to_node.address != to_address:  # Address resolution has collapsed the recipient address to a canonical address
+            graph_obj.update_node_type(to_node.node_id, GraphNodeType.ROUTER.value)
         
         graph_obj.create_edge(
             from_node.node_id, 

@@ -62,6 +62,16 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
                 "event AffirmationCompleted(address sender, address executor, bytes32 messageId, bool status), "
                 "event AffirmationCompleted(address recipient, uint256 value, bytes32 nonce)"
             )
+    
+    #override
+    def resolve_node_address(self, address, blockchain):
+        if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
+            self.bridge.value,
+            address,
+            blockchain
+        ):
+            return "__OMNIBRIDGE_BRIDGE_ROUTER__"
+        return address
 
     def fetch_cctx_id(self, cctx: OmnibridgeCrossChainTransactions):
         # For OmniBridge, we can directly use the message_id from the database as the unique identifier for the cross-chain transaction
@@ -150,7 +160,10 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
             timestamp=tx.timestamp
         )
         graph_obj.update_node_type(sender_node.node_id, GraphNodeType.USER.value)
-        graph_obj.create_edge(sender_node.node_id, routing_node.node_id, GraphEdgeType.TRANSACTION.value, event_index, attributes={"amount": int(event_record.value)})
+
+        # Ensure the token is in fact a token node
+        token_node = graph_obj.fetch_or_create_token_node(event_record.token, timestamp=tx.timestamp)
+        graph_obj.update_node_type(token_node.node_id, GraphNodeType.TOKEN.value)
 
         token_metadata = self.inspector.ensure_metadata(event_record.token, graph_obj.graph_mapping.blockchain)
         if token_metadata is not None:
@@ -193,6 +206,10 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
 
+        # Ensure the token is in fact a token node
+        token_node = graph_obj.fetch_or_create_token_node(event_record.token, timestamp=tx.timestamp)
+        graph_obj.update_node_type(token_node.node_id, GraphNodeType.TOKEN.value)
+
         token_metadata = self.inspector.ensure_metadata(event_record.token, graph_obj.graph_mapping.blockchain)
         if token_metadata is not None:
             _, amount_usd = self.pricing.resolve_token_amount(token_metadata, value, tx.timestamp)
@@ -231,7 +248,14 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
             timestamp=tx.timestamp
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
+        # Ensure there is a token DAO node and verify its type
         token_dao_address = "0x97630e2ae609d4104abda91f3066c556403182dd"
+        token_dao_node = graph_obj.fetch_or_create_node(
+            token_dao_address,
+            node_type_if_missing=GraphNodeType.TOKEN.value,
+            timestamp=tx.timestamp
+        )
+        token_dao_node = graph_obj.update_node_type(token_dao_node.node_id, GraphNodeType.TOKEN.value)
         token_metadata = self.inspector.ensure_metadata(token_dao_address, graph_obj.graph_mapping.blockchain)
         if token_metadata is not None:
             _, amount_usd = self.pricing.resolve_token_amount(token_metadata, value, tx.timestamp)
@@ -287,7 +311,11 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
 
+        # Ensure there is a DAI stablecoin node and verify its type
         dai_token_address = "0x6b175474e89094c44da98b954eedeac495271d0f"
+        dai_token_node = graph_obj.fetch_or_create_token_node(dai_token_address, timestamp=tx.timestamp)
+        graph_obj.update_node_type(dai_token_node.node_id, GraphNodeType.TOKEN.value)
+
         token_metadata = self.inspector.ensure_metadata(dai_token_address, graph_obj.graph_mapping.blockchain)
         if token_metadata is not None:
             _, amount_usd = self.pricing.resolve_token_amount(token_metadata, value, tx.timestamp)

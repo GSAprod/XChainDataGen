@@ -106,6 +106,10 @@ class RoninGraphGenerator(BaseGraphGenerator):
         )
         graph_obj.update_node_type(depositor_node.node_id, GraphNodeType.USER.value)
 
+        # Ensure the input token is a token node
+        token_node = graph_obj.fetch_or_create_token_node(event_record.input_token, timestamp=tx.timestamp)
+        graph_obj.update_node_type(token_node.node_id, GraphNodeType.TOKEN.value)
+
         input_token_metadata = self.inspector.ensure_metadata(event_record.input_token, graph_obj.graph_mapping.blockchain)
         if input_token_metadata is not None:
             _, amount_usd = self.pricing.resolve_token_amount(input_token_metadata, value, tx.timestamp)
@@ -147,6 +151,10 @@ class RoninGraphGenerator(BaseGraphGenerator):
         value = int(event_record.amount)
         if value is not None and value > 10e27:
             value = 10e27
+
+        # Ensure the output token is a token node
+        token_node = graph_obj.fetch_or_create_token_node(event_record.output_token, timestamp=tx.timestamp)
+        graph_obj.update_node_type(token_node.node_id, GraphNodeType.TOKEN.value)
 
         # Ensure the recipient is a user node
         recipient_node = graph_obj.fetch_or_create_node(
@@ -205,6 +213,10 @@ class RoninGraphGenerator(BaseGraphGenerator):
         )
         graph_obj.update_node_type(withdrawer_node.node_id, GraphNodeType.USER.value)
 
+        # Ensure the input token is a token node
+        token_node = graph_obj.fetch_or_create_token_node(event_record.input_token, timestamp=tx.timestamp)
+        graph_obj.update_node_type(token_node.node_id, GraphNodeType.TOKEN.value)
+
         input_token_metadata = self.inspector.ensure_metadata(event_record.input_token, graph_obj.graph_mapping.blockchain)
         if input_token_metadata is not None:
             _, in_amount_usd = self.pricing.resolve_token_amount(input_token_metadata, value, tx.timestamp)
@@ -248,6 +260,10 @@ class RoninGraphGenerator(BaseGraphGenerator):
         value = int(event_record.amount)
         if value is not None and value > 10e27:
             value = 10e27
+
+        # Ensure the output token is a token node
+        token_node = graph_obj.fetch_or_create_token_node(event_record.output_token, timestamp=tx.timestamp)
+        graph_obj.update_node_type(token_node.node_id, GraphNodeType.TOKEN.value)
 
         # Ensure the recipient is a user node
         recipient_node = graph_obj.fetch_or_create_node(

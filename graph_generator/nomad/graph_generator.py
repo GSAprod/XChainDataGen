@@ -131,6 +131,10 @@ class NomadGraphGenerator(BaseGraphGenerator):
                 event_index,
                 attributes={"amount": int(value)},
             )
+        
+        # Ensure the input token is a token node
+        token_node = graph_obj.fetch_or_create_token_node(event_record.input_token, timestamp=tx.timestamp)
+        graph_obj.update_node_type(token_node.node_id, GraphNodeType.TOKEN.value)
 
         input_token_metadata = self.inspector.ensure_metadata(event_record.input_token, graph_obj.graph_mapping.blockchain)
         if input_token_metadata is not None:
@@ -182,6 +186,10 @@ class NomadGraphGenerator(BaseGraphGenerator):
             timestamp=tx.timestamp,
         )
         graph_obj.update_node_type(recipient_node.node_id, GraphNodeType.USER.value)
+
+        # Ensure the output token is a token node
+        token_node = graph_obj.fetch_or_create_token_node(event_record.output_token, timestamp=tx.timestamp)
+        graph_obj.update_node_type(token_node.node_id, GraphNodeType.TOKEN.value)
 
         output_token_metadata = self.inspector.ensure_metadata(event_record.output_token, graph_obj.graph_mapping.blockchain)
         if output_token_metadata is not None:
