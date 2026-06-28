@@ -108,6 +108,17 @@ class DuneClient:
         }
         return self.make_request(endpoint, payload)["execution_id"]
 
+    def execute_internal_transactions_query(self, blockchain: str, tx_hashes: list[str], start_ts: int, end_ts: int) -> str:
+        endpoint = "v1/sql/execute"
+        payload = {
+            "sql": f"SELECT * FROM {blockchain}.traces " +
+                f"WHERE block_time >= from_unixtime({start_ts}) " +
+                f"AND block_time <= from_unixtime({end_ts}) " +
+                f"AND tx_hash in ({','.join(tx_hashes)})" + 
+                "ORDER BY tx_hash",
+            "performance": "medium"
+        }
+        return self.make_request(endpoint, payload)["execution_id"]
 
     def get_execution_status(self, execution_id: str) -> str:
         endpoint = f"v1/execution/{execution_id}/status"
@@ -188,4 +199,27 @@ class DuneClient:
             
         results = self.get_execution_results(execution_id)
         log_to_cli(f"Fetched Dune query results for execution ID {execution_id}. Number of token prices found: {len(results['rows'])}")
+        return results
+    
+    def fetch_internal_transactions(self, blockchain: str, tx_hashes: list[str], start_ts: int, end_ts: int) -> list[dict]:
+        if blockchain in ('solana', 'moonbeam', 'moonriver'):
+            raise ValueError(f"Blockchain {blockchain} not supported by DUNE for internal transactions.")
+
+        execution_id = self.execute_internal_transactions_query(blockchain, tx_hashes, start_ts, end_ts)
+        log_to_cli(f"Created Dune query with execution ID {execution_id} for {len(tx_hashes)} transaction hashes.")
+        total_wait_time = 0
+        while True:
+            response = self.get_execution_status(execution_id)
+            log_to_cli(f"Dune query execution status for execution ID {execution_id}: {response['state']} (wait: {total_wait_time}s)")
+            if response["state"] == "QUERY_STATE_COMPLETED":
+                break
+            elif response["state"] == "QUERY_STATE_FAILED":
+                raise CustomException(f"Dune query execution failed for execution ID {execution_id}.")
+            time.sleep(5)  # Poll every 5 seconds
+            total_wait_time += 5
+            if total_wait_time > 300:  # Timeout after 5 minutes
+                raise CustomException(f"Dune query execution timed out after 5 minutes for execution ID {execution_id}.")
+
+        results = self.get_execution_results(execution_id)
+        log_to_cli(f"Fetched Dune query results for execution ID {execution_id}. Number of internal transactions found: {len(results['rows'])}")
         return results
