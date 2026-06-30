@@ -71,6 +71,9 @@ class GraphObject:
     def fetch_or_create_token_node(self, address: str, timestamp: int):
         for node in self.nodes:
             if node.address.lower() == address.lower():
+                # Ensure the node type is set to TOKEN
+                if node.node_type != GraphNodeType.TOKEN.value:
+                    self.update_node_type(node.node_id, GraphNodeType.TOKEN.value)
                 return node
         
         token_metadata = self.token_metadata_repo.get_token_metadata_by_contract_and_blockchain(address, self.graph_mapping.blockchain)
@@ -160,7 +163,7 @@ class GraphObject:
                     break
         return updated_node
 
-    def create_edge(self, source_id, target_id, edge_type, event_index, attributes=None, attributes_text=None):
+    def create_edge(self, source_id, target_id, edge_type, event_index=None, attributes=None, attributes_text=None):
         # Avoid creating self-loop edges
         # (this may happen when events pass information from one routing node to another,
         # and both addresses are resolved to the same node)
@@ -183,7 +186,7 @@ class GraphObject:
         self.edges.append(edge)
         return edge
 
-    def find_or_create_edge(self, source_id, target_id, edge_type, event_index, attributes=None, attributes_text=None):
+    def find_or_create_edge(self, source_id, target_id, edge_type, event_index=None, attributes=None, attributes_text=None):
         for edge in self.edges:
             if edge.source_id == source_id and edge.target_id == target_id and edge.edge_type == edge_type:
                 return edge

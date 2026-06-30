@@ -211,7 +211,7 @@ class BaseGraphGenerator(ABC):
                     staticcall_depth = len(internal_tx["traceAddress"])
                     continue
                 elif (
-                    internal_tx["action"]["callType"] in ["call", "callcode", "delegatecall"]
+                    internal_tx["action"]["callType"] in ["call"]
                     and internal_tx["action"]["value"] != "0x0"
                     and internal_tx["action"]["input"] not in internal_inputs
                 ): # Process internal transactions that transfer native tokens (value > 0)
@@ -223,14 +223,14 @@ class BaseGraphGenerator(ABC):
                     internal_inputs.add(internal_tx["action"]["input"])
                 elif (
                     internal_tx["type"] in ("call", "create", "create2")
-                    and internal_tx["action"]["callType"] in ["call", "delegatecall"]
+                    and internal_tx["action"]["callType"] in ["call"]
                 ): # Process other internal transactions to ensure we capture all relevant interactions
                     # as function_calls
                     from_address = internal_tx["action"]["from"]
                     to_address = internal_tx["action"]["to"]
                     if from_address == to_address:
                         continue
-                    self.process_internal_function_call(graph_obj, tx, op_index, internal_tx, tx.timestamp)
+                    self.process_internal_function_call(graph_obj, tx, internal_tx, tx.timestamp)
                     op_index += 1
                     internal_inputs.add(internal_tx["action"]["input"])
         else:
@@ -287,7 +287,7 @@ class BaseGraphGenerator(ABC):
                     "traceAddress": trace_address,
                     "type": trace.get("type", "call"),
                 }
-                self.process_internal_function_call(graph_obj, tx, op_index, rpc_like, tx.timestamp)
+                self.process_internal_function_call(graph_obj, tx, rpc_like, tx.timestamp)
                 internal_inputs.add(input_data)
 
         return op_index
@@ -429,10 +429,9 @@ class BaseGraphGenerator(ABC):
             self.pricing.record_missing_price(log_event_node.node_id, native_token_symbol, timestamp, amount)
         graph_obj.create_edge(native_token_node.node_id, log_event_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index)
 
-    def process_internal_function_call(self, graph_obj: GraphObject, tx: BlockchainTransaction, op_index: int, internal_tx, timestamp):
+    def process_internal_function_call(self, graph_obj: GraphObject, tx: BlockchainTransaction, internal_tx, timestamp, op_index=None):
         from_address = internal_tx["action"]["from"]
         to_address = internal_tx["action"]["to"]
-        callType = internal_tx["action"]["callType"]
 
         from_node = graph_obj.fetch_or_create_node(from_address, timestamp=timestamp)
         to_node = graph_obj.fetch_or_create_node(to_address, timestamp=timestamp)
@@ -448,8 +447,7 @@ class BaseGraphGenerator(ABC):
             from_node.node_id, 
             to_node.node_id, 
             GraphEdgeType.TRANSACTION.value if internal_tx["traceAddress"] == [] 
-                else GraphEdgeType.FUNCTION_CALL.value if callType == "call" 
-                else GraphEdgeType.DELEGATE_CALL.value, 
+                else GraphEdgeType.FUNCTION_CALL.value,
             op_index
         )
 

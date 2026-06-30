@@ -115,6 +115,7 @@ class DuneClient:
                 f"WHERE block_time >= from_unixtime({start_ts}) " +
                 f"AND block_time <= from_unixtime({end_ts}) " +
                 f"AND tx_hash in ({','.join(tx_hashes)})" + 
+                "AND call_type IN ('call', 'staticcall')" # Include staticcalls to ignore staticcall branches later on
                 "ORDER BY tx_hash",
             "performance": "medium"
         }
