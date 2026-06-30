@@ -50,6 +50,7 @@ class BaseGraphGenerator(ABC):
         try:
             self.dune_client = DuneClient(bridge)
             self.internal_tx_to_query_dune = []
+            self._dune_traces_by_tx: dict[str, list] | None = None
         except Exception as e:
             log_to_cli(f"Failed to initialize Dune client: {e}. Dune-related functionalities will not work.", CliColor.ERROR)
             self.dune_client = None
@@ -118,13 +119,35 @@ class BaseGraphGenerator(ABC):
 
     def generate_graph_data(self, blockchain: str, start_ts: int = None, end_ts: int = None) -> None:
         self.internal_tx_to_query_dune = []
+        self._dune_traces_by_tx = None
         self.pricing.reset()
 
-        for tx in self.fetch_transactions_for_blockchain(blockchain, start_ts, end_ts):
+        txs = list(self.fetch_transactions_for_blockchain(blockchain, start_ts, end_ts))
+
+        # Phase 1: For non-RPC chains, pre-fetch all Dune traces upfront so they can be
+        # processed inline (with positive op_indices) inside _process_traces.
+        if blockchain not in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS and self.dune_client is not None and txs:
+            tx_hashes = [tx.transaction_hash for tx in txs]
+            min_ts = min(tx.timestamp for tx in txs)
+            max_ts = max(tx.timestamp for tx in txs)
+            try:
+                log_to_cli(f"Pre-fetching Dune internal transactions for {len(txs)} txs on {blockchain}...")
+                dune_results = self.dune_client.fetch_internal_transactions(blockchain, tx_hashes, min_ts, max_ts)
+                self._dune_traces_by_tx = {}
+                for row in dune_results["rows"]:
+                    self._dune_traces_by_tx.setdefault(row["tx_hash"], []).append(row)
+            except ValueError:
+                log_to_cli(f"Blockchain {blockchain} not supported by Dune traces. Will fall back to native-only transfers.")
+            except Exception as e:
+                log_to_cli(f"Error pre-fetching Dune traces for {blockchain}: {e}", CliColor.ERROR)
+
+        # Phase 2: Process each transaction; internal traces (if available) are resolved inline.
+        for tx in txs:
             self.process_partial_transaction(tx)
 
+        # Fallback: for chains where Dune traces pre-fetch was unsupported or failed,
+        # use native-only post-processing via tokens.transfers.
         if blockchain not in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS and self.dune_client is not None:
-            log_to_cli(f"Blockchain {blockchain} does not support transaction tracing. Will query Dune for native token transfers...")
             if self.internal_tx_to_query_dune:
                 self.include_native_dune_transfers(blockchain)
 
@@ -211,10 +234,62 @@ class BaseGraphGenerator(ABC):
                     op_index += 1
                     internal_inputs.add(internal_tx["action"]["input"])
         else:
-            # If a blockchain doesn't support transaction tracing, we will 
-            # rely on Dune to provide information about native token transfers
-            # that may not emit events.
-            self.internal_tx_to_query_dune.append(tx.transaction_hash)
+            # If a blockchain does not support RPC-based transaction tracing, we will
+            # use the previously obtained Dune traces (if available) to process internal transactions
+            tx_traces = (self._dune_traces_by_tx or {}).get(tx.transaction_hash, [])
+            if tx_traces:
+                op_index = self._process_dune_traces(graph_obj, tx, op_index, tx_traces)
+            else:
+                # No pre-fetched Dune traces available - queue for native-only fallback.
+                self.internal_tx_to_query_dune.append(tx.transaction_hash)
+        return op_index
+
+    def _process_dune_traces(self, graph_obj: GraphObject, tx: BlockchainTransaction, op_index: int, traces: list) -> int:
+        sorted_traces = sorted(traces, key=lambda t: t["trace_address"])
+        internal_inputs = set()
+        staticcall_depth = None
+
+        for trace in sorted_traces:
+            call_type = trace.get("call_type") or ""
+            trace_address = trace["trace_address"]
+
+            if staticcall_depth is not None and len(trace_address) > staticcall_depth:
+                continue
+            else:
+                staticcall_depth = None
+
+            if call_type == "staticcall":
+                # Ignore the staticcall and all its subtree - no state changes will occur under it
+                staticcall_depth = len(trace_address)
+                continue
+
+            from_address = trace["from"]
+            to_address = trace["to"]
+            if not from_address or not to_address or from_address == to_address:
+                continue
+
+            value = int(trace["value"]) if trace.get("value") else 0
+            input_data = trace.get("input")
+
+            if value > 0 and call_type in ("call", "callcode"):
+                if input_data in internal_inputs:
+                    continue
+                if value > 10e27:
+                    value = 10e27
+                self.process_internal_token_transfer(
+                    graph_obj, tx.blockchain, op_index, trace, from_address, to_address, value, tx.timestamp
+                )
+                op_index += 1
+                internal_inputs.add(input_data)
+            elif call_type in ("call", "delegatecall"):
+                rpc_like = {
+                    "action": {"from": from_address, "to": to_address, "callType": call_type, "input": input_data},
+                    "traceAddress": trace_address,
+                    "type": trace.get("type", "call"),
+                }
+                self.process_internal_function_call(graph_obj, tx, op_index, rpc_like, tx.timestamp)
+                internal_inputs.add(input_data)
+
         return op_index
 
     def _dispatch_log_event(self, graph_obj: GraphObject, tx: BlockchainTransaction, event: dict, op_index: int):
@@ -595,7 +670,6 @@ class BaseGraphGenerator(ABC):
 
         except Exception as e:
             log_to_cli(f"Error fetching native token transfers from Dune for blockchain {blockchain}: {e}", CliColor.ERROR)
-
 
     #* Note: This method can be overridden in child classes to implement 
     #* specific address resolution logic if needed (e.g., to handle cases 
