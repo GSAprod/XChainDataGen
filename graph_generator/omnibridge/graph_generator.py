@@ -4,7 +4,6 @@ from config.constants import Bridge
 from graph_generator.base_graph_generator import BaseGraphGenerator
 from graph_generator.graph_class import GraphObject
 from graph_generator.graph_label import EventType, GraphEdgeType, GraphNodeType
-from graph_generator.omnibridge.constants import ANOMALY_TRANSACTIONS, OFFCHAIN_ANOMALY_TRANSACTIONS
 from repository.database import DBSession
 from repository.omnibridge.models import OmnibridgeCrossChainTransactions
 from repository.omnibridge.repository import (
@@ -65,7 +64,11 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
     
     #override
     def resolve_node_address(self, address, blockchain):
-        if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
+        if (blockchain == "ethereum" and address in (
+            '0xed84a648b3c51432ad0fd1c2cd2c45677e9d4064'
+        )) or (blockchain == "gnosis" and address in (
+            '0xa280fed8d7cad9a76c8b50ca5c33c2534ffa5008'
+        )) or self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
             self.bridge.value,
             address,
             blockchain
