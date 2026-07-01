@@ -189,62 +189,18 @@ class BaseGraphGenerator(ABC):
             op_index += 1
 
     def _process_traces(self, graph_obj: GraphObject, tx: BlockchainTransaction, op_index: int) -> int:
-        if tx.blockchain in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS:
+        if tx.blockchain in ('moonbeam', 'moonriver'):
+            # Moonbeam does not support trace_transaction, nor DUNE, so we use
+            # debug_traceTransaction with callTracer to get internal transaction data
+            debug_trace = self.rpc_client.debug_transaction(tx.blockchain, tx.transaction_hash, {"tracer": "callTracer"})
+            if not debug_trace:
+                return op_index
+            internal_txs = []
+            self._flatten_debug_call_frame(debug_trace, [], internal_txs)
+        elif tx.blockchain in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS:
+            # For blockchains that support OpenEthereum's trace_transaction tracing,
+            # we fetch the internal transactions directly from the RPC endpoint
             internal_txs = self.rpc_client.get_transaction_trace(tx.blockchain, tx.transaction_hash)
-            internal_inputs = set()
-
-            staticcall_depth = None
-            for internal_tx in internal_txs:
-                if (
-                    staticcall_depth is not None
-                    and len(internal_tx["traceAddress"]) > staticcall_depth
-                ):
-                    # Skip processing nested calls under a staticcall (read-only)
-                    continue
-                else:
-                    staticcall_depth = None
-
-                if (
-                    "callType" in internal_tx["action"] 
-                    and internal_tx["action"]["callType"] == "staticcall"
-                ):
-                    # Ignore staticcalls and ALL their nested calls
-                    staticcall_depth = len(internal_tx["traceAddress"])
-                    continue
-                elif (
-                    "callType" in internal_tx["action"]
-                    and internal_tx["action"]["callType"] in ["call"]
-                    and "value" in internal_tx["action"]
-                    and internal_tx["action"]["value"] != "0x0"
-                    and internal_tx["action"]["input"] not in internal_inputs
-                ): # Process internal transactions that transfer native tokens (value > 0)
-                    from_address = internal_tx["action"]["from"]
-                    to_address = internal_tx["action"]["to"]
-                    value = int(internal_tx["action"]["value"], 16)
-                    self.process_internal_token_transfer(graph_obj, tx.blockchain, op_index, internal_tx, from_address, to_address, value, tx.timestamp)
-                    op_index += 1
-                    internal_inputs.add(internal_tx["action"]["input"])
-                elif (
-                    internal_tx["type"] in ("create", "create2")
-                    and "address" in internal_tx["action"]
-                ): # Process contract creation events as a function call to the new contract
-                    from_address = internal_tx["action"]["from"]
-                    to_address = internal_tx["action"]["address"]
-                    if from_address == to_address:
-                        continue
-                    self.process_internal_function_call(graph_obj, tx, internal_tx, tx.timestamp)                  
-                elif (
-                    internal_tx["type"] == "call"
-                    and internal_tx["action"]["callType"] in ["call"]
-                ): # Process other internal transactions to ensure we capture all relevant interactions
-                    # as function_calls
-                    from_address = internal_tx["action"]["from"]
-                    to_address = internal_tx["action"]["to"]
-                    if from_address == to_address:
-                        continue
-                    self.process_internal_function_call(graph_obj, tx, internal_tx, tx.timestamp)
-                    op_index += 1
-                    internal_inputs.add(internal_tx["action"]["input"])
         else:
             # If a blockchain does not support RPC-based transaction tracing, we will
             # use the previously obtained Dune traces (if available) to process internal transactions
@@ -254,7 +210,87 @@ class BaseGraphGenerator(ABC):
             else:
                 # No pre-fetched Dune traces available - queue for native-only fallback.
                 self.internal_tx_to_query_dune.append(tx.transaction_hash)
+            return op_index
+
+        # Process RPC-based internal transaction data
+        internal_inputs = set()
+        staticcall_depth = None
+        for internal_tx in internal_txs:
+            if (
+                staticcall_depth is not None
+                and len(internal_tx["traceAddress"]) > staticcall_depth
+            ):
+                # Skip processing nested calls under a staticcall (read-only)
+                continue
+            else:
+                staticcall_depth = None
+
+            if (
+                "callType" in internal_tx["action"]
+                and internal_tx["action"]["callType"] == "staticcall"
+            ):
+                # Ignore staticcalls and ALL their nested calls
+                staticcall_depth = len(internal_tx["traceAddress"])
+                continue
+            elif (
+                "callType" in internal_tx["action"]
+                and internal_tx["action"]["callType"] in ["call"]
+                and "value" in internal_tx["action"]
+                and internal_tx["action"]["value"] != "0x0"
+                and internal_tx["action"]["input"] not in internal_inputs
+            ): # Process internal transactions that transfer native tokens (value > 0)
+                from_address = internal_tx["action"]["from"]
+                to_address = internal_tx["action"]["to"]
+                value = int(internal_tx["action"]["value"], 16)
+                self.process_internal_token_transfer(graph_obj, tx.blockchain, op_index, internal_tx, from_address, to_address, value, tx.timestamp)
+                op_index += 1
+                internal_inputs.add(internal_tx["action"]["input"])
+            elif (
+                internal_tx["type"] in ("create", "create2")
+                and "address" in internal_tx["action"]
+            ): # Process contract creation events as a function call to the new contract
+                from_address = internal_tx["action"]["from"]
+                to_address = internal_tx["action"]["address"]
+                if from_address == to_address:
+                    continue
+                self.process_internal_function_call(graph_obj, tx, internal_tx, tx.timestamp)
+            elif (
+                internal_tx["type"] == "call"
+                and internal_tx["action"]["callType"] in ["call"]
+            ): # Process other internal transactions to ensure we capture all relevant interactions
+                # as function_calls
+                from_address = internal_tx["action"]["from"]
+                to_address = internal_tx["action"]["to"]
+                if from_address == to_address:
+                    continue
+                self.process_internal_function_call(graph_obj, tx, internal_tx, tx.timestamp)
+                op_index += 1
+                internal_inputs.add(internal_tx["action"]["input"])
         return op_index
+
+    def _flatten_debug_call_frame(self, frame: dict, trace_address: list, result: list) -> None:
+        call_type = (frame.get("type") or "CALL").lower()
+
+        if call_type == "staticcall":
+            return  # staticcalls are read-only; prune the entire subtree
+
+        itx_type = call_type if call_type in ("create", "create2") else "call"
+
+        action = {
+            "from": frame.get("from", ""),
+            "callType": call_type,
+            "input": frame.get("input", "0x"),
+        }
+        if itx_type in ("create", "create2"):
+            action["address"] = frame.get("to", "")
+        else:
+            action["to"] = frame.get("to", "")
+            action["value"] = frame.get("value") or "0x0"
+
+        result.append({"type": itx_type, "action": action, "traceAddress": trace_address})
+
+        for i, child in enumerate(frame.get("calls") or []):
+            self._flatten_debug_call_frame(child, trace_address + [i], result)
 
     def _process_dune_traces(self, graph_obj: GraphObject, tx: BlockchainTransaction, op_index: int, traces: list) -> int:
         sorted_traces = sorted(traces, key=lambda t: t["trace_address"])
