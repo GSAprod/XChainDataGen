@@ -57,7 +57,11 @@ class NomadGraphGenerator(BaseGraphGenerator):
     
     #override
     def resolve_node_address(self, address, blockchain):
-        if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
+        if (blockchain == 'moonbeam' and address.lower() in (
+            '0x8d2c231c3522b9906b4e017c9ad658868720b436', # Replica Implementation
+            '0xa7e4fea3c1468d6c1a3a77e21e6e43daed855c1b', # Upgrade Beacon Proxy (TokenRegistry)
+            '0x0e6a3fd785f2169a086e179004710ba6b663a892', # Bridge Router Implementation
+        )) or self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
             self.bridge.value,
             address,
             blockchain
