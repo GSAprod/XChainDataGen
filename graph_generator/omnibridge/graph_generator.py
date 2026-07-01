@@ -64,9 +64,9 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
     
     #override
     def resolve_node_address(self, address, blockchain):
-        if (blockchain == "ethereum" and address in (
+        if (blockchain == "ethereum" and address.lower() in (
             '0xed84a648b3c51432ad0fd1c2cd2c45677e9d4064'
-        )) or (blockchain == "gnosis" and address in (
+        )) or (blockchain == "gnosis" and address.lower() in (
             '0xa280fed8d7cad9a76c8b50ca5c33c2534ffa5008'
         )) or self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
             self.bridge.value,

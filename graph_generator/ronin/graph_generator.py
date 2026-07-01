@@ -55,10 +55,10 @@ class RoninGraphGenerator(BaseGraphGenerator):
 
     #override
     def resolve_node_address(self, address, blockchain):
-        if (blockchain == "ethereum" and address in ( # Implementation contracts
+        if (blockchain == "ethereum" and address.lower() in ( # Implementation contracts
             '0x72e28a9009ad12de019bff418cd210d4bbc3d403'
         )) or (
-            blockchain == "ronin" and address in ( 
+            blockchain == "ronin" and address.lower() in ( 
                 '0x3fb325b251ee80945d3fc8c7692f5affca1b8bc2',
                 '0x1477db6bf449b0eb1191a1f4023867ddceadc504'
             )

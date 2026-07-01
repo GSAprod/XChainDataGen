@@ -106,7 +106,19 @@ class PolynetworkGraphGenerator(BaseGraphGenerator):
 
     #override
     def resolve_node_address(self, address, blockchain):
-        if self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
+        if (blockchain == "ethereum" and address.lower() in (
+            '0xcf2afe102057ba5c16f899271045a0a37fcb10f2',
+            '0x81910675dbaf69dee0fd77570bfd07f8e436386a'
+        )) or (blockchain == "bnb" and address.lower() in (
+            '0x11e2a718d46ebe97645b87f2363afe1bf28c2672',
+            '0xccb7a45e36f22ede66b6222a0a55c547e6d516d7'
+        )) or (blockchain == "polygon" and address.lower() in (
+            '0x7cea671dabfba880af6723bddd6b9f4caa15c87b',
+            '0xa9472da7e5f349a59c074e059ef0ab504735dfa2',
+        )) or (blockchain == "arbitrum" and address.lower() in (
+            '0x11e2a718d46ebe97645b87f2363afe1bf28c2672',
+            '0x446eb3ac5e6267931ed1198203b12cafcd2e6240',
+        )) or self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
             self.bridge.value,
             address,
             blockchain

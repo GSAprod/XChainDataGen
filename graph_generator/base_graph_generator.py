@@ -205,13 +205,16 @@ class BaseGraphGenerator(ABC):
                     staticcall_depth = None
 
                 if (
-                    internal_tx["action"]["callType"] == "staticcall"
+                    "callType" in internal_tx["action"] 
+                    and internal_tx["action"]["callType"] == "staticcall"
                 ):
                     # Ignore staticcalls and ALL their nested calls
                     staticcall_depth = len(internal_tx["traceAddress"])
                     continue
                 elif (
-                    internal_tx["action"]["callType"] in ["call"]
+                    "callType" in internal_tx["action"]
+                    and internal_tx["action"]["callType"] in ["call"]
+                    and "value" in internal_tx["action"]
                     and internal_tx["action"]["value"] != "0x0"
                     and internal_tx["action"]["input"] not in internal_inputs
                 ): # Process internal transactions that transfer native tokens (value > 0)
@@ -222,7 +225,16 @@ class BaseGraphGenerator(ABC):
                     op_index += 1
                     internal_inputs.add(internal_tx["action"]["input"])
                 elif (
-                    internal_tx["type"] in ("call", "create", "create2")
+                    internal_tx["type"] in ("create", "create2")
+                    and "address" in internal_tx["action"]
+                ): # Process contract creation events as a function call to the new contract
+                    from_address = internal_tx["action"]["from"]
+                    to_address = internal_tx["action"]["address"]
+                    if from_address == to_address:
+                        continue
+                    self.process_internal_function_call(graph_obj, tx, internal_tx, tx.timestamp)                  
+                elif (
+                    internal_tx["type"] == "call"
                     and internal_tx["action"]["callType"] in ["call"]
                 ): # Process other internal transactions to ensure we capture all relevant interactions
                     # as function_calls
@@ -250,6 +262,7 @@ class BaseGraphGenerator(ABC):
         staticcall_depth = None
 
         for trace in sorted_traces:
+            itx_type = trace.get("type") or "call"
             call_type = trace.get("call_type") or ""
             trace_address = trace["trace_address"]
 
@@ -264,12 +277,12 @@ class BaseGraphGenerator(ABC):
                 continue
 
             from_address = trace["from"]
-            to_address = trace["to"]
+            to_address = trace["to"] or trace["address"]
             if not from_address or not to_address or from_address == to_address:
                 continue
 
             value = int(trace["value"]) if trace.get("value") else 0
-            input_data = trace.get("input")
+            input_data = trace.get("input") if itx_type == "call" else None
 
             if value > 0 and call_type in ("call", "callcode"):
                 if input_data in internal_inputs:
@@ -280,15 +293,31 @@ class BaseGraphGenerator(ABC):
                     graph_obj, tx.blockchain, op_index, trace, from_address, to_address, value, tx.timestamp
                 )
                 op_index += 1
-                internal_inputs.add(input_data)
-            elif call_type in ("call", "delegatecall"):
+                if input_data:
+                    internal_inputs.add(input_data)
+            elif itx_type == "call" and call_type in ("call"):
                 rpc_like = {
-                    "action": {"from": from_address, "to": to_address, "callType": call_type, "input": input_data},
+                    "action": {
+                        "from": from_address, 
+                        "to": to_address,
+                        "callType": call_type, 
+                        "input": input_data,
+                    },
                     "traceAddress": trace_address,
                     "type": trace.get("type", "call"),
                 }
                 self.process_internal_function_call(graph_obj, tx, rpc_like, tx.timestamp)
                 internal_inputs.add(input_data)
+            elif itx_type in ("create", "create2"):
+                rpc_like = {
+                    "action": {
+                        "from": from_address,
+                        "address": to_address,
+                    },
+                    "traceAddress": trace_address,
+                    "type": itx_type,
+                }
+                self.process_internal_function_call(graph_obj, tx, rpc_like, tx.timestamp)
 
         return op_index
 
