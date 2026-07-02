@@ -7,12 +7,21 @@ blockchains:
         timestamp: 1655983134 # int
         attack: True # if the transaction is part of an attack, activate this flag.
         tx_chain_type: source / destination / offchain # if the transaction is part of a cctx
+        main_interaction:
+          from:
+          from_type: user / token / router / log_event / other_account / validator
+          to:
+          to_type: user / token / router / log_event / other_account / validator
+          value: 1500000000000000 # To make this a non-value tx, don't include this and the below subfields
+          input: "0x"
+          token_symbol: "ETH"
+          token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
         internal_txs:
           - from: # optional, if not the emmitter
             from_type: user / token / router / log_event / other_account / validator
             to: # optional, if not the emmitter
             to_type: user / token / router / log_event / other_account / validator
-            value: 1500000000000000 # int
+            value: 1500000000000000 # To make this a non-value tx, don't include this and the below subfields
             input: "0x" #hex
             token_symbol: "ETH"
             token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"

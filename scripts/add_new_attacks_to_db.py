@@ -143,94 +143,124 @@ class AddNewAttacksScript:
         self.link_cross_chain_txs()
         self.graph_nodes_repo.refresh_degrees()
 
-    def add_attack_to_db(
-        self, bridge_name: str, chain_name: str, router_address_replace: str, tx: dict
-    ):
-        tx_hash = tx.get("tx_hash")
-        block_number = tx.get("block_number")
-        timestamp = tx.get("timestamp")
-
-        if not tx_hash:
-            return
-
-        if self.chain_graph_repo.graph_exists(bridge_name, chain_name, tx_hash) is not None:
-            print("  Attack tx already added:", chain_name, tx_hash)
-            return
-
-        cctx_id = tx.get("cctx_id")
-        if cctx_id is not None:
-            self.cctx_id_linking.setdefault(cctx_id, []).append((chain_name, tx_hash))
-
-        print("Adding attack transaction:", tx_hash, "- chain:", chain_name)
-        label = BlockchainGraphLabel.ANOMALY if tx.get("attack") else BlockchainGraphLabel.NORMAL
-
-        # Wrap the bridge string so GraphObject can call .value on it
-        bridge_ref = types.SimpleNamespace(value=bridge_name)
-        graph_obj = GraphObject(
-            self.chain_graph_repo, self.graph_nodes_repo, self.graph_edges_repo,
-            token_metadata_repo=None,
+    def _create_native_value_transfer(
+        self,
+        graph_obj,
+        chain_name: str,
+        from_node,
+        to_node,
+        from_addr: str,
+        to_addr: str,
+        value,
+        tx_input: str,
+        token_symbol,
+        timestamp,
+        op_index: int,
+    ) -> int:
+        graph_obj.create_edge(
+            from_node.node_id, to_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, op_index
         )
-        graph_obj.create_graph_mapping(
-            bridge_ref, chain_name, tx_hash, block_number, timestamp, label, set()
+        native_token_node = graph_obj.fetch_or_create_node(
+            "token_native", timestamp,
+            attributes={"symbol": "ETH", "name": "Native Currency", "decimals": 18},
+            node_type_if_missing=GraphNodeType.TOKEN.value,
         )
+        amount_float, amount_usd = self.pricing.resolve_native_amount(chain_name, value, timestamp)
+        log_node = graph_obj.create_log_node(
+            op_index,
+            topic=f"internal_{op_index}",
+            event_type=EventType.TRANSFER.value,
+            event_signature="Transfer(address from, address to, uint256 value)",
+            event_args={"from": from_addr, "to": to_addr, "value": value},
+            event_input=tx_input,
+            timestamp=timestamp,
+            amount=value,
+            amount_usd=amount_usd,
+            token_symbol=token_symbol,
+        )
+        if amount_usd is None:
+            self.pricing.record_missing_price(log_node.node_id, "ETH", timestamp, amount_float)
+        graph_obj.create_edge(
+            native_token_node.node_id, log_node.node_id, GraphEdgeType.LOG_RELATION.value, op_index
+        )
+        return op_index + 1
 
-        op_index = 0
+    def _process_main_interaction(
+        self, tx: dict, graph_obj, chain_name: str, router_replace: str, timestamp, op_index: int
+    ) -> int:
+        main_interaction = tx.get("main_interaction")
+        if not main_interaction:
+            return op_index
 
-        # Internal transactions represent native-token transfers not captured by log events
-        # NOTE: When writing the YAML, include also the top-level tx value transfer 
-        # as an internal transaction for consistency
+        from_addr = main_interaction.get("from")
+        to_addr = main_interaction.get("to")
+        from_type = main_interaction.get("from_type", "other_account")
+        to_type = main_interaction.get("to_type", "other_account")
+        value = main_interaction.get("value")
+        tx_input = main_interaction.get("input") or "0x"
+        token_symbol = main_interaction.get("token_symbol")
+
+        from_node = graph_obj.fetch_or_create_node(
+            _resolve_address(from_addr, from_type, router_replace),
+            timestamp, node_type_if_missing=_map_node_type(from_type),
+        )
+        to_node = graph_obj.fetch_or_create_node(
+            _resolve_address(to_addr, to_type, router_replace),
+            timestamp, node_type_if_missing=_map_node_type(to_type),
+        )
+        if from_node.node_id == to_node.node_id:
+            return op_index
+
+        graph_obj.create_edge(
+            from_node.node_id, to_node.node_id, GraphEdgeType.TRANSACTION.value, op_index
+        )
+        if value is not None:
+            op_index = self._create_native_value_transfer(
+                graph_obj, chain_name, from_node, to_node,
+                from_addr, to_addr, value, tx_input, token_symbol, timestamp, op_index,
+            )
+        return op_index
+
+    def _process_internal_txs(
+        self, tx: dict, graph_obj, chain_name: str, router_replace: str, timestamp, op_index: int
+    ) -> int:
+        # Internal transactions represent either:
+        # - native-token transfers not captured by log events
+        # - internal function calls between contracts
         for internal_tx in tx.get("internal_txs") or []:
             from_addr = internal_tx.get("from")
             to_addr = internal_tx.get("to")
             from_type = internal_tx.get("from_type", "other_account")
             to_type = internal_tx.get("to_type", "other_account")
-            value = internal_tx.get("value", 0)
+            value = internal_tx.get("value")
             tx_input = internal_tx.get("input") or "0x"
             token_symbol = internal_tx.get("token_symbol")
 
             from_node = graph_obj.fetch_or_create_node(
-                _resolve_address(from_addr, from_type, router_address_replace),
+                _resolve_address(from_addr, from_type, router_replace),
                 timestamp, node_type_if_missing=_map_node_type(from_type),
             )
             to_node = graph_obj.fetch_or_create_node(
-                _resolve_address(to_addr, to_type, router_address_replace),
+                _resolve_address(to_addr, to_type, router_replace),
                 timestamp, node_type_if_missing=_map_node_type(to_type),
             )
-            if from_node.node_id == to_node.node_id:  # Avoid self-loop for missing/invalid addresses
+            if from_node.node_id == to_node.node_id:
                 continue
 
-            graph_obj.create_edge(
-                from_node.node_id, to_node.node_id, GraphEdgeType.TOKEN_TRANSFER.value, op_index
-            )
+            if value is not None:
+                op_index = self._create_native_value_transfer(
+                    graph_obj, chain_name, from_node, to_node,
+                    from_addr, to_addr, value, tx_input, token_symbol, timestamp, op_index,
+                )
+            else:
+                graph_obj.create_edge(
+                    from_node.node_id, to_node.node_id, GraphEdgeType.FUNCTION_CALL.value
+                )
+        return op_index
 
-            native_token_node = graph_obj.fetch_or_create_node(
-                "token_native", timestamp,
-                attributes={"symbol": "ETH", "name": "Native Currency", "decimals": 18},
-                node_type_if_missing=GraphNodeType.TOKEN.value,
-            )
-            amount_float, amount_usd = self.pricing.resolve_native_amount(
-                chain_name, value, timestamp
-            )
-            log_node = graph_obj.create_log_node(
-                op_index,
-                topic=f"internal_{op_index}",
-                event_type=EventType.TRANSFER.value,
-                event_signature="Transfer(address from, address to, uint256 value)",
-                event_args={"from": from_addr, "to": to_addr, "value": value},
-                event_input=tx_input,
-                timestamp=timestamp,
-                amount=value,
-                amount_usd=amount_usd,
-                token_symbol=token_symbol,
-            )
-            if amount_usd is None:
-                self.pricing.record_missing_price(log_node.node_id, "ETH", timestamp, amount_float)
-            graph_obj.create_edge(
-                native_token_node.node_id, log_node.node_id,
-                GraphEdgeType.LOG_RELATION.value, op_index
-            )
-            op_index += 1
-
+    def _process_events(
+        self, tx: dict, graph_obj, chain_name: str, router_replace: str, timestamp, op_index: int
+    ) -> int:
         for event in tx.get("events") or []:
             emitted_by = event.get("emitted_by")
             emitter_type = event.get("emitter_type", "other_account")
@@ -243,7 +273,7 @@ class AddNewAttacksScript:
             token_decimals = event.get("token_decimals")
             yaml_event_type = event.get("event_type") or ""
 
-            resolved_emitter = _resolve_address(emitted_by, emitter_type, router_address_replace)
+            resolved_emitter = _resolve_address(emitted_by, emitter_type, router_replace)
             emitter_node = graph_obj.fetch_or_create_node(
                 resolved_emitter, timestamp, node_type_if_missing=_map_node_type(emitter_type),
             )
@@ -253,7 +283,7 @@ class AddNewAttacksScript:
             amount_float = None
             if amount is not None:
                 if not token_address:
-                    # If no token address is provided, use the emitter address instead (as a default argument)
+                    # If no token address is provided, use the emitter address as a fallback
                     token_address = emitted_by
 
                 metadata = self.token_metadata_repo \
@@ -305,16 +335,61 @@ class AddNewAttacksScript:
                 edge_type = _map_edge_type(relation.get("relation_type", ""))
 
                 rel_from_node = graph_obj.fetch_or_create_node(
-                    _resolve_address(rel_from_addr, rel_from_type, router_address_replace),
+                    _resolve_address(rel_from_addr, rel_from_type, router_replace),
                     timestamp, node_type_if_missing=_map_node_type(rel_from_type),
                 ) if rel_from_addr else emitter_node
                 rel_to_node = graph_obj.fetch_or_create_node(
-                    _resolve_address(rel_to_addr, rel_to_type, router_address_replace),
+                    _resolve_address(rel_to_addr, rel_to_type, router_replace),
                     timestamp, node_type_if_missing=_map_node_type(rel_to_type),
                 ) if rel_to_addr else emitter_node
-                graph_obj.create_edge(rel_from_node.node_id, rel_to_node.node_id, edge_type, op_index)
+                graph_obj.create_edge(
+                    rel_from_node.node_id, rel_to_node.node_id, edge_type, op_index
+                )
 
             op_index += 1
+        return op_index
+
+    def add_attack_to_db(
+        self, bridge_name: str, chain_name: str, router_address_replace: str, tx: dict
+    ):
+        tx_hash = tx.get("tx_hash")
+        block_number = tx.get("block_number")
+        timestamp = tx.get("timestamp")
+
+        if not tx_hash:
+            return
+
+        if self.chain_graph_repo.graph_exists(bridge_name, chain_name, tx_hash) is not None:
+            print("  Attack tx already added:", chain_name, tx_hash)
+            return
+
+        cctx_id = tx.get("cctx_id")
+        if cctx_id is not None:
+            self.cctx_id_linking.setdefault(cctx_id, []).append((chain_name, tx_hash))
+
+        print("Adding attack transaction:", tx_hash, "- chain:", chain_name)
+        label = BlockchainGraphLabel.ANOMALY if tx.get("attack") else BlockchainGraphLabel.NORMAL
+
+        # Wrap the bridge string so GraphObject can call .value on it
+        bridge_ref = types.SimpleNamespace(value=bridge_name)
+        graph_obj = GraphObject(
+            self.chain_graph_repo, self.graph_nodes_repo, self.graph_edges_repo,
+            token_metadata_repo=None,
+        )
+        graph_obj.create_graph_mapping(
+            bridge_ref, chain_name, tx_hash, block_number, timestamp, label, set()
+        )
+
+        op_index = 0
+        op_index = self._process_main_interaction(
+            tx, graph_obj, chain_name, router_address_replace, timestamp, op_index
+        )
+        op_index = self._process_internal_txs(
+            tx, graph_obj, chain_name, router_address_replace, timestamp, op_index
+        )
+        self._process_events(
+            tx, graph_obj, chain_name, router_address_replace, timestamp, op_index
+        )
 
     def link_cross_chain_txs(self): #! TO BE TESTED
         # Filter out cctx_linking entries whose value lists don't have 2 entries
