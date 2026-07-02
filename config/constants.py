@@ -106,7 +106,7 @@ TOKEN_PRICING_SUPPORTED_BLOCKCHAINS = {
 # which is necessary to capture internal transactions and value transfers 
 # that are not visible in event logs
 TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS = [
-    "ethereum",
+    #"ethereum",
     "optimism",
     "polygon",
     "base",
@@ -117,6 +117,7 @@ TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS = [
     "linea",
     "gnosis",
     "unichain",
+    "moonbeam" # NOTE: moonbeam uses debug_traceTransaction internally in base_graph_generator
 ]
 
 
