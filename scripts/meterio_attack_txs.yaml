@@ -9,6 +9,15 @@ blockchains:
         timestamp: 1644071350 # int
         attack: True # if the transaction is part of an attack, activate this flag.
         tx_chain_type: source
+        main_interaction:
+          from: "0x8d3d13cac607B7297Ff61A5E1E71072758AF4D01"
+          from_type: user
+          to: "0xfd55ebc7bbde603a048648c6eab8775c997c1001"
+          to_type: router
+          value: 8000000000000000
+          input: "0x"
+          token_symbol: "BNB"
+          token_address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
         internal_txs:
         events:
           - emitted_by: "0xfd55ebc7bbde603a048648c6eab8775c997c1001"
@@ -18,7 +27,7 @@ blockchains:
             num_args: 3
             input: ""
             relations:
-              - to: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+              - to: "token_native"
                 to_type: token
                 relation_type: function_call
       - tx_hash: "0x5d7cd17bfeb944390667c76f4fc2786f748dc3eb363c01c24b92becaaf5690b4"
@@ -27,6 +36,15 @@ blockchains:
         timestamp: 1644072316
         attack: True
         tx_chain_type: source
+        main_interaction:
+          from: "0x8d3d13cac607B7297Ff61A5E1E71072758AF4D01"
+          from_type: user
+          to: "0xfd55ebc7bbde603a048648c6eab8775c997c1001"
+          to_type: router
+          value: 8000000000000000
+          input: "0x"
+          token_symbol: "BNB"
+          token_address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
         internal_txs:
         events:
           - emitted_by: "0xfd55ebc7bbde603a048648c6eab8775c997c1001"
@@ -36,7 +54,7 @@ blockchains:
             num_args: 3
             input: ""
             relations:
-              - to: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+              - to: "token_native"
                 to_type: token
                 relation_type: function_call
       - tx_hash: "0x63f37aff7e40b85b0a6b3fd414389f6011cc09b276dc8e13b6afa19061f7ed8e"
@@ -62,18 +80,27 @@ blockchains:
         block_number: 14992203
         timestamp: 1644070999
         tx_chain_type: destination
+        main_interaction:
+          from: "0xD33966215C372935858DB3C4749dFb62718D0554"
+          from_type: other_account
+          to: "0xfd55ebc7bbde603a048648c6eab8775c997c1001"
+          to_type: router
         internal_txs:
           - from: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
             from_type: token
             to: "0x5945241bbb68b4454bb67bd2b069e74c09ac3d51"
-            to_type: other_account
+            to_type: router
             value: 3632795971816270126503
             input: "0x"
             token_symbol: "BNB"
             token_address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
             token_decimals: 18
           - from: "0x5945241bbb68b4454bb67bd2b069e74c09ac3d51"
-            from_type: other_account
+            from_type: router
+            to: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+            to_type: token
+          - from: "0x5945241bbb68b4454bb67bd2b069e74c09ac3d51"
+            from_type: router
             to: "0x8d3d13cac607b7297ff61a5e1e71072758af4d01"
             to_type: user
             value: 3632795971816270126503
@@ -98,6 +125,15 @@ blockchains:
         block_number: 14990769
         timestamp: 1644066697
         tx_chain_type: source
+        main_interaction:
+          from: "0x8d3d13cac607B7297Ff61A5E1E71072758AF4D01"
+          from_type: user
+          to: "0xfd55ebc7bbde603a048648c6eab8775c997c1001"
+          to_type: router
+          value: 8000000000000000
+          input: "0x"
+          token_symbol: "BNB"
+          token_address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
         internal_txs:
         events:
           - emitted_by: "0xbd2949f67dcdc549c6ebe98696449fa79d988a9f"
@@ -110,7 +146,7 @@ blockchains:
               - from: "0x8d3d13cac607B7297Ff61A5E1E71072758AF4D01"
                 from_type: user
                 to: "0x5945241BBB68B4454bB67Bd2B069e74C09AC3D51"
-                to_type: other_account
+                to_type: router
                 relation_type: token_auth
             value: 115792089237316195423570985008687907853269984665640564039321484744555384347609
             token_symbol: "MTRG"
@@ -149,10 +185,19 @@ blockchains:
         block_number: 1442439
         timestamp: 1644071526
         tx_chain_type: destination
+        main_interaction:
+          from: "0xD33966215C372935858DB3C4749dFb62718D0554"
+          from_type: other_account
+          to: "0xf41e7fc4ec990298d36f667b93951c9dba65224e"
+          to_type: router
         internal_txs:
+          - from: "0xf41e7fc4ec990298d36f667b93951c9dba65224e"
+            from_type: router
+            to: "0x868892CCcEdbfF0B028F3b3595205Ea91b99376B"
+            to_type: token
         events:
           - emitted_by: "0x868892CCcEdbfF0B028F3b3595205Ea91b99376B"
-            emitter_type: router
+            emitter_type: token
             event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
             event_type: transfer
             num_args: 3
@@ -178,7 +223,16 @@ blockchains:
         block_number: 1442487
         timestamp: 1644072468
         tx_chain_type: destination
+        main_interaction:
+          from: "0xD33966215C372935858DB3C4749dFb62718D0554"
+          from_type: other_account
+          to: "0xf41e7fc4ec990298d36f667b93951c9dba65224e"
+          to_type: router
         internal_txs:
+          - from: "0xf41e7fc4ec990298d36f667b93951c9dba65224e"
+            from_type: router
+            to: "0x868892CCcEdbfF0B028F3b3595205Ea91b99376B"
+            to_type: token
         events:
           - emitted_by: "0x868892cccedbff0b028f3b3595205ea91b99376b"
             emitter_type: token
@@ -193,7 +247,7 @@ blockchains:
                 to_type: user
                 relation_type: token_transfer
             amount: 15000000000000000000000
-            token_symbol: "BNB"
+            token_symbol: "WBNB"
             token_address: "0x868892cccedbff0b028f3b3595205ea91b99376b"
             token_decimals: 18
           - emitted_by: "0xf41e7fc4ec990298d36f667b93951c9dba65224e"
@@ -210,6 +264,15 @@ blockchains:
         timestamp: 1644071232
         attack: True
         tx_chain_type: source
+        main_interaction:
+          from: "0x8d3d13cac607B7297Ff61A5E1E71072758AF4D01"
+          from_type: user
+          to: "0xa2A22B46B8df38cd7C55E6bf32Ea5a32637Cf2b1"
+          to_type: router
+          value: 5000000000000000
+          input: "0x"
+          token_symbol: "ETH"
+          token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
         internal_txs:
         events:
           - emitted_by: "0xa2a22b46b8df38cd7c55e6bf32ea5a32637cf2b1"
@@ -219,7 +282,7 @@ blockchains:
             num_args: 3
             input: ""
             relations:
-              - to: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+              - to: "token_native"
                 to_type: token
                 relation_type: function_call
       - tx_hash: "0xd619ace8a8cca2f7eb72dbc0a896fc2d4d8b20aa11f4d747f1a5333305bbb875"
@@ -227,7 +290,16 @@ blockchains:
         block_number: 14146583
         timestamp: 1644071846
         tx_chain_type: destination
+        main_interaction:
+          from: "0xD33966215C372935858DB3C4749dFb62718D0554"
+          from_type: other_account
+          to: "0xa2A22B46B8df38cd7C55E6bf32Ea5a32637Cf2b1"
+          to_type: router
         internal_txs:
+          - from: "0xa2A22B46B8df38cd7C55E6bf32Ea5a32637Cf2b1"
+            from_type: router
+            to: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            to_type: token
           - from: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
             from_type: token
             to: "0xde4fc7c3c5e7be3f16506fcc790a8d93f8ca0b40"
@@ -263,6 +335,15 @@ blockchains:
         block_number: 14146589
         timestamp: 1644071981
         tx_chain_type: source
+        main_interaction:
+          from: "0x8d3d13cac607B7297Ff61A5E1E71072758AF4D01"
+          from_type: user
+          to: "0xa2A22B46B8df38cd7C55E6bf32Ea5a32637Cf2b1"
+          to_type: router
+          value: 1000000000000000
+          input: "0x"
+          token_symbol: "ETH"
+          token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
         internal_txs:
         events:
           - emitted_by: "0xa2a22b46b8df38cd7c55e6bf32ea5a32637cf2b1"
@@ -272,6 +353,6 @@ blockchains:
             num_args: 3
             input: ""
             relations:
-              - to: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+              - to: "token_native"
                 to_type: token
                 relation_type: function_call

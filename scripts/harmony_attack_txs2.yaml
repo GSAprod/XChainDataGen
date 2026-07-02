@@ -11,6 +11,11 @@ blockchains:
         block_number: 15012646
         timestamp: 1655982406
         attack: True # if the transaction is part of an attack, activate this flag.
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
           - from: "0xF9Fb1c508Ff49F78b60d3A96dea99Fa5d7F3A8A6"
             from_type: router
@@ -51,6 +56,11 @@ blockchains:
         block_number: 15012652
         timestamp: 1655982481
         attack: True # if the transaction is part of an attack, activate this flag.
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -97,6 +107,11 @@ blockchains:
         block_number: 15012654
         timestamp: 1655982556
         attack: True
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -143,6 +158,11 @@ blockchains:
         block_number: 15012671
         timestamp: 1655982821
         attack: True
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -189,6 +209,11 @@ blockchains:
         block_number: 15012677
         timestamp: 1655982875
         attack: True
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -235,6 +260,11 @@ blockchains:
         block_number: 15012687
         timestamp: 1655982962
         attack: True
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -283,7 +313,20 @@ blockchains:
         block_number: 15012696
         timestamp: 1655983058
         attack: True
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
+          - from: "0x5ba19d656b65f1684cfea4af428c23b9f3628f97"
+            from_type: token
+            to: "0xe91d7cebce484070fc70777cb04f7e2efae31db4"
+            to_type: token
+          - from: "0x5ba19d656b65f1684cfea4af428c23b9f3628f97"
+            from_type: token
+            to: "0xe91d7cebce484070fc70777cb04f7e2efae31db4"
+            to_type: token
         events:
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
             emitter_type: router
@@ -331,6 +374,11 @@ blockchains:
         timestamp: 1655983134
         attack: True # if the transaction is part of an attack, activate this flag.
         #tx_chain_type: source / destination / offchain # if the transaction is part of a cctx
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -387,6 +435,11 @@ blockchains:
         block_number: 15012701
         timestamp: 1655983153
         attack: True
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -434,6 +487,11 @@ blockchains:
         block_number: 15012703
         timestamp: 1655983214
         attack: True
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -500,6 +558,11 @@ blockchains:
         block_number: 15012706
         timestamp: 1655983252
         attack: True
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -545,6 +608,11 @@ blockchains:
         block_number: 15012721
         timestamp: 1655983567
         attack: True
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -591,6 +659,11 @@ blockchains:
         cctx_id: 21122
         block_number: 15014138
         timestamp: 1656006581
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
           - from: "0xf9fb1c508ff49f78b60d3a96dea99fa5d7f3a8a6"
             from_type: router
@@ -630,6 +703,11 @@ blockchains:
         cctx_id: 21079
         block_number: 15007350
         timestamp: 1655896421
+        main_interaction:
+          from: "0x812d8622C6F3c45959439e7ede3C580dA06f8f25"
+          from_type: other_account
+          to: "0x715CdDa5e9Ad30A0cEd14940F9997EE611496De6"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
