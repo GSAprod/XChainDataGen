@@ -7,6 +7,11 @@ blockchains:
         block_number: 12723674
         timestamp: 1624899151
         attack: True
+        main_interaction:
+          from: "0xa282BA3825fa1cF0690eDEeEB72b4098d9115538"
+          from_type: user
+          to: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
@@ -26,6 +31,11 @@ blockchains:
         block_number: 12723740
         timestamp: 1624900051
         attack: True
+        main_interaction:
+          from: "0xa282BA3825fa1cF0690eDEeEB72b4098d9115538"
+          from_type: user
+          to: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
@@ -45,6 +55,11 @@ blockchains:
         block_number: 12723744
         timestamp: 1624900097
         attack: True
+        main_interaction:
+          from: "0xa282BA3825fa1cF0690eDEeEB72b4098d9115538"
+          from_type: user
+          to: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
@@ -64,6 +79,11 @@ blockchains:
         block_number: 12723756
         timestamp: 1624900214
         attack: True
+        main_interaction:
+          from: "0xAce573B05Fa5D457AeDc6e9bb8022C58B7428D75"
+          from_type: user
+          to: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
@@ -83,6 +103,11 @@ blockchains:
         block_number: 12724115
         timestamp: 1624904951
         attack: True
+        main_interaction:
+          from: "0xCf8Ecf26Ca88e3e20eaEe421106B57bbc561eD56"
+          from_type: user
+          to: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
@@ -102,6 +127,11 @@ blockchains:
         block_number: 12724131
         timestamp: 1624905165
         attack: True
+        main_interaction:
+          from: "0xa282BA3825fa1cF0690eDEeEB72b4098d9115538"
+          from_type: user
+          to: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
+          to_type: router
         internal_txs:
         events:
           - emitted_by: "0x42A5Ed456650a09Dc10EBc6361A7480fDd61f27B"
