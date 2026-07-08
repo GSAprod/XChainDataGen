@@ -83,6 +83,11 @@ BLOCKCHAIN_IDS = {
         "name": "moonbeam",
         "native_token": "WGLMR",
         "native_token_contract": "0xAcc15dC74880C9944775448304B263D191c6077F"
+    },
+    "42220": {
+        "name": "celo",
+        "native_token": "CELO",
+        "native_token_contract": "0x471EcE3750Da237f93B8E339c536989b8978a438"
     }
 }
 
@@ -107,17 +112,18 @@ TOKEN_PRICING_SUPPORTED_BLOCKCHAINS = {
 # that are not visible in event logs
 TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS = [
     #"ethereum",
-    "optimism",
+    #"optimism",
     "polygon",
     "base",
     #"bnb",
-    "avalanche",
+    #"avalanche",
     #"arbitrum",
     "scroll",
     "linea",
-    "gnosis",
+    #"gnosis",
     "unichain",
-    "moonbeam" # NOTE: moonbeam uses debug_traceTransaction internally in base_graph_generator
+    "moonbeam", # NOTE: moonbeam uses debug_traceTransaction internally in base_graph_generator
+    #"celo"
 ]
 
 

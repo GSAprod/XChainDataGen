@@ -162,7 +162,7 @@ class AddNewAttacksScript:
         )
         native_token_node = graph_obj.fetch_or_create_node(
             "token_native", timestamp,
-            attributes={"symbol": "ETH", "name": "Native Currency", "decimals": 18},
+            attributes={"symbol": token_symbol, "name": "Native Currency", "decimals": 18},
             node_type_if_missing=GraphNodeType.TOKEN.value,
         )
         amount_float, amount_usd = self.pricing.resolve_native_amount(chain_name, value, timestamp)
@@ -267,7 +267,7 @@ class AddNewAttacksScript:
             event_signature = event.get("event_signature") or ""
             num_args = event.get("num_args", 0)
             event_input = event.get("input") or "0x"
-            amount = event.get("amount")
+            amount = event.get("value")
             token_symbol = event.get("token_symbol")
             token_address = event.get("token_address")
             token_decimals = event.get("token_decimals")

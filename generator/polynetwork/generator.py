@@ -207,9 +207,9 @@ class PolynetworkGenerator(BaseGenerator):
                 self.token_metadata_repo,
                 self.token_price_repo,
                 cctx.src_blockchain,
-                None,
+                cctx.dst_blockchain,
                 cctx.src_contract_address,
-                None,
+                cctx.dst_contract_address,
                 start_ts,
                 end_ts,
             )

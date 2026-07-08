@@ -195,6 +195,7 @@ class Cli:
                 "solana",
                 "unichain",
                 "moonbeam",
+                "celo"
             ],
             nargs="+",
             help="List of blockchains to extract data from",
@@ -267,6 +268,7 @@ class Cli:
                 "solana",
                 "unichain",
                 "moonbeam",
+                "celo"
             ],
             required=True,
             nargs="+",

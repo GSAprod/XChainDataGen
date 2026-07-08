@@ -142,10 +142,14 @@ class PolynetworkCrossChainTransactionsRepository(BaseRepository):
                 session.query(
                     PolynetworkCrossChainTransactions.src_blockchain,
                     PolynetworkCrossChainTransactions.src_contract_address,
+                    PolynetworkCrossChainTransactions.dst_blockchain,
+                    PolynetworkCrossChainTransactions.dst_contract_address,
                 )
                 .group_by(
                     PolynetworkCrossChainTransactions.src_blockchain,
                     PolynetworkCrossChainTransactions.src_contract_address,
+                    PolynetworkCrossChainTransactions.dst_blockchain,
+                    PolynetworkCrossChainTransactions.dst_contract_address,
                 )
                 .all()
             )

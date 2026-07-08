@@ -177,6 +177,128 @@ BRIDGE_CONFIG = {
                     "0xd90288730b87c2b8e0c45bd82260fd22478aba30ae1c4d578b8daba9261604df",
                 ]
             }
+        ],
+        "avalanche": [
+            {
+                # Eth Cross Chain Manager
+                # Implementation Address: 0x2aa63cd0b28fb4c31fa8e4e95ec11815be07b9ac
+                "abi": "0x2aa63cd0b28fb4c31fa8e4e95ec11815be07b9ac",
+                "contracts": [
+                    "0x2aa63cd0b28fb4c31fa8e4e95ec11815be07b9ac",  # Avalanche: CrossChainManager
+                ],
+                "topics": [
+                    # event CrossChainEvent(address indexed sender, bytes txId, address proxyOrAssetContract, uint64 toChainId, bytes toContract, bytes rawdata)
+                    "0x6ad3bf15c1988bc04bc153490cab16db8efb9a3990215bf1c64ea6e28be88483",
+                    # event VerifyHeaderAndExecuteTxEvent(uint64 fromChainID, bytes toContract, bytes crossChainTxHash, bytes fromChainTxHash)
+                    "0x8a4a2663ce60ce4955c595da2894de0415240f1ace024cfbff85f513b656bdae",
+                ],
+            },
+            {
+                # Lock Proxy
+                # Implementation Address: 0x8a05dc902d15aea923f2c722292f5561c3496317
+                "abi": "0x8a05dc902d15aea923f2c722292f5561c3496317",
+                "contracts": [
+                    "0x8a05dc902d15aea923f2c722292f5561c3496317",
+                    "0xd3b90e2603d265bf46dbc788059ac12d52b6ac57"
+                ],
+                "topics": [
+                    # event LockEvent(address fromAssetHash, address fromAddress, uint64 toChainId, bytes toAssetHash, bytes toAddress, uint256 amount)
+                    "0x8636abd6d0e464fe725a13346c7ac779b73561c705506044a2e6b2cdb1295ea5",
+                    # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount)
+                    "0xd90288730b87c2b8e0c45bd82260fd22478aba30ae1c4d578b8daba9261604df",
+                ]
+            }
+        ],
+        "gnosis": [
+            {
+                # Eth Cross Chain Manager
+                # Implementation Address: 0x2f7ac9436ba4b548f9582af91ca1ef02cd2f1f03
+                "abi": "0x2f7ac9436ba4b548f9582af91ca1ef02cd2f1f03",
+                "contracts": [
+                    "0x2f7ac9436ba4b548f9582af91ca1ef02cd2f1f03",  # Gnosis: CrossChainManager
+                    "0x7cea671dabfba880af6723bddd6b9f4caa15c87b"
+                ],
+                "topics": [
+                    # event CrossChainEvent(address indexed sender, bytes txId, address proxyOrAssetContract, uint64 toChainId, bytes toContract, bytes rawdata)
+                    "0x6ad3bf15c1988bc04bc153490cab16db8efb9a3990215bf1c64ea6e28be88483",
+                    # event VerifyHeaderAndExecuteTxEvent(uint64 fromChainID, bytes toContract, bytes crossChainTxHash, bytes fromChainTxHash)
+                    "0x8a4a2663ce60ce4955c595da2894de0415240f1ace024cfbff85f513b656bdae",
+                ],
+            },
+            {
+                # Lock Proxy
+                # Implementation Address: 0x3a5292101a26c1dc75f97965b9091d4761a5d1e3
+                "abi": "0x3a5292101a26c1dc75f97965b9091d4761a5d1e3",
+                "contracts": [
+                    "0x3a5292101a26c1dc75f97965b9091d4761a5d1e3",
+                ],
+                "topics": [
+                    # event LockEvent(address fromAssetHash, address fromAddress, uint64 toChainId, bytes toAssetHash, bytes toAddress, uint256 amount)
+                    "0x8636abd6d0e464fe725a13346c7ac779b73561c705506044a2e6b2cdb1295ea5",
+                    # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount)
+                    "0xd90288730b87c2b8e0c45bd82260fd22478aba30ae1c4d578b8daba9261604df",
+                ]
+            }
+        ],
+        "celo": [
+            {
+                # Eth Cross Chain Manager
+                # Implementation Address: 0xab7a3ca9bdce476f0ecc04c127cfee0f3d212bc5
+                "abi": "0xab7a3ca9bdce476f0ecc04c127cfee0f3d212bc5",
+                "contracts": [
+                    "0xab7a3ca9bdce476f0ecc04c127cfee0f3d212bc5",  # Celo: CrossChainManager (Unverified)
+                ],
+                "topics": [
+                    # event CrossChainEvent(address indexed sender, bytes txId, address proxyOrAssetContract, uint64 toChainId, bytes toContract, bytes rawdata)
+                    "0x6ad3bf15c1988bc04bc153490cab16db8efb9a3990215bf1c64ea6e28be88483",
+                    # event VerifyHeaderAndExecuteTxEvent(uint64 fromChainID, bytes toContract, bytes crossChainTxHash, bytes fromChainTxHash)
+                    "0x8a4a2663ce60ce4955c595da2894de0415240f1ace024cfbff85f513b656bdae",
+                ],
+            },
+            {
+                # Lock Proxy
+                # Implementation Address: 0xd7fa1332d121e416379ad88a92ccbc835b7d16cd
+                "abi": "0xd7fa1332d121e416379ad88a92ccbc835b7d16cd",
+                "contracts": [
+                    "0xd7fa1332d121e416379ad88a92ccbc835b7d16cd"
+                ],
+                "topics": [
+                    # event LockEvent(address fromAssetHash, address fromAddress, uint64 toChainId, bytes toAssetHash, bytes toAddress, uint256 amount)
+                    "0x8636abd6d0e464fe725a13346c7ac779b73561c705506044a2e6b2cdb1295ea5",
+                    # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount)
+                    "0xd90288730b87c2b8e0c45bd82260fd22478aba30ae1c4d578b8daba9261604df",
+                ]
+            }
+        ],
+        "optimism": [
+            {
+                # Eth Cross Chain Manager
+                # Implementation Address: 0x2aa63cd0b28fb4c31fa8e4e95ec11815be07b9ac
+                "abi": "0x2aa63cd0b28fb4c31fa8e4e95ec11815be07b9ac",
+                "contracts": [
+                    "0x2aa63cd0b28fb4c31fa8e4e95ec11815be07b9ac",  # Optimism: CrossChainManager
+                ],
+                "topics": [
+                    # event CrossChainEvent(address indexed sender, bytes txId, address proxyOrAssetContract, uint64 toChainId, bytes toContract, bytes rawdata)
+                    "0x6ad3bf15c1988bc04bc153490cab16db8efb9a3990215bf1c64ea6e28be88483",
+                    # event VerifyHeaderAndExecuteTxEvent(uint64 fromChainID, bytes toContract, bytes crossChainTxHash, bytes fromChainTxHash)
+                    "0x8a4a2663ce60ce4955c595da2894de0415240f1ace024cfbff85f513b656bdae",
+                ],
+            },
+            {
+                # Lock Proxy
+                # Implementation Address: 0x8a05dc902d15aea923f2c722292f5561c3496317
+                "abi": "0x8a05dc902d15aea923f2c722292f5561c3496317",
+                "contracts": [
+                    "0x8a05dc902d15aea923f2c722292f5561c3496317",
+                ],
+                "topics": [
+                    # event LockEvent(address fromAssetHash, address fromAddress, uint64 toChainId, bytes toAssetHash, bytes toAddress, uint256 amount)
+                    "0x8636abd6d0e464fe725a13346c7ac779b73561c705506044a2e6b2cdb1295ea5",
+                    # event UnlockEvent(address toAssetHash, address toAddress, uint256 amount)
+                    "0xd90288730b87c2b8e0c45bd82260fd22478aba30ae1c4d578b8daba9261604df",
+                ]
+            }
         ]
     }
 }

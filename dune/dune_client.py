@@ -22,6 +22,12 @@ class DuneClient:
             raise CustomException("DUNE_API_KEY is not set in environment variables. Please set it to use DuneClient.")
         self.bridge = bridge
 
+    def chain_to_dune_name(self, blockchain: str) -> str:
+        translation_dict = {
+            "avalanche": "avalanche_c",
+        }
+        return translation_dict.get(blockchain, blockchain)
+
     def make_request(self, endpoint: str, payload: dict):
         """
         Queries the Dune API to check if any of the given transaction
@@ -73,7 +79,7 @@ class DuneClient:
         endpoint = "v1/sql/execute"
         token_pairs = ",".join(
             [
-                f"({tm.address.lower()}, '{tm.blockchain}')"
+                f"({tm.address.lower()}, '{self.chain_to_dune_name(tm.blockchain)}')"
                 for tm in token_metadata_list
             ]
         )
@@ -111,7 +117,7 @@ class DuneClient:
     def execute_internal_transactions_query(self, blockchain: str, tx_hashes: list[str], start_ts: int, end_ts: int) -> str:
         endpoint = "v1/sql/execute"
         payload = {
-            "sql": f"SELECT * FROM {blockchain}.traces " +
+            "sql": f"SELECT * FROM {self.chain_to_dune_name(blockchain)}.traces " +
                 f"WHERE block_time >= from_unixtime({start_ts}) " +
                 f"AND block_time <= from_unixtime({end_ts}) " +
                 f"AND tx_hash in ({','.join(tx_hashes)})" + 
