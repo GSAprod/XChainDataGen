@@ -1,0 +1,520 @@
+bridge: thorchain3
+replace_router_address_with: "__THORCHAIN_BRIDGE_ROUTER__"
+blockchains:
+  - blockchain: ethereum
+    txs:
+      # Source Chain Anomaly Txs
+      - tx_hash: "0x2e9611f4b3a4729005a00653197b7f26211a9d8d20c1bdf193613b58dc6af93b"
+        cctx_id: 11
+        block_number: 12878653
+        timestamp: 1626989980
+        attack: True
+        tx_chain_type: source
+        main_interaction:
+          from: "0x8c1944FAC705ef172f21f905b5523Ae260F76d62"
+          from_type: user
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0x700196e226283671a3de6704ebcdb37a76658805"
+            to_type: other_account
+        events:
+          - emitted_by: "0x700196e226283671a3de6704ebcdb37a76658805"
+            emitter_type: other_account
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            # event_type: deposit_request
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000005fff7a7e7b4c053b00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000062436f756c6420686176652074616b656e204554482c204254432c204c59432c20424e422c20616e6420424550323073206966207761697465642057616e74656420746f207465616368206c6573736f6e206d696e696d697a696e672064616d616765000000000000000000000000000000000000000000000000000000000000"
+            # value: 6917382236317418811 # Commenting out these details since they come from an unknown contract
+            # token_symbol: "YFI"
+            # token_decimals: 18
+            # token_address: "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e"
+
+      - tx_hash: "0x8135480bfeca92f3631c7bf9ffc25145f886ce3269bf225a68b4599b08c3f263"
+        cctx_id: 12
+        block_number: 12878653
+        timestamp: 1626989980
+        attack: True
+        tx_chain_type: source
+        main_interaction:
+          from: "0x8c1944FAC705ef172f21f905b5523Ae260F76d62"
+          from_type: user
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0x700196e226283671a3de6704ebcdb37a76658805"
+            to_type: other_account
+        events:
+          - emitted_by: "0x700196e226283671a3de6704ebcdb37a76658805"
+            emitter_type: other_account
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            # event_type: deposit_request
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000346a3bc2ae16e3dc74000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000184d756c7469706c6520637269746963616c206973737565730000000000000000"
+            # value: 966885617877507103860 # Commenting out these details since they come from an unknown contract
+            # token_symbol: "ALCX"
+            # token_decimals: 18
+            # token_address: "0xdBdb4d16EdA451D0503b854CF79D55697F90c8DF"
+
+      - tx_hash: "0x8cef95c68e2d2dc4c26f67a701cdc582bd1b234ea5128be40b3aa40605f83e17"
+        cctx_id: 13
+        block_number: 12878653
+        timestamp: 1626989980
+        attack: True
+        tx_chain_type: source
+        main_interaction:
+          from: "0x8c1944FAC705ef172f21f905b5523Ae260F76d62"
+          from_type: user
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0x700196e226283671a3de6704ebcdb37a76658805"
+            to_type: other_account
+        events:
+          - emitted_by: "0x700196e226283671a3de6704ebcdb37a76658805"
+            emitter_type: other_account
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            # event_type: deposit_request
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000001142c6cad6403a8c4eb458000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000283130252056415220626f756e747920776f756c6420686176652070726576656e7465642074686973000000000000000000000000000000000000000000000000"
+            # value: 20867082192584947929101400
+            # token_symbol: "XRUNE"
+            # token_decimals: 18
+            # token_address: "0x69fa0feE221AD11012BAb0FdB45d444D3D2Ce71c"
+
+      - tx_hash: "0x9c95b8d79779c080e0ffa9d1d378a693aee9fd28f53b54e994dfca4f918ad20c"
+        cctx_id: 14
+        block_number: 12878653
+        timestamp: 1626989980
+        attack: True
+        tx_chain_type: source
+        main_interaction:
+          from: "0x8c1944FAC705ef172f21f905b5523Ae260F76d62"
+          from_type: user
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0x700196e226283671a3de6704ebcdb37a76658805"
+            to_type: other_account
+        events:
+          - emitted_by: "0x700196e226283671a3de6704ebcdb37a76658805"
+            emitter_type: other_account
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            # event_type: deposit_request
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000346a3bc2ae16e3dc74000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000184d756c7469706c6520637269746963616c206973737565730000000000000000"
+            # value: 56124499134551049729000
+            # token_symbol: "SUSHI"
+            # token_decimals: 18
+            # token_address: "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2"
+
+      - tx_hash: "0x5a975f131d05fa1e20df62dad3f6f186a29e1460a193bdd0946edc160fee0db0"
+        cctx_id: 15
+        block_number: 12878653
+        timestamp: 1626989980
+        attack: True
+        tx_chain_type: source
+        main_interaction:
+          from: "0x8c1944FAC705ef172f21f905b5523Ae260F76d62"
+          from_type: user
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0x700196e226283671a3de6704ebcdb37a76658805"
+            to_type: other_account
+        events:
+          - emitted_by: "0x700196e226283671a3de6704ebcdb37a76658805"
+            emitter_type: other_account
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            # event_type: deposit_request
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000e68eb7ef960000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000001d41756469747320617265206e6f742061206e69636520746f2068617665000000"
+            # value: 990236897174
+            # token_symbol: "USDT"
+            # token_decimals: 18
+            # token_address: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+
+      - tx_hash: "0x26109c1fb2a71485f47176c6046fe0217ec1a384dc1cf789b4aec5939d77d280"
+        cctx_id: 16
+        block_number: 12878653
+        timestamp: 1626989980
+        attack: True
+        tx_chain_type: source
+        main_interaction:
+          from: "0x8c1944FAC705ef172f21f905b5523Ae260F76d62"
+          from_type: user
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0x700196e226283671a3de6704ebcdb37a76658805"
+            to_type: other_account
+        events:
+          - emitted_by: "0x700196e226283671a3de6704ebcdb37a76658805"
+            emitter_type: other_account
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            # event_type: deposit_request
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000001857fac923400000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000028446f206e6f74207275736820636f6465207468617420636f6e74726f6c7320392066696775726573000000000000000000000000000000000000000000000000"
+            # value: 1672884294196
+            # token_symbol: "USDC"
+            # token_decimals: 18
+            # token_address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+
+      # Target Chain "Anomaly-effect" Txs
+      - tx_hash: "0x5e50184e0d68f0ff34d9c49107d684bc8d057ca6dae514c0769736814808282d"
+        cctx_id: 11
+        block_number: 12878663
+        timestamp: 1626990074
+        main_interaction:
+          from: "0xf56cBa49337A624E94042e325Ad6Bc864436E370"
+          from_type: other_account
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0xdbdb4d16eda451d0503b854cf79d55697f90c8df"
+            to_type: token
+        events:
+          - emitted_by: "0xdbdb4d16eda451d0503b854cf79d55697f90c8df"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000034669eec7eb312b800"
+            relations:
+              - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+                from_type: router
+                to: "0x8c1944FAC705ef172f21f905b5523Ae260F76d62"
+                to_type: user
+                relation_type: token_transfer
+            value: 966625299500000000000
+            token_symbol: "ALCX"
+            token_decimals: 18
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "TransferOut (index_topic_1 address vault, index_topic_2 address to, address asset, uint256 amount, string memo)"
+            event_type: deposit_confirmation
+            num_args: 5
+            input: "0x000000000000000000000000dbdb4d16eda451d0503b854cf79d55697f90c8df000000000000000000000000000000000000000000000034669eec7eb312b80000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000047524546554e443a3831333534383042464543413932463336333143374246394646433235313435463838364345333236394246323235413638423435393942303843334632363300000000000000000000000000000000000000000000000000"
+
+      - tx_hash: "0xce958939ba23771d0a0b80532c463b4cbbb175f4d14c08d9d27dd251f68a5da1"
+        cctx_id: 12
+        block_number: 12878665
+        timestamp: 1626990087
+        main_interaction:
+          from: "0xf56cBa49337A624E94042e325Ad6Bc864436E370"
+          from_type: other_account
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0x69fa0fee221ad11012bab0fdb45d444d3d2ce71c"
+            to_type: token
+        events:
+          - emitted_by: "0x69fa0fee221ad11012bab0fdb45d444d3d2ce71c"
+            emitter_type: token
+            event_signature: "event Sent (index_topic_1 address operator, index_topic_2 address from, index_topic_3 address to, uint256 amount, bytes data, bytes operatorData)"
+            num_args: 6
+            input: "0x0000000000000000000000000000000000000000001142b026a6c3c8493c7c000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          - emitted_by: "0x69fa0fee221ad11012bab0fdb45d444d3d2ce71c"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000034669eec7eb312b800"
+            relations:
+              - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+                from_type: router
+                to: "0x8c1944FAC705ef172f21f905b5523Ae260F76d62"
+                to_type: user
+                relation_type: token_transfer
+            value: 20866664533403750000000000
+            token_symbol: "RUNE"
+            token_decimals: 18
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "TransferOut (index_topic_1 address vault, index_topic_2 address to, address asset, uint256 amount, string memo)"
+            event_type: deposit_confirmation
+            num_args: 5
+            input: "0x00000000000000000000000069fa0fee221ad11012bab0fdb45d444d3d2ce71c0000000000000000000000000000000000000000001142b026a6c3c8493c7c0000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000047524546554e443a3843454639354336384532443244433443323646363741373031434443353832424431423233344541353132384245343042334141343036303546383345313700000000000000000000000000000000000000000000000000"
+
+      - tx_hash: "0x8515ce6b174ba31a849ff420650720d42cc4c72d4929adf856343e7395bd2512"
+        cctx_id: 13
+        block_number: 12878665
+        timestamp: 1626990087
+        main_interaction:
+          from: "0xf56cBa49337A624E94042e325Ad6Bc864436E370"
+          from_type: other_account
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+            to_type: token
+        events:
+          - emitted_by: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000000000001857a4af54d"
+            relations:
+              - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+                from_type: router
+                to: "0x8c1944FAC705ef172f21f905b5523Ae260F76d62"
+                to_type: user
+                relation_type: token_transfer
+            value: 1672794010957
+            token_symbol: "USDC"
+            token_decimals: 18
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "TransferOut (index_topic_1 address vault, index_topic_2 address to, address asset, uint256 amount, string memo)"
+            event_type: deposit_confirmation
+            num_args: 5
+            input: "0x000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48000000000000000000000000000000000000000000000000000001857a4af54d00000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000047524546554e443a3236313039433146423241373134383546343731373643363034364645303231374543314133383444433143463738394234414543353933394437374432383000000000000000000000000000000000000000000000000000"
+
+      - tx_hash: "0x774ba93e6fd05ff8e7ca2eab813b9e7cd830203e36eef3b558aa7f32144e47a6"
+        cctx_id: 14
+        block_number: 12878669
+        timestamp: 1626990125
+        main_interaction:
+          from: "0xf56cBa49337A624E94042e325Ad6Bc864436E370"
+          from_type: other_account
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2"
+            to_type: token
+        events:
+          - emitted_by: "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000be167829a90b9498c00"
+            relations:
+              - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+                from_type: router
+                to: "0x8c1944FAC705ef172f21f905b5523Ae260F76d62"
+                to_type: user
+                relation_type: token_transfer
+            value: 56104007422030000000000
+            token_symbol: "SUSHI"
+            token_decimals: 18
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "TransferOut (index_topic_1 address vault, index_topic_2 address to, address asset, uint256 amount, string memo)"
+            event_type: deposit_confirmation
+            num_args: 5
+            input: "0x0000000000000000000000006b3595068778dd592e39a122f4f5a5cf09c90fe2000000000000000000000000000000000000000000000be167829a90b9498c0000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000047524546554e443a3943393542384437393737394330383045304646413944314433373841363933414545394644323846353342353445393934444643413446393138414432304300000000000000000000000000000000000000000000000000"
+
+      - tx_hash: "0x67a5e251527b2d8081c9b640f7f65d18ec861190f617ec6c5b156307855e0932"
+        cctx_id: 15
+        block_number: 12878669
+        timestamp: 1626990125
+        main_interaction:
+          from: "0xf56cBa49337A624E94042e325Ad6Bc864436E370"
+          from_type: other_account
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e"
+            to_type: token
+        events:
+          - emitted_by: "0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x0000000000000000000000000000000000000000000000005ff386ee11a1d400"
+            relations:
+              - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+                from_type: router
+                to: "0x8c1944FAC705ef172f21f905b5523Ae260F76d62"
+                to_type: user
+                relation_type: token_transfer
+            value: 6914018210000000000
+            token_symbol: "YFI"
+            token_decimals: 18
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "TransferOut (index_topic_1 address vault, index_topic_2 address to, address asset, uint256 amount, string memo)"
+            event_type: deposit_confirmation
+            num_args: 5
+            input: "0x0000000000000000000000000bc529c00c6401aef6d220be8c6ea1667f6ad93e0000000000000000000000000000000000000000000000005ff386ee11a1d40000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000047524546554e443a3245393631314634423341343732393030354130303635333139374237463236323131413944384432304331424446313933363133423538444336414639334200000000000000000000000000000000000000000000000000"
+
+      - tx_hash: "0xc567aa4ccd59f3eb1c6476c4245b7002474e4df521a59fbcaffb53b8be4cc974"
+        cctx_id: 16
+        block_number: 12878671
+        timestamp: 1626990147
+        main_interaction:
+          from: "0xf56cBa49337A624E94042e325Ad6Bc864436E370"
+          from_type: other_account
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0xdac17f958d2ee523a2206206994597c13d831ec7"
+            to_type: token
+        events:
+          - emitted_by: "0xdac17f958d2ee523a2206206994597c13d831ec7"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000000000000e688cab616"
+            relations:
+              - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+                from_type: router
+                to: "0x8c1944FAC705ef172f21f905b5523Ae260F76d62"
+                to_type: user
+                relation_type: token_transfer
+            value: 990137464342
+            token_symbol: "YFI"
+            token_decimals: 18
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "TransferOut (index_topic_1 address vault, index_topic_2 address to, address asset, uint256 amount, string memo)"
+            event_type: deposit_confirmation
+            num_args: 5
+            input: "0x000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7000000000000000000000000000000000000000000000000000000e688cab61600000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000047524546554e443a3541393735463133314430354641314532304446363244414433463646313836413239453134363041313933424444303934364544433136304645453044423000000000000000000000000000000000000000000000000000"
+
+      # Normal Source Txs
+      - tx_hash: "0x14527e17bc277a9509723d7a63cff95ed11929a5a1f1776fcb8efe31f2ac047e"
+        cctx_id: 21
+        block_number: 12876896
+        timestamp: 1626966012
+        tx_chain_type: source
+        main_interaction:
+          from: "0x7B9CadB22B2ad23308A6F741ED4f6bbB970873f1"
+          from_type: user
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0x3155ba85d5f96b2d030a4966af206230e46849cb"
+            to_type: token
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0x3155ba85d5f96b2d030a4966af206230e46849cb"
+            to_type: token
+        events:
+          - emitted_by: "0x3155ba85d5f96b2d030a4966af206230e46849cb"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000007d9402fa3812ba000"
+            relations:
+              - from: "0x7B9CadB22B2ad23308A6F741ED4f6bbB970873f1"
+                from_type: user
+                to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+                to_type: router
+                relation_type: token_transfer
+            value: 144781773200000000000
+            token_symbol: "RUNE"
+            token_decimals: 18
+          - emitted_by: "0x3155ba85d5f96b2d030a4966af206230e46849cb"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000007d9402fa3812ba000"
+            relations:
+              - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+                from_type: router
+                to: "0x0000000000000000000000000000000000000000"
+                to_type: other_account
+                relation_type: token_transfer
+            value: 144781773200000000000
+            token_symbol: "RUNE"
+            token_decimals: 18
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000346a3bc2ae16e3dc74000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000184d756c7469706c6520637269746963616c206973737565730000000000000000"
+            value: 144781773200000000000
+            token_symbol: "RUNE"
+            token_decimals: 18
+            token_address: "0x3155ba85d5f96b2d030a4966af206230e46849cb"
+
+      - tx_hash: "0x76fd980ae1693bc6eeee8d999a871aae711929a5a1f1776fcb8efe31f2ac047e"
+        cctx_id: 22
+        block_number: 12876897
+        timestamp: 1626966028
+        tx_chain_type: source
+        main_interaction:
+          from: "0x7B9CadB22B2ad23308A6F741ED4f6bbB970873f1"
+          from_type: user
+          to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+          to_type: router
+        internal_txs:
+          - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            from_type: router
+            to: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+            to_type: token
+        events:
+          - emitted_by: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000007d9402fa3812ba000"
+            relations:
+              - from: "0x7B9CadB22B2ad23308A6F741ED4f6bbB970873f1"
+                from_type: user
+                to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+                to_type: router
+                relation_type: token_transfer
+            value: 235434534200000000
+            token_symbol: "USDC"
+            token_decimals: 18
+          - emitted_by: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+            emitter_type: token
+            event_signature: "event Transfer (index_topic_1 address from, index_topic_2 address to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000007d9402fa3812ba000"
+            relations:
+              - from: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+                from_type: router
+                to: "0x0000000000000000000000000000000000000000"
+                to_type: other_account
+                relation_type: token_transfer
+            value: 235434534200000000
+            token_symbol: "USDC"
+            token_decimals: 18
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000000346a3bc2ae16e3dc74000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000184d756c7469706c6520637269746963616c206973737565730000000000000000"
+            value: 235434534200000000
+            token_symbol: "USDC"
+            token_decimals: 18
+            token_address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
