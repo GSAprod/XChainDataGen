@@ -42,7 +42,7 @@ blockchains:
               - to: "token_native"
                 to_type: token
                 relation_type: function_call
-            amount: 0
+            value: 0
             token_symbol: "ETH"
             token_decimals: 18
 
@@ -85,7 +85,7 @@ blockchains:
               - to: "token_native"
                 to_type: token
                 relation_type: function_call
-            amount: 0
+            value: 0
             token_symbol: "ETH"
             token_decimals: 18
 
@@ -128,7 +128,7 @@ blockchains:
               - to: "token_native"
                 to_type: token
                 relation_type: function_call
-            amount: 0
+            value: 0
             token_symbol: "ETH"
             token_decimals: 18
 
@@ -171,7 +171,7 @@ blockchains:
               - to: "token_native"
                 to_type: token
                 relation_type: function_call
-            amount: 0
+            value: 0
             token_symbol: "ETH"
             token_decimals: 18
 
@@ -214,7 +214,7 @@ blockchains:
               - to: "token_native"
                 to_type: token
                 relation_type: function_call
-            amount: 0
+            value: 0
             token_symbol: "ETH"
             token_decimals: 18
 
@@ -257,7 +257,7 @@ blockchains:
               - to: "token_native"
                 to_type: token
                 relation_type: function_call
-            amount: 0
+            value: 0
             token_symbol: "ETH"
             token_decimals: 18
 
@@ -300,7 +300,7 @@ blockchains:
               - to: "token_native"
                 to_type: token
                 relation_type: function_call
-            amount: 0
+            value: 0
             token_symbol: "ETH"
             token_decimals: 18
 
@@ -343,7 +343,7 @@ blockchains:
               - to: "token_native"
                 to_type: token
                 relation_type: function_call
-            amount: 0
+            value: 0
             token_symbol: "ETH"
             token_decimals: 18
 
@@ -386,7 +386,253 @@ blockchains:
               - to: "token_native"
                 to_type: token
                 relation_type: function_call
-            amount: 0
+            value: 0
+            token_symbol: "ETH"
+            token_decimals: 18
+
+      - tx_hash: "0x47f1fb95da94576105d92f6320f77c8e1d2bfb9f9944460822c8ecc90ee02339"
+        block_number: 12833242
+        timestamp: 1626374942
+        attack: True
+        main_interaction:
+          from: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
+          from_type: user
+          to: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+          to_type: other_account
+          value: 14990162694561933000
+          input: "0x"
+          token_symbol: "ETH"
+          token_decimals: 18
+        internal_txs:
+          - from: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+            from_type: other_account
+            to: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
+            to_type: other_account
+            value: 14990162694561933000
+            input: "0x"
+            token_symbol: "ETH"
+            token_decimals: 18
+          - from: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+            from_type: other_account
+            to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            to_type: router
+        events:
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000039535741503a4554482e53555348492d30583642333539353036383737384444353932453339413132324634463541354346303943393046453200000000000000"
+            relations:
+              - to: "token_native"
+                to_type: token
+                relation_type: function_call
+            value: 0
+            token_symbol: "ETH"
+            token_decimals: 18
+
+      - tx_hash: "0x39decf95d9d9728f80ab0bda1bdfeee85cce98bba39b66790a2202619b44bc9f"
+        block_number: 12833248
+        timestamp: 1626375024
+        attack: True
+        main_interaction:
+          from: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
+          from_type: user
+          to: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+          to_type: other_account
+          value: 29959045704561930000
+          input: "0x"
+          token_symbol: "ETH"
+          token_decimals: 18
+        internal_txs:
+          - from: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+            from_type: other_account
+            to: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
+            to_type: other_account
+            value: 29959045704561930000
+            input: "0x"
+            token_symbol: "ETH"
+            token_decimals: 18
+          - from: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+            from_type: other_account
+            to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            to_type: router
+        events:
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000039535741503a4554482e53555348492d30583642333539353036383737384444353932453339413132324634463541354346303943393046453200000000000000"
+            relations:
+              - to: "token_native"
+                to_type: token
+                relation_type: function_call
+            value: 0
+            token_symbol: "ETH"
+            token_decimals: 18
+
+      - tx_hash: "0xc5c224fb8bea0fde468fb50aba45e890bb6b694fbe47e007e994f0d3eb303971"
+        block_number: 12833252
+        timestamp: 1626375144
+        attack: True
+        main_interaction:
+          from: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
+          from_type: user
+          to: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+          to_type: other_account
+          value: 44924488874561930000
+          input: "0x"
+          token_symbol: "ETH"
+          token_decimals: 18
+        internal_txs:
+          - from: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+            from_type: other_account
+            to: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
+            to_type: other_account
+            value: 44924488874561930000
+            input: "0x"
+            token_symbol: "ETH"
+            token_decimals: 18
+          - from: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+            from_type: other_account
+            to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            to_type: router
+        events:
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000039535741503a4554482e53555348492d30583642333539353036383737384444353932453339413132324634463541354346303943393046453200000000000000"
+            relations:
+              - to: "token_native"
+                to_type: token
+                relation_type: function_call
+            value: 0
+            token_symbol: "ETH"
+            token_decimals: 18
+
+      - tx_hash: "0x32933c28281489256949842b9f4c9f85a6e557553dce2aee35f2f52110cfc0c9"
+        block_number: 12833255
+        timestamp: 1626375185
+        attack: True
+        main_interaction:
+          from: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
+          from_type: user
+          to: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+          to_type: other_account
+          value: 100265000000000000000
+          input: "0x"
+          token_symbol: "ETH"
+          token_decimals: 18
+        internal_txs:
+          - from: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+            from_type: other_account
+            to: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
+            to_type: other_account
+            value: 100265000000000000000
+            input: "0x"
+            token_symbol: "ETH"
+            token_decimals: 18
+          - from: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+            from_type: other_account
+            to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            to_type: router
+        events:
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000039535741503a4554482e53555348492d30583642333539353036383737384444353932453339413132324634463541354346303943393046453200000000000000"
+            relations:
+              - to: "token_native"
+                to_type: token
+                relation_type: function_call
+            value: 0
+            token_symbol: "ETH"
+            token_decimals: 18
+
+      - tx_hash: "0x9bce82d88d9bf3f505735effd6006069214dc17414ef261bcb5595a861008f30"
+        block_number: 12833271
+        timestamp: 1626375457
+        attack: True
+        main_interaction:
+          from: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
+          from_type: user
+          to: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+          to_type: other_account
+          value: 300100000000000000000
+          input: "0x"
+          token_symbol: "ETH"
+          token_decimals: 18
+        internal_txs:
+          - from: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+            from_type: other_account
+            to: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
+            to_type: other_account
+            value: 300100000000000000000
+            input: "0x"
+            token_symbol: "ETH"
+            token_decimals: 18
+          - from: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+            from_type: other_account
+            to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            to_type: router
+        events:
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000039535741503a4554482e53555348492d30583642333539353036383737384444353932453339413132324634463541354346303943393046453200000000000000"
+            relations:
+              - to: "token_native"
+                to_type: token
+                relation_type: function_call
+            value: 0
+            token_symbol: "ETH"
+            token_decimals: 18
+
+      - tx_hash: "0xfe4b3fe42ef4edc9a33791dc415d7bf22bf0c4a77b270a46b06f2ec4f5664313"
+        block_number: 12833445
+        timestamp: 1626377745
+        attack: True
+        main_interaction:
+          from: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
+          from_type: user
+          to: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+          to_type: other_account
+          value: 400000000000000000000
+          input: "0x"
+          token_symbol: "ETH"
+          token_decimals: 18
+        internal_txs:
+          - from: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+            from_type: other_account
+            to: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
+            to_type: other_account
+            value: 400000000000000000000
+            input: "0x"
+            token_symbol: "ETH"
+            token_decimals: 18
+          - from: "0x4a33862042d004d3fc45e284e1aafa05b48e3c9c"
+            from_type: other_account
+            to: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            to_type: router
+        events:
+          - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
+            emitter_type: router
+            event_signature: "event Deposit (index_topic_1 address to, index_topic_2 address asset, uint256 amount, string memo)"
+            event_type: deposit_request
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000039535741503a4554482e53555348492d30583642333539353036383737384444353932453339413132324634463541354346303943393046453200000000000000"
+            relations:
+              - to: "token_native"
+                to_type: token
+                relation_type: function_call
+            value: 0
             token_symbol: "ETH"
             token_decimals: 18
 
@@ -415,7 +661,7 @@ blockchains:
                 to: "0x08416a6823E5090e5605300fb8b48eE2053555B0"
                 to_type: user
                 relation_type: token_transfer
-            amount: 109493918070000000000
+            value: 109493918070000000000
             token_symbol: "SUSHI"
             token_decimals: 18
           - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
@@ -428,7 +674,7 @@ blockchains:
               - to: "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2"
                 to_type: token
                 relation_type: function_call
-            amount: 109493918070000000000
+            value: 109493918070000000000
             token_symbol: "SUSHI"
             token_decimals: 18
             token_address: "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2"
@@ -457,7 +703,7 @@ blockchains:
                 to: "0x08416a6823E5090e5605300fb8b48eE2053555B0"
                 to_type: user
                 relation_type: token_transfer
-            amount: 1594183306390000000000
+            value: 1594183306390000000000
             token_symbol: "SUSHI"
             token_decimals: 18
           - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
@@ -470,7 +716,7 @@ blockchains:
               - to: "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2"
                 to_type: token
                 relation_type: function_call
-            amount: 1594183306390000000000
+            value: 1594183306390000000000
             token_symbol: "SUSHI"
             token_decimals: 18
             token_address: "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2"
@@ -499,7 +745,7 @@ blockchains:
                 to: "0x3A196410a0F5FACd08fD7880A4b8551CD085C031"
                 to_type: user
                 relation_type: token_transfer
-            amount: 24556490000000000
+            value: 24556490000000000
             token_symbol: "YFI"
             token_decimals: 18
           - emitted_by: "0xC145990E84155416144C532E31f89B840Ca8c2cE"
@@ -512,7 +758,7 @@ blockchains:
               - to: "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e"
                 to_type: token
                 relation_type: function_call
-            amount: 24556490000000000
+            value: 24556490000000000
             token_symbol: "YFI"
             token_decimals: 18
             token_address: "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e"

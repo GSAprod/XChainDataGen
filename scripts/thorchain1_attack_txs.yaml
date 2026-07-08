@@ -24,7 +24,7 @@ blockchains:
               - to: "0xD68A13e2Fa52Dfc6688c308E89065CB804FE145A" # NOTE: Maliciously-crafted "ETH" contract
                 to_type: token
                 relation_type: function_call
-            amount: 14902768506358108867
+            value: 14902768506358108867
             token_symbol: "ETH"
             token_decimals: 18
       - tx_hash: "0xb74f4860e24f04e9e32ace36735285d518a8a36bf8e8dcc868d7508bb60947c9"
@@ -48,7 +48,7 @@ blockchains:
               - to: "0xD68A13e2Fa52Dfc6688c308E89065CB804FE145A" # NOTE: Maliciously-crafted "ETH" contract
                 to_type: token
                 relation_type: function_call
-            amount: 14117638765352811215
+            value: 14117638765352811215
             token_symbol: "ETH"
             token_decimals: 18
       - tx_hash: "0xb56df76d4bf1384dc2744692d744de44efadcec7226c6255532a0d1ebdb5abcc"
@@ -72,7 +72,7 @@ blockchains:
               - to: "0xD68A13e2Fa52Dfc6688c308E89065CB804FE145A" # NOTE: Maliciously-crafted "ETH" contract
                 to_type: token
                 relation_type: function_call
-            amount: 9151861513878140509
+            value: 9151861513878140509
             token_symbol: "ETH"
             token_decimals: 18
       - tx_hash: "0x92b466c1908571c45b1a4e751550877a46c5f2ecbc308e01242ec6d2013ad88c"
@@ -96,7 +96,7 @@ blockchains:
               - to: "0xD68A13e2Fa52Dfc6688c308E89065CB804FE145A" # NOTE: Maliciously-crafted "ETH" contract
                 to_type: token
                 relation_type: function_call
-            amount: 9666205268246093093
+            value: 9666205268246093093
             token_symbol: "ETH"
             token_decimals: 18
       - tx_hash: "0x0d8d8194e7fb0853261d7bd2bae3eed2849f94ccf821547d50d5c535a0367ff7"
@@ -120,7 +120,7 @@ blockchains:
               - to: "0xD68A13e2Fa52Dfc6688c308E89065CB804FE145A" # NOTE: Maliciously-crafted "ETH" contract
                 to_type: token
                 relation_type: function_call
-            amount: 14995688494938979878
+            value: 14995688494938979878
             token_symbol: "ETH"
             token_decimals: 18
       - tx_hash: "0x7cf72852118597e6ff65226a17eae5a078b6de7af791a6324906d9d456f2b1b6"
@@ -144,6 +144,6 @@ blockchains:
               - to: "0xD68A13e2Fa52Dfc6688c308E89065CB804FE145A" # NOTE: Maliciously-crafted "ETH" contract
                 to_type: token
                 relation_type: function_call
-            amount: 12014710724137118409
+            value: 12014710724137118409
             token_symbol: "ETH"
             token_decimals: 18

@@ -41,7 +41,7 @@ blockchains:
               - to: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
                 to_type: token
                 relation_type: function_call
-            amount: 13100000000000000000000
+            value: 13100000000000000000000
             token_symbol: "ETH"
             token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -80,7 +80,7 @@ blockchains:
                 to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
                 to_type: user
                 relation_type: token_transfer
-            amount: 41200000000000
+            value: 41200000000000
             token_symbol: "USDC"
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
             emitter_type: router
@@ -92,7 +92,7 @@ blockchains:
               - to: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
                 to_type: token
                 relation_type: function_call
-            amount: 41200000000000
+            value: 41200000000000
             token_symbol: "USDC"
             token_address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -131,7 +131,7 @@ blockchains:
                 to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
                 to_type: user
                 relation_type: token_transfer
-            amount: 59200000000
+            value: 59200000000
             token_symbol: "WBTC"
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
             emitter_type: router
@@ -143,7 +143,7 @@ blockchains:
               - to: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
                 to_type: token
                 relation_type: function_call
-            amount: 59200000000
+            value: 59200000000
             token_symbol: "WBTC"
             token_address: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -182,7 +182,7 @@ blockchains:
                 to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
                 to_type: user
                 relation_type: token_transfer
-            amount: 9981000000000
+            value: 9981000000000
             token_symbol: "USDT"
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
             emitter_type: router
@@ -194,7 +194,7 @@ blockchains:
               - to: "0xdac17f958d2ee523a2206206994597c13d831ec7"
                 to_type: token
                 relation_type: function_call
-            amount: 9981000000000
+            value: 9981000000000
             token_symbol: "USDT"
             token_address: "0xdac17f958d2ee523a2206206994597c13d831ec7"
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -233,7 +233,7 @@ blockchains:
                 to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
                 to_type: user
                 relation_type: token_transfer
-            amount: 6070000000000000000000000
+            value: 6070000000000000000000000
             token_symbol: "DAI"
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
             emitter_type: router
@@ -245,7 +245,7 @@ blockchains:
               - to: "0x6b175474e89094c44da98b954eedeac495271d0f"
                 to_type: token
                 relation_type: function_call
-            amount: 6070000000000000000000000
+            value: 6070000000000000000000000
             token_symbol: "DAI"
             token_address: "0x6b175474e89094c44da98b954eedeac495271d0f"
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -284,7 +284,7 @@ blockchains:
                 to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
                 to_type: user
                 relation_type: token_transfer
-            amount: 5530000000000000000000000
+            value: 5530000000000000000000000
             token_symbol: "BUSD"
             token_decimals: 18
           - emitted_by: "0xfd53b1b4af84d59b20bf2c20ca89a6beeaa2c628"
@@ -297,7 +297,7 @@ blockchains:
               - to: "0x4fabb145d64652a948d72533023f6e7a623c7c53"
                 to_type: token
                 relation_type: function_call
-            amount: 5530000000000000000000000
+            value: 5530000000000000000000000
             token_symbol: "BUSD"
             token_address: "0x4fabb145d64652a948d72533023f6e7a623c7c53"
             token_decimals: 18
@@ -345,7 +345,7 @@ blockchains:
                 to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
                 to_type: user
                 relation_type: token_transfer
-            amount: 84620000000000000000000000
+            value: 84620000000000000000000000
             token_symbol: "AAG"
             token_decimals: 18
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
@@ -358,7 +358,7 @@ blockchains:
               - to: "0x5ba19d656b65f1684cfea4af428c23b9f3628f97"
                 to_type: token
                 relation_type: function_call
-            amount: 84620000000000000000000000
+            value: 84620000000000000000000000
             token_symbol: "AAG"
             token_address: "0x5ba19d656b65f1684cfea4af428c23b9f3628f97"
             token_decimals: 18
@@ -409,7 +409,7 @@ blockchains:
                 to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
                 to_type: user
                 relation_type: token_transfer
-            amount: 110000000000000000000000
+            value: 110000000000000000000000
             token_symbol: "FRAX"
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
             emitter_type: router
@@ -421,7 +421,7 @@ blockchains:
               - to: "0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0"
                 to_type: token
                 relation_type: function_call
-            amount: 110000000000000000000000
+            value: 110000000000000000000000
             token_symbol: "FRAX"
             token_address: "0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0"
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -459,7 +459,7 @@ blockchains:
                 to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
                 to_type: user
                 relation_type: token_transfer
-            amount: 415000000000000000000000
+            value: 415000000000000000000000
             token_symbol: "SUSHI"
             token_decimals: 18
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
@@ -472,7 +472,7 @@ blockchains:
               - to: "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2"
                 to_type: token
                 relation_type: function_call
-            amount: 415000000000000000000000
+            value: 415000000000000000000000
             token_symbol: "SUSHI"
             token_address: "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2"
             token_decimals: 18
@@ -531,7 +531,7 @@ blockchains:
                 to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
                 to_type: user
                 relation_type: token_transfer
-            amount: 990000000000000000000
+            value: 990000000000000000000
             token_symbol: "AAVE"
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
             emitter_type: router
@@ -543,7 +543,7 @@ blockchains:
               - to: "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
                 to_type: token
                 relation_type: function_call
-            amount: 990000000000000000000
+            value: 990000000000000000000
             token_symbol: "AAVE"
             token_address: "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -582,7 +582,7 @@ blockchains:
                 to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
                 to_type: user
                 relation_type: token_transfer
-            amount: 43000000000000000000
+            value: 43000000000000000000
             token_symbol: "WETH"
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
             emitter_type: router
@@ -594,7 +594,7 @@ blockchains:
               - to: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
                 to_type: token
                 relation_type: function_call
-            amount: 43000000000000000000
+            value: 43000000000000000000
             token_symbol: "WETH"
             token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -632,7 +632,7 @@ blockchains:
                 to: "0x0d043128146654c7683fbf30ac98d7b2285ded00"
                 to_type: user
                 relation_type: token_transfer
-            amount: 5620000000000000000000000
+            value: 5620000000000000000000000
             token_symbol: "FRAX"
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
             emitter_type: router
@@ -644,7 +644,7 @@ blockchains:
               - to: "0x853d955acef822db058eb8505911ed77f175b99e"
                 to_type: token
                 relation_type: function_call
-            amount: 5620000000000000000000000
+            value: 5620000000000000000000000
             token_symbol: "FRAX"
             token_address: "0x853d955acef822db058eb8505911ed77f175b99e"
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -670,7 +670,7 @@ blockchains:
             to: "0xe7dd5efff62cadac21eb2d5f0c61d3fc9fe43233"
             to_type: user
             relation_type: token_transfer
-            amount: 116163000000000000
+            value: 116163000000000000
             token_symbol: "ETH"
             token_decimals: 18
         events:
@@ -689,7 +689,7 @@ blockchains:
               - to: "token_native"
                 to_type: token
                 relation_type: function_call
-            amount: 116163000000000000
+            value: 116163000000000000
             token_symbol: "ETH"
             token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"
@@ -727,7 +727,7 @@ blockchains:
                 to: "0xB12Bd0f49324F141d35DFb3B6ee965De981d105F"
                 to_type: user
                 relation_type: token_transfer
-            amount: 30015111267
+            value: 30015111267
             token_symbol: "USDC"
           - emitted_by: "0x2dccdb493827e15a5dc8f8b72147e6c4a5620857"
             emitter_type: router
@@ -739,7 +739,7 @@ blockchains:
               - to: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
                 to_type: token
                 relation_type: function_call
-            amount: 30015111267
+            value: 30015111267
             token_symbol: "USDC"
             token_address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
           - emitted_by: "0x715cdda5e9ad30a0ced14940f9997ee611496de6"

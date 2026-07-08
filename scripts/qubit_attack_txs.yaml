@@ -544,7 +544,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 1000000000000000
+            value: 1000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -559,7 +559,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 1000000000000000
+            value: 1000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -574,7 +574,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564039455183967913129639935
+            value: 115792089237316195423570985008687907853269984665640564039455183967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -595,7 +595,7 @@ blockchains:
                 to: "0xa1eb8c3ab52582957f949e5eaa824485d0dcfe10"
                 to_type: user
                 relation_type: token_transfer
-            amount: 1000000000000000
+            value: 1000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -662,7 +662,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 100000000000000000
+            value: 100000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -677,7 +677,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 100000000000000000
+            value: 100000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -692,7 +692,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564039192883967913129639935
+            value: 115792089237316195423570985008687907853269984665640564039192883967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -713,7 +713,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 100000000000000000
+            value: 100000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xf70314eb9c7fe7d88e6af5aa7f898b3a162dcd48"
@@ -800,7 +800,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 100000000000000000
+            value: 100000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -815,7 +815,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 100000000000000000
+            value: 100000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -830,7 +830,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564039192783967913129639935
+            value: 115792089237316195423570985008687907853269984665640564039192783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -851,7 +851,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 100000000000000000
+            value: 100000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -918,7 +918,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 190000000000000000000
+            value: 190000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -933,7 +933,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 190000000000000000000
+            value: 190000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -948,7 +948,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564039002783967913129639935
+            value: 115792089237316195423570985008687907853269984665640564039002783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -969,7 +969,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 190000000000000000000
+            value: 190000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -1036,7 +1036,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 499000000000000000000
+            value: 499000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1051,7 +1051,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 499000000000000000000
+            value: 499000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1066,7 +1066,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564038503783967913129639935
+            value: 115792089237316195423570985008687907853269984665640564038503783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -1087,7 +1087,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 499000000000000000000
+            value: 499000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -1154,7 +1154,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 999000000000000000000
+            value: 999000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1169,7 +1169,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 999000000000000000000
+            value: 999000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1184,7 +1184,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564037504783967913129639935
+            value: 115792089237316195423570985008687907853269984665640564037504783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -1205,7 +1205,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 999000000000000000000
+            value: 999000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -1272,7 +1272,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 999000000000000000000
+            value: 999000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1287,7 +1287,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 999000000000000000000
+            value: 999000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1302,7 +1302,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564036505783967913129639935
+            value: 115792089237316195423570985008687907853269984665640564036505783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -1323,7 +1323,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 999000000000000000000
+            value: 999000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -1390,7 +1390,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 999000000000000000000
+            value: 999000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1405,7 +1405,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 999000000000000000000
+            value: 999000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1420,7 +1420,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564035506783967913129639935
+            value: 115792089237316195423570985008687907853269984665640564035506783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -1441,7 +1441,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 999000000000000000000
+            value: 999000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -1508,7 +1508,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 999000000000000000000
+            value: 999000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1523,7 +1523,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 999000000000000000000
+            value: 999000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1538,7 +1538,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564034507783967913129639935
+            value: 115792089237316195423570985008687907853269984665640564034507783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -1559,7 +1559,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 999000000000000000000
+            value: 999000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -1626,7 +1626,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 199000000000000000000
+            value: 199000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1641,7 +1641,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 199000000000000000000
+            value: 199000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1656,7 +1656,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564034308783967913129639935
+            value: 115792089237316195423570985008687907853269984665640564034308783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -1677,7 +1677,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 199000000000000000000
+            value: 199000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -1744,7 +1744,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 199000000000000000000
+            value: 199000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1759,7 +1759,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 199000000000000000000
+            value: 199000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1774,7 +1774,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564034109783967913129639935
+            value: 115792089237316195423570985008687907853269984665640564034109783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -1795,7 +1795,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 199000000000000000000
+            value: 199000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -1862,7 +1862,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 199000000000000000000
+            value: 199000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1877,7 +1877,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 199000000000000000000
+            value: 199000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1892,7 +1892,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564033910783967913129639935
+            value: 115792089237316195423570985008687907853269984665640564033910783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -1913,7 +1913,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 199000000000000000000
+            value: 199000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -1980,7 +1980,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 5990000000000000000000
+            value: 5990000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -1995,7 +1995,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 5990000000000000000000
+            value: 5990000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2010,7 +2010,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564027920783967913129639935
+            value: 115792089237316195423570985008687907853269984665640564027920783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -2031,7 +2031,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 5990000000000000000000
+            value: 5990000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -2098,7 +2098,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 5990000000000000000000
+            value: 5990000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2113,7 +2113,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 5990000000000000000000
+            value: 5990000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2128,7 +2128,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640564021930783967913129639935
+            value: 115792089237316195423570985008687907853269984665640564021930783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -2149,7 +2149,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 5990000000000000000000
+            value: 5990000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -2216,7 +2216,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 59900000000000000000000
+            value: 59900000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2231,7 +2231,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 59900000000000000000000
+            value: 59900000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2246,7 +2246,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640563962030783967913129639935
+            value: 115792089237316195423570985008687907853269984665640563962030783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -2267,7 +2267,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 59900000000000000000000
+            value: 59900000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -2317,7 +2317,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 59900000000000000000000
+            value: 59900000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2332,7 +2332,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 59900000000000000000000
+            value: 59900000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2347,7 +2347,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640563902130783967913129639935
+            value: 115792089237316195423570985008687907853269984665640563902130783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -2368,7 +2368,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 59900000000000000000000
+            value: 59900000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -2435,7 +2435,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 59900000000000000000000
+            value: 59900000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2450,7 +2450,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 59900000000000000000000
+            value: 59900000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2465,7 +2465,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640563842230783967913129639935
+            value: 115792089237316195423570985008687907853269984665640563842230783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -2486,7 +2486,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 59900000000000000000000
+            value: 59900000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -2553,7 +2553,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 9999000000000000000000
+            value: 9999000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2568,7 +2568,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 9999000000000000000000
+            value: 9999000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2583,7 +2583,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640563832231783967913129639935
+            value: 115792089237316195423570985008687907853269984665640563832231783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -2604,7 +2604,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 9999000000000000000000
+            value: 9999000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"
@@ -2671,7 +2671,7 @@ blockchains:
                 to: "0xA6b1bb565E33B54AC58b4640237Fdc91D87d3b61"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 9999000000000000000000
+            value: 9999000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2686,7 +2686,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_transfer
-            amount: 9999000000000000000000
+            value: 9999000000000000000000
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0x2F422fe9EA622049d6f73f81A906b9b8cff03b7f"
@@ -2701,7 +2701,7 @@ blockchains:
                 to: "0xfD7A5506F434f5334C100EFb765025243C39137C"
                 to_type: token
                 relation_type: token_auth
-            amount: 115792089237316195423570985008687907853269984665640563822232783967913129639935
+            value: 115792089237316195423570985008687907853269984665640563822232783967913129639935
             token_symbol: "WETH" # In Qubit, the actual token is qXETH, but for simplicity we are using WETH, as the original is a pegged-value version of the original
             token_decimals: 18
           - emitted_by: "0xfD7A5506F434f5334C100EFb765025243C39137C"
@@ -2722,7 +2722,7 @@ blockchains:
                 to: "0xD01Ae1A708614948B2B5e0B7AB5be6AFA01325c7"
                 to_type: user
                 relation_type: token_transfer
-            amount: 9999000000000000000000
+            value: 9999000000000000000000
             token_symbol: "WETH"
             token_decimals: 18
           - emitted_by: "0xbE1B5D17777565D67A5D2793f879aBF59Ae5D351"

@@ -164,7 +164,7 @@ blockchains:
                 to: "0x0000000000000000000000000000000000000000"
                 to_type: other_account
                 relation_type: token_transfer
-            amount: 136099263357745292326
+            value: 136099263357745292326
             token_symbol: "MTRG"
             token_address: "0xbd2949f67dcdc549c6ebe98696449fa79d988a9f"
             token_decimals: 18
@@ -208,7 +208,7 @@ blockchains:
                 to: "0x8d3d13cac607B7297Ff61A5E1E71072758AF4D01"
                 to_type: user
                 relation_type: token_transfer
-            amount: 15000000000000000000000
+            value: 15000000000000000000000
             token_symbol: "BNB"
             token_address: "0x868892CCcEdbfF0B028F3b3595205Ea91b99376B"
             token_decimals: 18
@@ -246,7 +246,7 @@ blockchains:
                 to: "0x8d3d13cac607b7297ff61a5e1e71072758af4d01"
                 to_type: user
                 relation_type: token_transfer
-            amount: 15000000000000000000000
+            value: 15000000000000000000000
             token_symbol: "WBNB"
             token_address: "0x868892cccedbff0b028f3b3595205ea91b99376b"
             token_decimals: 18

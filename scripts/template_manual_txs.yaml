@@ -38,7 +38,7 @@ blockchains:
                 to: # optional, in case it's not the emitter
                 to_type: user / token / router / log_event / other_account / validator
                 relation_type: log_relation / token_auth / other_relation
-            amount: 1500000000000000 #only in token transfers or router events specifying amounts
+            value: 1500000000000000 #only in token transfers or router events specifying amounts
             token_symbol: "USDC" # only in token transfers or router events specifying amounts
             token_address: "" # specify in case the address field is not a token contract
             token_decimals: 18 # only in token transfers or router events specifying amounts
