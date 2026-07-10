@@ -118,6 +118,14 @@ class PolynetworkGraphGenerator(BaseGraphGenerator):
         )) or (blockchain == "arbitrum" and address.lower() in (
             '0x11e2a718d46ebe97645b87f2363afe1bf28c2672',
             '0x446eb3ac5e6267931ed1198203b12cafcd2e6240',
+        )) or (blockchain == 'avalanche' and address.lower() in (
+            '0x6c2a37cf23e21ef3cfc45fde2c0e1d3a9e7365f9',
+        )) or (blockchain == "gnosis" and address.lower() in (
+            '0x4d6934e2bb813f48dc0a7bf7ead0365d9c894163',
+        )) or (blockchain == "celo" and address.lower() in (
+            '0x4d2a3234b2f2e27f03096097c4a530caa8427681',
+        )) or (blockchain == "optimism" and address.lower() in (
+            '0x6c2a37cf23e21ef3cfc45fde2c0e1d3a9e7365f9',
         )) or self.bridge_router_metadata_repo.get_bridge_routing_metadata_by_address_and_blockchain(
             self.bridge.value,
             address,

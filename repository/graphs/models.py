@@ -15,6 +15,7 @@ class GraphMappingBlockchain(Base):
     block_number = Column(Integer, nullable=False)
     timestamp = Column(BigInteger, nullable=True) # Timestamp of the transaction, can be null if not available
     label = Column(String(20), nullable=False)
+    discard_flag = Column(Integer, nullable=True) # 0: not clean, 1: clean, null: not checked
 
 class GraphMappingCrossChain(Base):
     __tablename__ = "graph_mapping_cross_chain"
@@ -27,6 +28,7 @@ class GraphMappingCrossChain(Base):
     source_tx_hash = Column(String(66), nullable=False)
     destination_tx_hash = Column(String(66), nullable=False)
     label = Column(String(20), nullable=False)
+    discard_flag = Column(Integer, nullable=True) # 0: not clean, 1: clean, null: not checked
 
 class GraphNode(Base):
     __tablename__ = "graph_nodes"
@@ -49,6 +51,7 @@ class GraphNode(Base):
     
     in_degree = Column(Integer, nullable=True) # Number of incoming edges, calculated in post-processing
     out_degree = Column(Integer, nullable=True) # Number of outgoing edges, calculated in post-processing
+    discard_flag = Column(Integer, nullable=True) # 0: not clean, 1: clean, null: not checked
 
 class GraphEdge(Base):
     __tablename__ = "graph_edges"
@@ -71,3 +74,4 @@ class GraphEdge(Base):
     withdrawal_id = Column(String(255), nullable=True)
     event_order = Column(Integer, nullable=True) # Order of events in the same transaction, starting from 0
     timestamp = Column(BigInteger, nullable=True)
+    discard_flag = Column(Integer, nullable=True) # 0: not clean, 1: clean, null: not checked
