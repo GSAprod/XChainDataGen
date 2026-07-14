@@ -28,7 +28,6 @@ class GraphMappingCrossChain(Base):
     source_tx_hash = Column(String(66), nullable=False)
     destination_tx_hash = Column(String(66), nullable=False)
     label = Column(String(20), nullable=False)
-    discard_flag = Column(Integer, nullable=True) # 0: not clean, 1: clean, null: not checked
 
 class GraphNode(Base):
     __tablename__ = "graph_nodes"
