@@ -271,7 +271,7 @@ class OmnibridgeGraphGenerator(BaseGraphGenerator):
             event["topics"][0],
             EventType.DEPOSIT_CONFIRMATION.value,
             event_signature,
-            {"token": token_dao_address, "recipient": event_record.recipient, "amount": int(event_record.value), "nonce": event_record.nonce},
+            {"token": token_dao_address, "recipient": event_record.recipient, "amount": int(event_record.value)},
             event["data"],
             amount=int(event_record.value),
             amount_usd=amount_usd,

@@ -2,6 +2,7 @@ from sqlalchemy import func
 
 from repository.base import BaseRepository
 from repository.common.models import TokenMetadata
+from repository.graphs.models import GraphMappingBlockchain
 
 from .models import (
     OmnibridgeAffirmationCompleted,
@@ -25,7 +26,11 @@ class OmnibridgeBlockchainTransactionRepository(BaseRepository):
 
     def get_transactions_from_blockchain(self, blockchain: str, start_ts: int = None, end_ts: int = None):
         with self.get_session() as session:
-            query = session.query(OmnibridgeBlockchainTransaction).filter(OmnibridgeBlockchainTransaction.blockchain == blockchain)
+            query = session.query(OmnibridgeBlockchainTransaction).filter(
+                OmnibridgeBlockchainTransaction.blockchain == blockchain,
+                OmnibridgeBlockchainTransaction.transaction_hash.notin_(OmnibridgeSignedForAffirmation.transaction_hash),
+                OmnibridgeBlockchainTransaction.transaction_hash.notin_(OmnibridgeSignedForAffirmation.transaction_hash),
+            )
             if start_ts is not None:
                 query = query.filter(OmnibridgeBlockchainTransaction.timestamp >= start_ts)
             if end_ts is not None:
