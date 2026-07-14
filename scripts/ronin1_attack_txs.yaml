@@ -1,0 +1,96 @@
+bridge: ronin
+replace_router_address_with: "__RONIN_BRIDGE_ROUTER__"
+blockchains:
+  - blockchain: ethereum
+    txs:
+      - tx_hash: "0xc28fad5e8d5e0ce6a2eaf67b6687be5d58113e16be590824d6cfa1a94467d0b7"
+        cctx_id: 2000000
+        block_number: 14442835
+        timestamp: 1648042149
+        attack: True
+        main_interaction:
+          from: "0x098B716B8Aaf21512996dC57EB0615e2383E2f96"
+          from_type: user
+          to: "0x1a2a1c938ce3ec39b6d47113c7955baa9dd454f2" # optional, if not the emmitter
+          to_type: router
+        internal_txs:
+          - from: "0x1a2a1c938ce3ec39b6d47113c7955baa9dd454f2"
+            from_type: router
+            to: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2" # optional, if not the emmitter
+            to_type: token
+          - from: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            from_type: token
+            to: "0x1a2a1c938ce3ec39b6d47113c7955baa9dd454f2" # optional, if not the emmitter
+            to_type: router
+            value: 173600000000000000000000 # int
+            input: "0x" #hex
+            token_symbol: "ETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            token_decimals: 18 # only in token transfers or router events specifying amounts
+          - from: "0x1a2a1c938ce3ec39b6d47113c7955baa9dd454f2"
+            from_type: router
+            to: "0x098b716b8aaf21512996dc57eb0615e2383e2f96"
+            to_type: user
+            value: 173600000000000000000000 # int
+            input: "0x" #hex
+            token_symbol: "ETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            token_decimals: 18 # only in token transfers or router events specifying amounts
+        events:
+          - emitted_by: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+            emitter_type: token
+            event_signature: "event Withdrawal (index_topic_1 address src, uint256 wad)"
+            num_args: 2
+            input: "0x0000000000000000000000000000000000000000000024c2dff6a3c7c4800000"
+          - emitted_by: "0x1A2a1c938CE3eC39b6D47113c7955bAa9DD454F2"
+            emitter_type: router
+            event_signature: "event TokenWithdrew (index_topic_1 uint256 _withdrawId, index_topic_2 address _owner, index_topic_3 address _tokenAddress, uint256 _tokenNumber)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x0000000000000000000000000000000000000000000024c2dff6a3c7c4800000"
+            value: 173600000000000000000000 # int
+            token_symbol: "ETH"
+            token_address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            token_decimals: 18 # only in token transfers or router events specifying amounts
+
+      - tx_hash: "0xed2c72ef1a552ddaec6dd1f5cddf0b59a8f37f82bdda5257d9c7c37db7bb9b08"
+        cctx_id: 2000001
+        block_number: 14442840
+        timestamp: 1648042264
+        attack: True
+        main_interaction:
+          from: "0x098B716B8Aaf21512996dC57EB0615e2383E2f96"
+          from_type: user
+          to: "0x1a2a1c938ce3ec39b6d47113c7955baa9dd454f2" # optional, if not the emmitter
+          to_type: router
+        internal_txs:
+          - from: "0x1a2a1c938ce3ec39b6d47113c7955baa9dd454f2"
+            from_type: router
+            to: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" # optional, if not the emmitter
+            to_type: token
+        events:
+          - emitted_by: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+            emitter_type: token
+            event_signature: "event Transfer (address indexed from, address indexed to, uint256 value)"
+            event_type: transfer
+            num_args: 3
+            input: "0x000000000000000000000000000000000000000000000000000017312e711800"
+            relations:
+              - from: "0x1A2a1c938CE3eC39b6D47113c7955bAa9DD454F2"
+                from_type: router
+                to: "0x098B716B8Aaf21512996dC57EB0615e2383E2f96"
+                to_type: user
+                relation_type: token_transfer
+            value: 25500000000000
+            token_symbol: "USDC"
+            token_decimals: 18
+          - emitted_by: "0x1A2a1c938CE3eC39b6D47113c7955bAa9DD454F2"
+            emitter_type: router
+            event_signature: "event TokenWithdrew (index_topic_1 uint256 _withdrawId, index_topic_2 address _owner, index_topic_3 address _tokenAddress, uint256 _tokenNumber)"
+            event_type: deposit_confirmation
+            num_args: 4
+            input: "0x000000000000000000000000000000000000000000000000000017312e711800"
+            value: 25500000000000 # int
+            token_symbol: "USDC"
+            token_address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+            token_decimals: 18 # only in token transfers or router events specifying amounts
