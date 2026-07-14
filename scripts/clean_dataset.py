@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
-from sqlalchemy import create_engine, select  # noqa: E402
+from sqlalchemy import create_engine, or_, select  # noqa: E402
 from sqlalchemy.orm import sessionmaker  # noqa: E402
 
 from repository.graphs.models import (  # noqa: E402
@@ -21,6 +21,10 @@ from repository.graphs.repository import (  # noqa: E402
     GraphNodeRepository,
 )
 from repository.nomad.models import NomadRouterReceive  # noqa: E402
+from repository.omnibridge.models import (  # noqa: E402
+    OmnibridgeSignedForAffirmation,
+    OmnibridgeSignedForUserRequest,
+)
 from repository.polynetwork.models import (  # noqa: E402
     PolynetworkVerifyHeaderAndExecuteTxEvent,
 )
@@ -64,6 +68,48 @@ class CleanDataset:
                     GraphMappingBlockchain.cctx_graph_id.is_(None),
                     GraphMappingBlockchain.bridge == "ronin",
                     GraphMappingBlockchain.label != "anomaly",
+                )
+            )
+            graph_ids = [row[0] for row in session.execute(graph_ids_subquery).fetchall()]
+
+            updated_count = (
+                session.query(GraphMappingBlockchain)
+                .filter(GraphMappingBlockchain.graph_id.in_(graph_ids))
+                .update({GraphMappingBlockchain.discard_flag: 1}, synchronize_session=False)
+            )
+            self.discard_associated_nodes_and_edges(session, graph_ids)
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+        return updated_count
+    
+    def clean_omnibridge_unlinked_destination_graphs(self):
+        session = self.session()
+        try:
+            graph_ids_subquery = (
+                select(GraphMappingBlockchain.graph_id)
+                .outerjoin(
+                    OmnibridgeSignedForAffirmation,
+                    OmnibridgeSignedForAffirmation.transaction_hash
+                    == GraphMappingBlockchain.tx_hash,
+                )
+                .outerjoin(
+                    OmnibridgeSignedForUserRequest,
+                    OmnibridgeSignedForUserRequest.transaction_hash
+                    == GraphMappingBlockchain.tx_hash,
+                )
+                .where(
+                    GraphMappingBlockchain.bridge == "omnibridge",
+                    GraphMappingBlockchain.cctx_graph_id.is_(None),
+                    GraphMappingBlockchain.label != "anomaly",
+                    or_(
+                        OmnibridgeSignedForAffirmation.id.isnot(None),
+                        OmnibridgeSignedForUserRequest.id.isnot(None),
+                    ),
                 )
             )
             graph_ids = [row[0] for row in session.execute(graph_ids_subquery).fetchall()]
@@ -158,6 +204,9 @@ if __name__ == "__main__":
 
     #ronin_count = cleaner.clean_ronin_unlinked_destination_graphs()
     #print(f"Discarded {ronin_count} unlinked ronin destination graphs")
+
+    omnibridge_count = cleaner.clean_omnibridge_unlinked_destination_graphs()
+    print(f"Discarded {omnibridge_count} unlinked omnibridge destination graphs")
 
     nomad_count = cleaner.clean_nomad_unlinked_destination_graphs()
     print(f"Discarded {nomad_count} unlinked nomad destination graphs")
