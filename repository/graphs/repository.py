@@ -23,6 +23,19 @@ class GraphMappingBlockchainRepository(BaseRepository):
         with self.get_session() as session:
             return session.query(GraphMappingBlockchain).filter(GraphMappingBlockchain.bridge == bridge, GraphMappingBlockchain.blockchain == blockchain, GraphMappingBlockchain.tx_hash == tx_hash).first()
 
+    def get_existing_tx_hashes(
+        self, bridge: str, blockchain: str, tx_hashes: list[str]
+    ) -> set[str]:
+        if not tx_hashes:
+            return set()
+        with self.get_session() as session:
+            rows = session.query(GraphMappingBlockchain.tx_hash).filter(
+                GraphMappingBlockchain.bridge == bridge,
+                GraphMappingBlockchain.blockchain == blockchain,
+                GraphMappingBlockchain.tx_hash.in_(tx_hashes),
+            ).all()
+            return {row[0] for row in rows}
+
     def assign_cctx_id(self, graph_id: int, cctx_graph_id: int):
         with self.get_session() as session:
             graph_mapping = session.query(GraphMappingBlockchain).filter(GraphMappingBlockchain.graph_id == graph_id).first()

@@ -124,6 +124,17 @@ class BaseGraphGenerator(ABC):
 
         txs = list(self.fetch_transactions_for_blockchain(blockchain, start_ts, end_ts))
 
+        # Exclude transactions already present in graph_mapping_blockchain up front,
+        # so neither the Dune pre-fetch nor per-tx processing below repeats work for them.
+        print(f"Found {len(txs)} transactions for {blockchain}")
+        if txs:
+            existing_tx_hashes = self.blockchain_graph_mapping_repo.get_existing_tx_hashes(
+                self.bridge.value, blockchain, [tx.transaction_hash for tx in txs]
+            )
+            if existing_tx_hashes:
+                txs = [tx for tx in txs if tx.transaction_hash not in existing_tx_hashes]
+                print(f"Converted to {len(txs)} transactions for {blockchain}")
+
         # Phase 1: For non-RPC chains, pre-fetch all Dune traces upfront so they can be
         # processed inline (with positive op_indices) inside _process_traces.
         if blockchain not in TRACE_TRANSACTION_SUPPORTED_BLOCKCHAINS and self.dune_client is not None and txs:
