@@ -1,4 +1,4 @@
-bridge: ronin
+bridge: ronin1
 replace_router_address_with: "__RONIN_BRIDGE_ROUTER__"
 blockchains:
   - blockchain: ethereum
